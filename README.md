@@ -9,7 +9,7 @@ git clone https://github.com/PimeGiano/ai-soc.git
 cd ai-soc
 ```
 
-full会分别测子图和整网，包含多次完整仿真，需要数分钟到数十分钟；quick不下载模型。首次full若缺权重，按data/det/sources.json下载并校验。accuracy首次下载官方标注及600张图片，需要网络。新机器先按下述步骤安装依赖。脚本从任意目录可执行。
+full会分别测子图和整网，包含多次完整仿真，需要数分钟到数十分钟；quick不下载模型。首次full若缺权重，按data/sources.json下载并校验。accuracy首次下载官方标注及600张图片，需要网络。新机器先按下述步骤安装依赖。脚本从任意目录可执行。
 
 Ubuntu / Debian依赖示例：
 
@@ -35,19 +35,19 @@ bash scripts/run_all.sh accuracy   # 100张独立校准+500张COCO评价，官�
 单独运行：
 
 ```bash
-bash scripts/det/run_model.sh yolov3-tiny F 0 0  # 模型、M/F/B0、额外等待上限、整网ROI开关
-bash scripts/det/run_model.sh yolov4-tiny M 0 1
+bash scripts/run_model.sh yolov3-tiny F 0 0  # 模型、M/F/B0、额外等待上限、整网ROI开关
+bash scripts/run_model.sh yolov4-tiny M 0 1
 ```
 
 B0是已实现的纯CPU卷积路径，完整模型仿真很慢；quick验证小图CPU基线，默认full重点对照相同阵列的M/F。
 
 ## 证据与设计入口
 
-- [实际结果汇总](results/det/summary.md)：测试、精度、融合子图/整网周期和访存。
-- [当前实现及边界](docs/detection/implementation.md)：模块、存储、数值、模型和综合口径。
-- [架构框图](docs/detection/architecture.svg) · [DOT](docs/detection/architecture.dot) · [Mermaid](docs/detection/architecture.mmd)。
-- [已实现分工接口表](docs/detection/interfaces.md) · [团队接手分工](docs/team-map.md)。
-- [总体设计与目标](docs/detection/README.md) · [四人八周计划](docs/detection/schedule.md)。
+- [实际结果汇总](results/summary.md)：测试、精度、融合子图/整网周期和访存。
+- [当前实现及边界](docs/implementation.md)：模块、存储、数值、模型和综合口径。
+- [架构框图](docs/architecture.svg) · [DOT](docs/architecture.dot) · [Mermaid](docs/architecture.mmd)。
+- [已实现分工接口表](docs/interfaces.md) · [团队接手分工](docs/team-map.md)。
+- [总体设计与目标](docs/design.md) · [四人八周计划](docs/schedule.md)。
 
 M为CPU上采样/尺度转换/拼接物化后硬件卷积，F为双源融合取数后同一硬件卷积，输出逐元素相同。ROI区分CPU数据、取指与DMA，包含配置、软件算子与轮询；逐层验证与打印在计时外。解码/NMS在真实CPU上执行并与独立NumPy参考比较。
 
@@ -55,7 +55,7 @@ M为CPU上采样/尺度转换/拼接物化后硬件卷积，F为双源融合取�
 
 ## 项目结构
 
-新增主线在rtl/det、firmware/det、tb/det、scripts/det、spec/det、data/det、results/det。spec生成C/SV常量。实际单bank scratch SRAM为24KiB，预算40KiB，第二bank尚未实现，相关配置明确拒绝。
+项目按职责直接使用 `rtl/`、`firmware/`、`tb/`、`scripts/`、`spec/`、`data/`、`results/`、`docs/`，不再增加目标检测专用的目录层级。spec生成C/SV常量。实际单bank scratch SRAM为24KiB，预算40KiB，第二bank尚未实现，相关配置明确拒绝。
 
 旧GEMM/MNIST代码、报告、数据和设计归档已删除。当前源码、框图、接口与脚本统一围绕目标检测主线。
 

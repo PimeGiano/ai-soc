@@ -1,0 +1,296 @@
+{
+  "model": "yolov3-tiny",
+  "mode": "M",
+  "input": "/home/yizhanzhu/ai-soc/data/dog.jpg",
+  "size": 160,
+  "weights_sha256": "dccea06f59b781ec1234ddf8d1e94b9519a97f4245748a7d4db75d5b7080a42c",
+  "cfg_sha256": "84eb7a675ef87c906019ff5a6e0effe275d175adb75100dcb47f0727917dc2c7",
+  "calibration": [
+    "/home/yizhanzhu/ai-soc/data/dog.jpg"
+  ],
+  "calibration_demo_only": true,
+  "ops": 21,
+  "fusions": 1,
+  "allocated_bytes": 10176980,
+  "layers": [
+    {
+      "layer": 0,
+      "type": "convolutional",
+      "shape": [
+        160,
+        160,
+        16
+      ],
+      "address": 16919552,
+      "descriptor": 17329920,
+      "fused": false,
+      "reference": "/home/yizhanzhu/ai-soc/build/yolov3-tiny_M/layer_0.bin",
+      "hash": 489036864,
+      "scale": 0.33771381378173826
+    },
+    {
+      "layer": 2,
+      "type": "convolutional",
+      "shape": [
+        80,
+        80,
+        32
+      ],
+      "address": 17432464,
+      "descriptor": 17642528,
+      "fused": false,
+      "reference": "/home/yizhanzhu/ai-soc/build/yolov3-tiny_M/layer_2.bin",
+      "hash": 1314143324,
+      "scale": 0.1611245632171631
+    },
+    {
+      "layer": 4,
+      "type": "convolutional",
+      "shape": [
+        40,
+        40,
+        64
+      ],
+      "address": 17693872,
+      "descriptor": 17816000,
+      "fused": false,
+      "reference": "/home/yizhanzhu/ai-soc/build/yolov3-tiny_M/layer_4.bin",
+      "hash": 2556917561,
+      "scale": 0.16474738121032714
+    },
+    {
+      "layer": 6,
+      "type": "convolutional",
+      "shape": [
+        20,
+        20,
+        128
+      ],
+      "address": 17841744,
+      "descriptor": 17969248,
+      "fused": false,
+      "reference": "/home/yizhanzhu/ai-soc/build/yolov3-tiny_M/layer_6.bin",
+      "hash": 1314038534,
+      "scale": 0.1621146043141683
+    },
+    {
+      "layer": 8,
+      "type": "convolutional",
+      "shape": [
+        10,
+        10,
+        256
+      ],
+      "address": 17982192,
+      "descriptor": 18307840,
+      "fused": false,
+      "reference": "/home/yizhanzhu/ai-soc/build/yolov3-tiny_M/layer_8.bin",
+      "hash": 3046791942,
+      "scale": 0.08676597277323404
+    },
+    {
+      "layer": 10,
+      "type": "convolutional",
+      "shape": [
+        5,
+        5,
+        512
+      ],
+      "address": 18314384,
+      "descriptor": 19517088,
+      "fused": false,
+      "reference": "/home/yizhanzhu/ai-soc/build/yolov3-tiny_M/layer_10.bin",
+      "hash": 2007441911,
+      "scale": 0.07864500681559244
+    },
+    {
+      "layer": 12,
+      "type": "convolutional",
+      "shape": [
+        5,
+        5,
+        1024
+      ],
+      "address": 19530032,
+      "descriptor": 24294720,
+      "fused": false,
+      "reference": "/home/yizhanzhu/ai-soc/build/yolov3-tiny_M/layer_12.bin",
+      "hash": 686309852,
+      "scale": 0.22401620546976725
+    },
+    {
+      "layer": 13,
+      "type": "convolutional",
+      "shape": [
+        5,
+        5,
+        256
+      ],
+      "address": 24294848,
+      "descriptor": 24568528,
+      "fused": false,
+      "reference": "/home/yizhanzhu/ai-soc/build/yolov3-tiny_M/layer_13.bin",
+      "hash": 418361339,
+      "scale": 0.06135942141215007
+    },
+    {
+      "layer": 14,
+      "type": "convolutional",
+      "shape": [
+        5,
+        5,
+        512
+      ],
+      "address": 24568656,
+      "descriptor": 25771360,
+      "fused": false,
+      "reference": "/home/yizhanzhu/ai-soc/build/yolov3-tiny_M/layer_14.bin",
+      "hash": 1970779716,
+      "scale": 0.04711040655771891
+    },
+    {
+      "layer": 15,
+      "type": "convolutional",
+      "shape": [
+        5,
+        5,
+        255
+      ],
+      "address": 25771488,
+      "descriptor": 25913536,
+      "fused": false,
+      "reference": "/home/yizhanzhu/ai-soc/build/yolov3-tiny_M/layer_15.bin",
+      "hash": 1768695578,
+      "scale": 0.15376477241516112
+    },
+    {
+      "layer": 18,
+      "type": "convolutional",
+      "shape": [
+        5,
+        5,
+        128
+      ],
+      "address": 25913664,
+      "descriptor": 25952208,
+      "fused": false,
+      "reference": "/home/yizhanzhu/ai-soc/build/yolov3-tiny_M/layer_18.bin",
+      "hash": 2307726747,
+      "scale": 0.05757916768391927
+    },
+    {
+      "layer": 21,
+      "type": "convolutional",
+      "shape": [
+        10,
+        10,
+        256
+      ],
+      "address": 26003568,
+      "descriptor": 26919040,
+      "fused": false,
+      "reference": "/home/yizhanzhu/ai-soc/build/yolov3-tiny_M/layer_21.bin",
+      "hash": 2450282874,
+      "scale": 0.06135090192159017
+    },
+    {
+      "layer": 22,
+      "type": "convolutional",
+      "shape": [
+        10,
+        10,
+        255
+      ],
+      "address": 26919168,
+      "descriptor": 27015056,
+      "fused": false,
+      "reference": "/home/yizhanzhu/ai-soc/build/yolov3-tiny_M/layer_22.bin",
+      "hash": 3020702463,
+      "scale": 0.15438108444213866
+    }
+  ],
+  "boxes_address": 27017328,
+  "boxes": [
+    [
+      0.17498264606397412,
+      0.28794549010140336,
+      0.7653797617128024,
+      0.7274007620243852,
+      0.847143562180062,
+      1
+    ],
+    [
+      0.30392494776603984,
+      0.3762853544976169,
+      0.6188269666623417,
+      0.6869280593790527,
+      0.6094004053993081,
+      1
+    ],
+    [
+      0.6224112017174861,
+      0.24086130906372838,
+      0.7075198554732434,
+      0.2959252770596019,
+      0.3515445723284105,
+      2
+    ],
+    [
+      0.6806761792328702,
+      0.26214034305835804,
+      0.7965719063387482,
+      0.3172043110542316,
+      0.3326401809150663,
+      2
+    ]
+  ],
+  "float_boxes": [
+    [
+      0.1747400633962649,
+      0.29429689893392996,
+      0.7642015132325614,
+      0.7236887833477837,
+      0.8509113885232779,
+      1
+    ],
+    [
+      0.3110840380520553,
+      0.3774182082249696,
+      0.6028607771141706,
+      0.6857984165521362,
+      0.6435181691780852,
+      1
+    ],
+    [
+      0.6199585832414553,
+      0.24142842732586575,
+      0.7077040960327458,
+      0.29620358343461445,
+      0.32533533840561274,
+      2
+    ],
+    [
+      0.6816743526814009,
+      0.26379160261083,
+      0.7987671945746262,
+      0.31611992205632955,
+      0.3092647669860676,
+      2
+    ]
+  ],
+  "preprocess": {
+    "original": [
+      768,
+      576
+    ],
+    "resized": [
+      160,
+      120
+    ],
+    "offset": [
+      0,
+      20
+    ],
+    "size": 160
+  }
+}
