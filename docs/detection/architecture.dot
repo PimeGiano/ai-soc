@@ -1,0 +1,43 @@
+digraph DetectionSoC {
+  graph [rankdir=TB, bgcolor="#f8fafc", pad="0.3", nodesep="0.35", ranksep="0.5", fontname="DejaVu Sans", label="Multi-scale Feature Fusion + Convolution SoC | Proposed architecture", labelloc=t, fontsize=20];
+  node [shape=box, style="rounded,filled", fontname="DejaVu Sans", fontsize=12, color="#94a3b8", fillcolor="white", margin="0.18,0.12"];
+  edge [fontname="DejaVu Sans", fontsize=10, color="#475569", arrowsize=0.7];
+  host [label="D | Model export + fusion recognition\nMaterialized / fused integer references", fillcolor="#fef3c7"];
+  cpu [label="A | PicoRV32 + firmware\nD | Graph scheduler / CPU operators\nDecode + NMS", fillcolor="#dbeafe"];
+  bus [label="A | Address decode + round-robin arbiter\n32-bit native bus / CPU + DMA ROI counters", fillcolor="#dbeafe"];
+  mem [label="A | Simulation memory\n64 KiB program + 64 MiB data\nLow-res + high-res source features\nNo full upsample / concat tensor in fused mode", fillcolor="#dbeafe"];
+  subgraph cluster_accel {
+    label="Accelerator: fixed 4 x 4 MAC array | 24 KiB SRAM implemented / 40 KiB budget"; color="#94a3b8"; style=rounded; fontname="DejaVu Sans";
+    ctrl [label="B | CSR + descriptor validation\nConvolution + fusion descriptors / tiling", fillcolor="#dcfce7"];
+    dma [label="B | DMA / address generation\nRead two feature sources + weights / writeback", fillcolor="#dcfce7"];
+    mapper [label="B | Dual-source address mapping\nLow-res: floor(y/2), floor(x/2)\nHigh-res: identity / channel ORDER / padding", fillcolor="#bbf7d0"];
+    iq [label="C | Input scale conversion\nSame rounding + saturation as CPU baseline", fillcolor="#ddd6fe"];
+    scatter [label="B | Replicate / scatter into current X tile\nCross-source channel boundary handling\nOne sample in flight / scatter completes before next", fillcolor="#bbf7d0"];
+    buf [label="B | Input 8 KiB + weights 8 KiB (single bank)\nFREE -> FILLING -> READY -> ACTIVE", fillcolor="#dcfce7"];
+    gather [label="B | Sliding-window gather\nPadding / tails / no full im2col in main memory", fillcolor="#dcfce7"];
+    core [label="C | 4 x 4 INT8 broadcast MAC / INT32 accumulate\nClear / keep / restore partial sums", fillcolor="#ede9fe"];
+    psum [label="C | 4 KiB partial-sum SRAM\nSave / restore across input-channel tiles", fillcolor="#ede9fe"];
+    quant [label="C | Bias + activation + requantization\nPer-output-channel parameters", fillcolor="#ede9fe"];
+    out [label="B | 4 KiB output SRAM\nPacking / drain to memory", fillcolor="#dcfce7"];
+  }
+  host -> mem [style=dashed, label="Model + data artifacts"];
+  cpu -> bus [dir=both, label="I1 CPU memory"];
+  bus -> mem [dir=both, label="Completed read / write"];
+  bus -> ctrl [dir=both, label="I2 MMIO"];
+  ctrl -> dma [label="Fusion config / tile control"];
+  dma -> bus [dir=both, label="I3 DMA master"];
+  ctrl -> mapper [label="I8 source geometry / order"];
+  mapper -> dma [label="Source addresses"];
+  dma -> iq [label="I9 sample + source ID"];
+  iq -> scatter [label="I9 converted sample"];
+  scatter -> buf [label="I4 X bank fill"];
+  dma -> buf [label="I4 weights / normal input"];
+  buf -> gather [label="Synchronous SRAM reads"];
+  gather -> core [label="I5 operands / command / done"];
+  core -> psum [dir=both, label="I6 partial sums"];
+  core -> quant [label="Final reduction only"];
+  dma -> quant [style=dashed, label="I7 channel parameters"];
+  quant -> out [label="I7 INT8 + backpressure"];
+  out -> dma [label="Writeback"];
+  cpu -> ctrl [style=dashed, label="I8 descriptor / graph contract", constraint=false];
+}

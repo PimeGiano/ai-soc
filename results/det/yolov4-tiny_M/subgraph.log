@@ -1,0 +1,42 @@
+sim cycles=200000000
+sim cycles=400000000
+sim cycles=600000000
+ROI {"id":36,"cycles":89662073,"cpu_data":{"reads":193083,"writes":51942,"read_bytes":772332,"write_bytes":54168},"cpu_instr":{"reads":25887732,"writes":0,"read_bytes":103550928,"write_bytes":0},"dma":{"reads":1139232,"writes":25600,"read_bytes":4556928,"write_bytes":25600}}
+LAYER 0 PASS
+LAYER 1 PASS
+LAYER 2 PASS
+LAYER 3 PASS
+LAYER 4 PASS
+LAYER 5 PASS
+LAYER 6 PASS
+LAYER 7 PASS
+LAYER 8 PASS
+LAYER 9 PASS
+LAYER 10 PASS
+LAYER 11 PASS
+LAYER 12 PASS
+LAYER 13 PASS
+LAYER 14 PASS
+LAYER 15 PASS
+LAYER 16 PASS
+LAYER 17 PASS
+LAYER 18 PASS
+LAYER 19 PASS
+LAYER 20 PASS
+LAYER 21 PASS
+LAYER 22 PASS
+LAYER 23 PASS
+LAYER 24 PASS
+LAYER 25 PASS
+LAYER 26 PASS
+LAYER 27 PASS
+LAYER 28 PASS
+LAYER 29 PASS
+LAYER 32 PASS
+LAYER 33 PASS
+LAYER 34 PASS
+LAYER 35 PASS
+LAYER 36 PASS
+ROI {"id":65533,"cycles":15318061,"cpu_data":{"reads":223154,"writes":177711,"read_bytes":892616,"write_bytes":710844},"cpu_instr":{"reads":3114611,"writes":0,"read_bytes":12458444,"write_bytes":0},"dma":{"reads":0,"writes":0,"read_bytes":0,"write_bytes":0}}
+DETECTION GRAPH PASS
+DETECTION SOC PASS layers=21 boxes=2 cycles=758296132 wall_s=273.261

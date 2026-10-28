@@ -1,0 +1,5 @@
+`verilator_config
+lint_off -rule BLKSEQ -file "*picorv32.v"
+lint_off -rule DECLFILENAME -file "*picorv32.v"
+lint_off -rule GENUNNAMED -file "*picorv32.v"
+lint_off -rule UNUSEDSIGNAL -file "*picorv32.v"

@@ -1,0 +1,5 @@
+ROI {"id":65534,"cycles":20401,"cpu_data":{"reads":12,"writes":6,"read_bytes":48,"write_bytes":24},"cpu_instr":{"reads":4187,"writes":0,"read_bytes":16748,"write_bytes":0},"dma":{"reads":482,"writes":120,"read_bytes":1928,"write_bytes":120}}
+LAYER 0 PASS
+ROI {"id":65533,"cycles":157,"cpu_data":{"reads":7,"writes":5,"read_bytes":28,"write_bytes":20},"cpu_instr":{"reads":24,"writes":0,"read_bytes":96,"write_bytes":0},"dma":{"reads":0,"writes":0,"read_bytes":0,"write_bytes":0}}
+DETECTION GRAPH PASS
+DETECTION SOC PASS layers=1 boxes=0 cycles=92236 wall_s=0.02598

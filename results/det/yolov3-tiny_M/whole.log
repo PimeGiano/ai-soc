@@ -1,0 +1,27 @@
+sim cycles=200000000
+sim cycles=400000000
+ROI {"id":65534,"cycles":487569827,"cpu_data":{"reads":1502421,"writes":526034,"read_bytes":6009684,"write_bytes":1316936},"cpu_instr":{"reads":140174322,"writes":0,"read_bytes":560697288,"write_bytes":0},"dma":{"reads":5855546,"writes":911875,"read_bytes":23422184,"write_bytes":911875}}
+LAYER 0 PASS
+LAYER 1 PASS
+LAYER 2 PASS
+LAYER 3 PASS
+LAYER 4 PASS
+LAYER 5 PASS
+LAYER 6 PASS
+LAYER 7 PASS
+LAYER 8 PASS
+LAYER 9 PASS
+LAYER 10 PASS
+LAYER 11 PASS
+LAYER 12 PASS
+LAYER 13 PASS
+LAYER 14 PASS
+LAYER 15 PASS
+LAYER 18 PASS
+LAYER 19 PASS
+LAYER 20 PASS
+LAYER 21 PASS
+LAYER 22 PASS
+ROI {"id":65533,"cycles":15293565,"cpu_data":{"reads":223181,"writes":177742,"read_bytes":892724,"write_bytes":710968},"cpu_instr":{"reads":3110367,"writes":0,"read_bytes":12441468,"write_bytes":0},"dma":{"reads":0,"writes":0,"read_bytes":0,"write_bytes":0}}
+DETECTION GRAPH PASS
+DETECTION SOC PASS layers=13 boxes=4 cycles=528751127 wall_s=193.238

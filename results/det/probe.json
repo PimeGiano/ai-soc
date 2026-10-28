@@ -1,0 +1,94 @@
+{
+  "equal": {
+    "M": {
+      "id": 7,
+      "cycles": 1541294,
+      "cpu_data": {
+        "reads": 13583,
+        "writes": 4042,
+        "read_bytes": 54332,
+        "write_bytes": 6268
+      },
+      "cpu_instr": {
+        "reads": 408086,
+        "writes": 0,
+        "read_bytes": 1632344,
+        "write_bytes": 0
+      },
+      "dma": {
+        "reads": 15505,
+        "writes": 1700,
+        "read_bytes": 62020,
+        "write_bytes": 1700
+      }
+    },
+    "F": {
+      "id": 7,
+      "cycles": 857412,
+      "cpu_data": {
+        "reads": 8,
+        "writes": 0,
+        "read_bytes": 32,
+        "write_bytes": 0
+      },
+      "cpu_instr": {
+        "reads": 260023,
+        "writes": 0,
+        "read_bytes": 1040092,
+        "write_bytes": 0
+      },
+      "dma": {
+        "reads": 15355,
+        "writes": 1700,
+        "read_bytes": 61420,
+        "write_bytes": 1700
+      }
+    }
+  },
+  "unequal": {
+    "M": {
+      "id": 7,
+      "cycles": 1750494,
+      "cpu_data": {
+        "reads": 13583,
+        "writes": 4042,
+        "read_bytes": 54332,
+        "write_bytes": 6268
+      },
+      "cpu_instr": {
+        "reads": 460086,
+        "writes": 0,
+        "read_bytes": 1840344,
+        "write_bytes": 0
+      },
+      "dma": {
+        "reads": 15505,
+        "writes": 1700,
+        "read_bytes": 62020,
+        "write_bytes": 1700
+      }
+    },
+    "F": {
+      "id": 7,
+      "cycles": 857412,
+      "cpu_data": {
+        "reads": 8,
+        "writes": 0,
+        "read_bytes": 32,
+        "write_bytes": 0
+      },
+      "cpu_instr": {
+        "reads": 260023,
+        "writes": 0,
+        "read_bytes": 1040092,
+        "write_bytes": 0
+      },
+      "dma": {
+        "reads": 15355,
+        "writes": 1700,
+        "read_bytes": 61420,
+        "write_bytes": 1700
+      }
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "yolov3-tiny.cfg": {
+    "url": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/yolov3-tiny.cfg",
+    "sha256": "84eb7a675ef87c906019ff5a6e0effe275d175adb75100dcb47f0727917dc2c7",
+    "bytes": 1915
+  },
+  "yolov4-tiny.cfg": {
+    "url": "https://raw.githubusercontent.com/AlexeyAB/darknet/master/cfg/yolov4-tiny.cfg",
+    "sha256": "f858e3724962eedf3ac44e3b6cb3f0c3d9ed067c306bb831f539c578b924c90e",
+    "bytes": 3231
+  },
+  "yolov3-tiny.weights": {
+    "url": "https://pjreddie.com/media/files/yolov3-tiny.weights",
+    "sha256": "dccea06f59b781ec1234ddf8d1e94b9519a97f4245748a7d4db75d5b7080a42c",
+    "bytes": 35434956
+  },
+  "yolov4-tiny.weights": {
+    "url": "https://github.com/AlexeyAB/darknet/releases/download/yolov4/yolov4-tiny.weights",
+    "sha256": "cf9fbfd0f6d4869b35762f56100f50ed05268084078805f0e7989efe5bb8ca87",
+    "bytes": 24251276
+  },
+  "dog.jpg": {
+    "url": "https://raw.githubusercontent.com/pjreddie/darknet/master/data/dog.jpg",
+    "sha256": "5a9522051c3cec2bbd2f6323fccba32e8fbf3ddcc2b3e2fd46b04c720bc6f866",
+    "bytes": 163759
+  }
+}

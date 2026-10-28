@@ -1,0 +1,18 @@
+/build/
+/.venv/
+/tools/
+__pycache__/
+*.py[cod]
+core
+*.vcd
+*.fst
+*.part
+.env
+.env.*
+/data/det/*.weights
+/data/det/coco/
+# Bulk generated outputs; keep compact metrics/logs and representative demo PNGs.
+/results/det/*_coco/*_predictions.json
+/results/det/*_coco/*.png
+/results/det/**/*.bin
+/results/det/*_M/*.png

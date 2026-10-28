@@ -1,0 +1,19 @@
+flowchart TB
+  HOST["D / 模型导出、融合识别、独立M/F参考"] -. "图、双源尺度和权重" .-> MEM
+  CPU["A / PicoRV32<br/>D / 图调度、非融合软件算子、解码NMS"] <-->|"I1"| BUS["A / 双主仲裁、译码<br/>CPU与DMA分类ROI计数"]
+  BUS <-->|"32位完成握手"| MEM["A / 仿真主存：64KiB程序+64MiB数据<br/>保留低分辨率源与高分辨率源<br/>融合路径不存完整上采样/拼接张量"]
+  BUS <-->|"I2 MMIO"| CTRL["B / CSR、主描述符与融合子描述符<br/>分块调度、ORDER与通道边界"]
+  CTRL --> MAP["B / 双源融合地址映射<br/>低路floor坐标/2，高路恒等，padding补零"]
+  MAP --> DMA["B / DMA读两路源及权重"]
+  DMA <-->|"I3"| BUS
+  DMA -->|"I9 原始样本+源编号"| IQ["C / 输入尺度转换<br/>与CPU物化采用相同舍入/饱和"]
+  IQ -->|"I9 转换样本"| SCAT["B / 低路2×复制散写、高路直接放置<br/>跨源Tic分段，单样本在途"]
+  SCAT -->|"I4 X bank填充"| BUF["B / X 8KiB + W 8KiB，单bank<br/>40KiB预算内第二bank预留，未实现"]
+  DMA -->|"I4 权重填充"| BUF
+  BUF --> GATHER["B / 滑窗取数与尾块补零"]
+  GATHER -->|"I5 操作数/命令"| CORE["C / 4×4 INT8广播MAC<br/>INT32累加与串行部分和恢复"]
+  CORE <-->|"I6"| PSUM["C / 4KiB部分和RAM"]
+  CORE --> Q["C / bias、激活、输出定点量化"]
+  Q -->|"I7"| OUT["B / 4KiB输出缓冲及打包"]
+  OUT --> DMA
+  CTRL -. "I8 模型/软件契约" .-> CPU

@@ -1,0 +1,13 @@
+{
+  "rtl_sha256": "af9e2f067ad3ce71b965a365f1c610152e833beb630408fb4c94915e1adeef0e",
+  "files": [
+    "rtl/det/conv_core.sv",
+    "rtl/det/det_accelerator.sv",
+    "rtl/det/det_soc_top.sv",
+    "rtl/det/fuse_requant.sv",
+    "rtl/det/requant.sv",
+    "rtl/det/spec.vh",
+    "rtl/native_arbiter.sv",
+    "third_party/picorv32.v"
+  ]
+}
