@@ -25,8 +25,8 @@
         }
       },
       "\\det_accelerator": {
-        "num_wires": 1360,
-        "num_wire_bits": 25034,
+        "num_wires": 1359,
+        "num_wire_bits": 24970,
         "num_pub_wires": 245,
         "num_pub_wire_bits": 8045,
         "num_ports": 14,
@@ -119,8 +119,8 @@
       }
     },
     "design": {
-      "num_wires": 1568,
-      "num_wire_bits": 30657,
+      "num_wires": 1567,
+      "num_wire_bits": 30593,
       "num_pub_wires": 308,
       "num_pub_wire_bits": 9190,
       "num_ports": 49,

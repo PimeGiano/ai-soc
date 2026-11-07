@@ -1,5 +1,5 @@
 {
-  "rtl_sha256": "962d39e9f3f3d88e6a260ba0a6079512870e903101e3948ec880bb12805bb2f8",
+  "rtl_sha256": "08f69fe6ef2580704c8e90fe64179db01241673ef41a5b7c58fabb5e7faad7eb",
   "files": [
     "rtl/conv_core.sv",
     "rtl/det_accelerator.sv",
