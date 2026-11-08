@@ -53,6 +53,27 @@ int det_conv(uint32_t desc)
 	return (s & 2) && !(s & 12) ? 0 : -(int)(MMIO(DET_REG_ERROR_CODE) + 10);
 }
 
+int det_pool(uint32_t src, uint32_t dst, uint32_t h, uint32_t w, uint32_t c, uint32_t stride)
+{
+	volatile uint32_t *p = (volatile uint32_t *)POOL_BASE;
+	p[POOL_REG_SRC / 4] = src;
+	p[POOL_REG_DST / 4] = dst;
+	p[POOL_REG_H / 4] = h;
+	p[POOL_REG_W / 4] = w;
+	p[POOL_REG_C / 4] = c;
+	p[POOL_REG_STRIDE / 4] = stride;
+	det_fence();
+	p[POOL_REG_START / 4] = 1;
+	uint32_t start = ticks(), status;
+	do {
+		status = p[POOL_REG_STATUS / 4];
+		if (ticks() - start > 2000000000u)
+			return -3;
+	} while (status & 1);
+	det_fence();
+	return (status & 2) && !(status & 4) ? 0 : -1;
+}
+
 int8_t det_requant(int32_t x, uint32_t m, uint32_t s)
 {
 	int64_t p = (int64_t)x * m;
@@ -120,13 +141,23 @@ void *memset(void *d, int c, size_t n)
 	return d;
 }
 
+typedef uint32_t copy_word __attribute__((__may_alias__));
+
 void *memcpy(void *d, const void *s, size_t n)
 {
 	uint8_t *p = d;
 	const uint8_t *q = s;
-
+	while (n && (((uintptr_t)p | (uintptr_t)q) & 3u)) {
+		*p++ = *q++;
+		n--;
+	}
+	while (n >= 4) {
+		*(copy_word *)p = *(const copy_word *)q;
+		p += 4;
+		q += 4;
+		n -= 4;
+	}
 	while (n--)
 		*p++ = *q++;
-
 	return d;
 }

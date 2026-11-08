@@ -1,13 +1,24 @@
 {
-  "rtl_sha256": "08f69fe6ef2580704c8e90fe64179db01241673ef41a5b7c58fabb5e7faad7eb",
+  "rtl_sha256": "13f1394229231110fb70652d10bf37fcedbbab380c1116a97ea96562559d4f2c",
   "files": [
+    "rtl/banked_scratch.sv",
     "rtl/conv_core.sv",
     "rtl/det_accelerator.sv",
     "rtl/det_soc_top.sv",
     "rtl/fuse_requant.sv",
+    "rtl/instruction_cache.sv",
     "rtl/native_arbiter.sv",
+    "rtl/pool_accelerator.sv",
     "rtl/requant.sv",
+    "rtl/tile_prefetch.sv",
+    "rtl/pool_spec.vh",
     "rtl/spec.vh",
     "third_party/picorv32.v"
-  ]
+  ],
+  "firmware_sha256": "6fa90c7c42ed5ff4915cb3fcd79d3d1ac45e43612a58f4c59f769a2938f84474",
+  "parameters": {
+    "ENABLE_ICACHE": 1,
+    "ENABLE_PREFETCH": 1,
+    "ENABLE_BANKED_GATHER": 1
+  }
 }

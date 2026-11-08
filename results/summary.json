@@ -3,14 +3,14 @@
     "comparison": [
       {
         "roi": 22,
-        "M_cycles": 89664648,
-        "F_cycles": 75971811,
-        "M_data_bytes": 5409028,
-        "F_data_bytes": 4388064,
-        "traffic_reduction": 0.18875184229033382,
-        "cycle_reduction": 0.15271165733009961,
+        "M_cycles": 8546396,
+        "F_cycles": 8011888,
+        "M_data_bytes": 4631520,
+        "F_data_bytes": 4343268,
+        "traffic_reduction": 0.062237019380246617,
+        "cycle_reduction": 0.06254191825419742,
         "target_traffic_30pct": false,
-        "target_cycle_15pct": true
+        "target_cycle_15pct": false
       }
     ],
     "variants": {
@@ -565,14 +565,14 @@
     "comparison": [
       {
         "roi": 36,
-        "M_cycles": 89662073,
-        "F_cycles": 75971811,
-        "M_data_bytes": 5409028,
-        "F_data_bytes": 4388064,
-        "traffic_reduction": 0.18875184229033382,
-        "cycle_reduction": 0.15268732410413932,
+        "M_cycles": 8546396,
+        "F_cycles": 8011888,
+        "M_data_bytes": 4631520,
+        "F_data_bytes": 4343268,
+        "traffic_reduction": 0.062237019380246617,
+        "cycle_reduction": 0.06254191825419742,
         "target_traffic_30pct": false,
-        "target_cycle_15pct": true
+        "target_cycle_15pct": false
       }
     ],
     "variants": {

@@ -1,7 +1,10 @@
 `timescale 1ns / 1ps
-// Single-bank implementation. SRAM: X 8KiB, W 8KiB, P 4KiB, O 4KiB.
-// Second X/W banks are intentionally not implemented; flag bit1 is rejected.
-module det_accelerator (
+// Ping-pong X/W, each slot four-way banked: X 16KiB, W 16KiB, P/O 4KiB each.
+// The scheduler prefetches the next input-channel block while computing.
+module det_accelerator #(
+	parameter ENABLE_PREFETCH = 1,
+	parameter ENABLE_BANKED_GATHER = 1
+) (
 	input wire clk, rst,
 	input wire reg_valid,
 	input wire [7:0] reg_addr,
@@ -44,14 +47,11 @@ module det_accelerator (
 		P_READ,
 		P_RESTORE,
 		GATHER_A,
-		GATHER_B,
 		MAC_STEP,
-		K_NEXT,
 		MICRO_PARAM_REQ,
 		MICRO_PARAM_GOT,
 		RESULT,
 		P_SAVE,
-		RESULT_NEXT,
 		MICRO_NEXT,
 		IC_NEXT,
 		WRITE_OUT,
@@ -64,9 +64,14 @@ module det_accelerator (
 	reg busy, done_flag, error_flag, reject_flag;
 	reg [31:0] error_code, desc_addr;
 	reg [63:0] job_cycles, compute_cycles, read_words, write_bytes, wait_cycles;
+	reg [63:0] phase_cycles[0:5];
+	reg [63:0] fast_gather, serial_gather, prefetch_active, prefetch_mac, prefetch_wait;
+	reg [2:0] phase;
+	state_t phase_state;
 	reg [31:0] d[0:31], f[0:15];
 	reg [31:0] req_addr, rdword, cache_addr, cache_data;
 	reg cache_valid;
+	reg active_slot, weights_ready, prefetch_locked;
 	integer di, fi, pi;
 	integer oy, ox, oc0, ic0, th, tw, xh, xw, xsize, wsize, ci_count, co_count;
 	integer xi, wi, branch_id, branch_offset, branch_c, branch_w, ratio;
@@ -77,11 +82,13 @@ module det_accelerator (
 	reg signed [31:0] psum_rd;
 	reg [31:0] qp[0:19];
 	reg [31:0] check_mpos, check_spos;
-	reg signed [7:0] xbuf[0:8191], wbuf[0:8191], obuf[0:4095];
+
+	reg [2:0] sample_advance;
+	reg [31:0] obuf[0:1023];
 	reg signed [31:0] psum[0:1023];
 	wire fused = d[D_FLAGS][2];
 	wire final_ci = (ic0 + int'(d[D_TIC]) >= int'(d[D_CIN]));
-	integer px, py, kc, kxy, ky, kx, spatial, outc, local_x, local_y, local_c, pindex;
+	integer kc, kxy, ky, kx, spatial, outc, pindex;
 	integer scatter_x, scatter_y, scatter_index;
 	integer src_c, src_w, src_ratio, src_offset;
 	reg [31:0] src_base;
@@ -185,15 +192,10 @@ module det_accelerator (
 		spatial = m0 + ri / 4;
 		outc = n0 + ri % 4;
 		pindex = spatial * int'(d[D_TOC]) + outc;
-		kc = kpos % int'(d[D_TIC] | 1 * (d[D_TIC] == 0));
-		kxy = kpos / int'(d[D_TIC] | 1 * (d[D_TIC] == 0));
-		ky = kxy / int'(d[D_KW] | 1 * (d[D_KW] == 0));
-		kx = kxy % int'(d[D_KW] | 1 * (d[D_KW] == 0));
-		px = (m0 + lane) % imax(tw, 1);
-		py = (m0 + lane) / imax(tw, 1);
-		local_x = px * int'(d[D_SW]) + kx;
-		local_y = py * int'(d[D_SH]) + ky;
-		local_c = kc;
+		kc = kpos & (int'(d[D_TIC]) - 1);
+		kxy = kpos >> channel_shift;
+		ky = d[D_KW] == 3 ? kxy / 3 : 0;
+		kx = d[D_KW] == 3 ? kxy % 3 : 0;
 
 		scatter_y = sy * ratio + dy - ytop;
 		scatter_x = sx * ratio + dx - xtop;
@@ -249,6 +251,10 @@ module det_accelerator (
 	/* verilator lint_on PINCONNECTEMPTY */
 	wire signed [31:0] core_result;
 	wire core_clear = state == MICRO_BEGIN && ic0 == 0;
+	// Gather the next operands while the core consumes the previous vectors.
+	// Nonblocking assignments preserve the old vectors at this clock edge.
+	wire core_step = state == MAC_STEP ||
+		(state == GATHER_A && lane == 0 && kpos != 0);
 	conv_core core (
 		.clk(clk),
 		.rst(rst),
@@ -256,7 +262,7 @@ module det_accelerator (
 		.restore(state == P_RESTORE),
 		.index(ri[3:0]),
 		.restore_data(psum_rd),
-		.step(state == MAC_STEP),
+		.step(core_step),
 		.a_vector(avec),
 		.b_vector(bvec),
 		.result(core_result)
@@ -272,6 +278,22 @@ module det_accelerator (
 		.shift(qshift),
 		.result(qresult)
 	);
+
+	// Exclusive phase counters include the DMA dispatch/wait for each operation.
+	// MAC overlap is counted separately by COMPUTE_CYCLES, not added to phases.
+	always @* begin
+		phase_state = (state == READ_DISPATCH || state == READ_BUS) ? read_return : state;
+		case (phase_state)
+			TILE_BEGIN, X_ZERO, SOURCE_BEGIN, SAMPLE_REQ, SAMPLE_GOT,
+			CONVERT_IN, CONVERT_OUT, SCATTER, SAMPLE_NEXT, SOURCE_NEXT, W_REQ, W_GOT:
+				phase = 0;
+			GATHER_A, MAC_STEP: phase = 1;
+			P_READ, P_RESTORE, P_SAVE: phase = 2;
+			PARAM_REQ, PARAM_GOT, MICRO_PARAM_REQ, MICRO_PARAM_GOT: phase = 3;
+			RESULT, WRITE_OUT: phase = 4;
+			default: phase = 5;
+		endcase
+	end
 
 	assign reg_ready = reg_valid && !rst;
 
@@ -306,6 +328,28 @@ module det_accelerator (
 				reg_rdata = wait_cycles[63:32];
 			REG_VERSION:
 				reg_rdata = DET_INTERFACE_VERSION;
+			REG_LOAD_CYCLES_LO: reg_rdata = phase_cycles[0][31:0];
+			REG_LOAD_CYCLES_HI: reg_rdata = phase_cycles[0][63:32];
+			REG_GATHER_CYCLES_LO: reg_rdata = phase_cycles[1][31:0];
+			REG_GATHER_CYCLES_HI: reg_rdata = phase_cycles[1][63:32];
+			REG_PARTIAL_CYCLES_LO: reg_rdata = phase_cycles[2][31:0];
+			REG_PARTIAL_CYCLES_HI: reg_rdata = phase_cycles[2][63:32];
+			REG_PARAM_CYCLES_LO: reg_rdata = phase_cycles[3][31:0];
+			REG_PARAM_CYCLES_HI: reg_rdata = phase_cycles[3][63:32];
+			REG_OUTPUT_CYCLES_LO: reg_rdata = phase_cycles[4][31:0];
+			REG_OUTPUT_CYCLES_HI: reg_rdata = phase_cycles[4][63:32];
+			REG_CONTROL_CYCLES_LO: reg_rdata = phase_cycles[5][31:0];
+			REG_CONTROL_CYCLES_HI: reg_rdata = phase_cycles[5][63:32];
+			REG_FAST_GATHER_LO: reg_rdata = fast_gather[31:0];
+			REG_FAST_GATHER_HI: reg_rdata = fast_gather[63:32];
+			REG_SERIAL_GATHER_LO: reg_rdata = serial_gather[31:0];
+			REG_SERIAL_GATHER_HI: reg_rdata = serial_gather[63:32];
+			REG_PREFETCH_ACTIVE_LO: reg_rdata = prefetch_active[31:0];
+			REG_PREFETCH_ACTIVE_HI: reg_rdata = prefetch_active[63:32];
+			REG_PREFETCH_MAC_LO: reg_rdata = prefetch_mac[31:0];
+			REG_PREFETCH_MAC_HI: reg_rdata = prefetch_mac[63:32];
+			REG_PREFETCH_WAIT_LO: reg_rdata = prefetch_wait[31:0];
+			REG_PREFETCH_WAIT_HI: reg_rdata = prefetch_wait[63:32];
 			default:
 				reg_rdata = 0;
 		endcase
@@ -315,14 +359,277 @@ module det_accelerator (
 								int'(d[D_COUT]) +
 							oc0 + wi);
 
-	assign dma_valid = !rst && (state == READ_BUS || state == WRITE_OUT);
+	wire [31:0] weight_read_addr = d[D_WEIGHT] +
+								32'(((oc0 + wi / (int'(d[D_KH]) * int'(d[D_KW]) * int'(d[D_TIC]))) *
+											int'(d[D_KH]) * int'(d[D_KW]) +
+										wi / int'(d[D_TIC]) % (int'(d[D_KH]) * int'(d[D_KW]))) *
+										int'(d[D_CIN]) +
+									ic0 + wi % int'(d[D_TIC]));
+	wire weight_full = weight_read_addr[1:0] == 0 && wi % 4 == 0 &&
+		wi % int'(d[D_TIC]) + 4 <= ci_count;
+	wire [2:0] weight_advance = weight_full ? 3'd4 : 3'd1;
+	// One shared P read address keeps restore prefetch on a single read port.
+	wire [9:0] p_read_index = state == P_RESTORE
+		? 10'((m0 + (ri + 1) / 4) * int'(d[D_TOC]) + n0 + (ri + 1) % 4)
+		: 10'(pindex);
+	wire signed [31:0] p_read_data = psum[p_read_index];
 
-	assign dma_addr = state == WRITE_OUT ? {write_addr[31:2], 2'b00} : {req_addr[31:2], 2'b00};
+	wire [2:0] channel_shift = d[D_TIC] == 16 ? 3'd4 : (d[D_TIC] == 8 ? 3'd3 : 3'd2);
+	wire stride_shift = d[D_SW] == 2;
+	wire [31:0] bank_row_pixels = 32'(((xw + (4 << stride_shift) - 1) >> (2 + stride_shift)) << stride_shift);
+	wire swizzled_x = 64'(bank_row_pixels) * 64'(xh) * {32'b0, d[D_TIC]} <= 2048;
 
-	assign dma_wstrb = state == WRITE_OUT ? (4'b0001 << write_addr[1:0]) : 4'b0000;
+	// A row-dependent bank rotation makes consecutive output positions
+	// conflict-free even when a microtile crosses a short or odd row.
+	// Padding is used only if every bank still fits 2KiB; otherwise the
+	// compact linear layout and the conflict detector remain available.
+	function automatic [1:0] x_bank (
+		input integer byte_index
+	);
+		integer pixel, xx, yy;
+		begin
+			pixel = byte_index >> channel_shift;
+			xx = pixel % imax(xw, 1);
+			yy = pixel / imax(xw, 1);
+			if (swizzled_x)
+				x_bank = 2'((xx >> stride_shift) + (yy >> stride_shift) * tw);
+			else
+				x_bank = 2'(pixel >> stride_shift);
+		end
+	endfunction
+
+	function automatic [8:0] x_address (
+		input integer byte_index
+	);
+		integer pixel, packed_pixel, xx, yy;
+		begin
+			pixel = byte_index >> channel_shift;
+			xx = pixel % imax(xw, 1);
+			yy = pixel / imax(xw, 1);
+			if (swizzled_x)
+				packed_pixel = yy * int'(bank_row_pixels) +
+					((xx >> (2 + stride_shift)) << stride_shift) + (xx & int'(stride_shift));
+			else
+				packed_pixel = ((pixel >> (2 + stride_shift)) << stride_shift) +
+					(pixel & int'(stride_shift));
+			x_address = 9'((packed_pixel << (channel_shift - 2)) +
+				((byte_index & (int'(d[D_TIC]) - 1)) >> 2));
+		end
+	endfunction
+
+	wire [31:0] tile_k = d[D_KH] * d[D_KW] * d[D_TIC];
+	function automatic [1:0] w_bank (
+		input integer byte_index
+	);
+		w_bank = 2'((byte_index / imax(int'(tile_k), 1)) % 4);
+	endfunction
+
+	function automatic [8:0] w_address (
+		input integer byte_index
+	);
+		w_address = 9'((byte_index / imax(int'(tile_k), 1) / 4) * (int'(tile_k) / 4) +
+			(byte_index % imax(int'(tile_k), 1)) / 4);
+	endfunction
+
+	reg [35:0] x_read_addr, w_read_addr;
+	wire [127:0] x_read_data, w_read_data;
+	wire [127:0] x_read_slot0, x_read_slot1, w_read_slot0, w_read_slot1;
+	assign x_read_data = active_slot ? x_read_slot1 : x_read_slot0;
+	assign w_read_data = active_slot ? w_read_slot1 : w_read_slot0;
+	integer a_index[0:3];
+	reg [1:0] a_bank[0:3];
+	reg gather_parallel;
+	reg [31:0] next_a, next_b;
+	integer gather_x, gather_y;
+
+	always @* begin
+		gather_parallel = ENABLE_BANKED_GATHER != 0;
+		for (integer r = 0; r < 4; r = r + 1) begin
+			gather_x = ((m0 + r) % imax(tw, 1)) * int'(d[D_SW]) + kx;
+			gather_y = ((m0 + r) / imax(tw, 1)) * int'(d[D_SH]) + ky;
+			a_index[r] = (gather_y * xw + gather_x) * int'(d[D_TIC]) + kc;
+			a_bank[r] = x_bank(a_index[r]);
+		end
+		for (integer r = 0; r < 4; r = r + 1)
+			for (integer q = 0; q < r; q = q + 1)
+				if (m0 + r < th * tw && m0 + q < th * tw && a_bank[r] == a_bank[q])
+					gather_parallel = 0;
+
+		x_read_addr = 0;
+		w_read_addr = 0;
+		for (integer r = 0; r < 4; r = r + 1) begin
+			if (m0 + r < th * tw && (gather_parallel || lane == r))
+				x_read_addr[a_bank[r] * 9 +: 9] = x_address(a_index[r]);
+			w_read_addr[r * 9 +: 9] = 9'((n0 / 4) * (int'(tile_k) / 4) + kpos / 4);
+		end
+	end
+
+	always @* begin
+		next_a = 0;
+		next_b = 0;
+		for (integer r = 0; r < 4; r = r + 1) begin
+			if (m0 + r < th * tw)
+				next_a[r * 8 +: 8] = x_read_data[a_bank[r] * 32 + (kc % 4) * 8 +: 8];
+			next_b[r * 8 +: 8] = n0 + r < co_count
+				? w_read_data[r * 32 + (kpos % 4) * 8 +: 8] : 8'b0;
+		end
+	end
+
+	reg x_write_valid, w_write_valid;
+	reg [1:0] x_write_bank, w_write_bank;
+	reg [8:0] x_write_addr, w_write_addr;
+	reg [31:0] x_write_data, w_write_data;
+	reg [3:0] x_write_strobe, w_write_strobe;
+	integer x_write_index;
+	wire ordinary_word = !fused && req_addr[1:0] == 0 && (sc - ic0) % 4 == 0 && sc + 3 <= sc1;
+
+	always @* begin
+		x_write_valid = 0;
+		x_write_index = xi;
+		x_write_data = 0;
+		x_write_strobe = 4'b1111;
+		if (state == X_ZERO)
+			x_write_valid = 1;
+		else if (state == SAMPLE_GOT && ordinary_word) begin
+			x_write_valid = 1;
+			x_write_index = ((sy - ytop) * xw + sx - xtop) * int'(d[D_TIC]) + sc - ic0;
+			x_write_data = rdword;
+		end else if (state == SCATTER && scatter_y >= 0 && scatter_y < xh &&
+			scatter_x >= 0 && scatter_x < xw) begin
+			x_write_valid = 1;
+			x_write_index = scatter_index;
+			x_write_data = {4{sample_value}};
+			x_write_strobe = 4'b0001 << (scatter_index % 4);
+		end
+		x_write_bank = x_bank(x_write_index);
+		x_write_addr = x_address(x_write_index);
+
+		w_write_valid = 0;
+		w_write_bank = w_bank(wi);
+		w_write_addr = w_address(wi);
+		w_write_data = 0;
+		w_write_strobe = 4'b0001 << (wi % 4);
+		if (state == W_REQ && (wi / imax(int'(tile_k), 1) >= co_count ||
+			wi % imax(int'(d[D_TIC]), 1) >= ci_count)) begin
+			w_write_valid = 1;
+			w_write_strobe = wi % 4 == 0 ? 4'b1111 : w_write_strobe;
+		end else if (state == W_GOT) begin
+			w_write_valid = 1;
+			w_write_data = weight_full ? rdword : {4{rdword[8 * req_addr[1:0] +: 8]}};
+			w_write_strobe = weight_full ? 4'b1111 : (4'b0001 << (wi % 4));
+		end
+	end
+
+	wire prefetch_busy, prefetch_done, prefetch_valid, prefetch_x_write, prefetch_w_write;
+	wire [31:0] prefetch_addr, prefetch_write_data;
+	wire [12:0] prefetch_write_index;
+	wire [3:0] prefetch_write_strobe;
+	wire prefetch_selected = prefetch_locked ||
+		(prefetch_valid && state != READ_BUS && state != WRITE_OUT);
+	wire main_dma_ready = dma_ready && !prefetch_selected;
+	wire prefetch_ready = dma_ready && prefetch_selected;
+	wire prefetch_consume = state == IC_NEXT && !final_ci && prefetch_done;
+
+	tile_prefetch prefetch (
+		.clk(clk),
+		.rst(rst || !busy),
+		.start(ENABLE_PREFETCH != 0 && state == MICRO_BEGIN && m0 == 0 && n0 == 0 && !final_ci && !prefetch_busy),
+		.consume(prefetch_consume),
+		.fused(fused),
+		.src(d[D_SRC]),
+		.weight(d[D_WEIGHT]),
+		.src0(f[F_SRC0]),
+		.src1(f[F_SRC1]),
+		.width0(f[F_W0]),
+		.width1(f[F_W1]),
+		.channels0(f[F_C0]),
+		.channels1(f[F_C1]),
+		.order(f[F_ORDER]),
+		.multiplier0(f[F_M0][30:0]),
+		.multiplier1(f[F_M1][30:0]),
+		.shift0(f[F_S0][5:0]),
+		.shift1(f[F_S1][5:0]),
+		.height(d[D_H]),
+		.width(d[D_W]),
+		.cin(d[D_CIN]),
+		.cout(d[D_COUT]),
+		.kh(d[D_KH]),
+		.kw(d[D_KW]),
+		.tic(d[D_TIC]),
+		.toc(d[D_TOC]),
+		.next_ic(32'(ic0) + d[D_TIC]),
+		.oc(32'(oc0)),
+		.xh(32'(xh)),
+		.xw(32'(xw)),
+		.ytop(32'(ytop)),
+		.xtop(32'(xtop)),
+		.busy(prefetch_busy),
+		.done(prefetch_done),
+		.read_valid(prefetch_valid),
+		.read_addr(prefetch_addr),
+		.read_ready(prefetch_ready),
+		.read_data(dma_rdata),
+		.x_write(prefetch_x_write),
+		.w_write(prefetch_w_write),
+		.write_index(prefetch_write_index),
+		.write_data(prefetch_write_data),
+		.write_strobe(prefetch_write_strobe)
+	);
+
+	for (genvar slot = 0; slot < 2; slot = slot + 1) begin : slots
+		wire inactive = active_slot != slot;
+		wire [127:0] xr, wr;
+		banked_scratch input_store (
+			.clk(clk),
+			.write_valid(!rst && (inactive ? prefetch_x_write : x_write_valid)),
+			.write_bank(inactive ? x_bank(int'({19'b0, prefetch_write_index})) : x_write_bank),
+			.write_addr(inactive ? x_address(int'({19'b0, prefetch_write_index})) : x_write_addr),
+			.write_data(inactive ? prefetch_write_data : x_write_data),
+			.write_strobe(inactive ? prefetch_write_strobe : x_write_strobe),
+			.read_addr(x_read_addr),
+			.read_data(xr)
+		);
+		banked_scratch weight_store (
+			.clk(clk),
+			.write_valid(!rst && (inactive ? prefetch_w_write : w_write_valid)),
+			.write_bank(inactive ? w_bank(int'({19'b0, prefetch_write_index})) : w_write_bank),
+			.write_addr(inactive ? w_address(int'({19'b0, prefetch_write_index})) : w_write_addr),
+			.write_data(inactive ? prefetch_write_data : w_write_data),
+			.write_strobe(inactive ? prefetch_write_strobe : w_write_strobe),
+			.read_addr(w_read_addr),
+			.read_data(wr)
+		);
+		if (slot == 0) begin : first_slot
+			assign x_read_slot0 = xr;
+			assign w_read_slot0 = wr;
+		end else begin : second_slot
+			assign x_read_slot1 = xr;
+			assign w_read_slot1 = wr;
+		end
+	end
+
+	always @(posedge clk) begin
+		if (rst || !busy)
+			prefetch_locked <= 0;
+		else if (prefetch_selected && prefetch_valid)
+			prefetch_locked <= !dma_ready;
+	end
+
+	assign dma_valid = !rst && (prefetch_selected ? prefetch_valid : (state == READ_BUS || state == WRITE_OUT));
+
+	assign dma_addr = prefetch_selected ? prefetch_addr :
+		(state == WRITE_OUT ? {write_addr[31:2], 2'b00} : {req_addr[31:2], 2'b00});
+
+	wire write_full = write_addr[1:0] == 0 && wi % 4 == 0 && wi + 4 <= co_count;
+	wire [31:0] output_word = obuf[(xi * int'(d[D_TOC]) + wi) / 4];
+	wire [7:0] output_byte = output_word[8 * (wi % 4) +: 8];
+	wire [2:0] write_count = write_full ? 3'd4 : 3'd1;
+
+	assign dma_wstrb = state == WRITE_OUT && !prefetch_selected
+		? (write_full ? 4'b1111 : (4'b0001 << write_addr[1:0])) : 4'b0000;
 
 	assign dma_wdata = state == WRITE_OUT
-		? ({24'b0, obuf[xi * int'(d[D_TOC]) + wi]} << (8 * write_addr[1:0]))
+		? (write_full ? output_word : ({24'b0, output_byte} << (8 * write_addr[1:0])))
 		: 32'b0;
 
 	task automatic read_at (
@@ -366,12 +673,21 @@ module det_accelerator (
 			read_words <= 0;
 			write_bytes <= 0;
 			wait_cycles <= 0;
+			fast_gather <= 0;
+			serial_gather <= 0;
+			prefetch_active <= 0;
+			prefetch_mac <= 0;
+			prefetch_wait <= 0;
+			for (integer i = 0; i < 6; i = i + 1)
+				phase_cycles[i] <= 0;
 
 			req_addr <= 0;
 			rdword <= 0;
 			cache_addr <= 0;
 			cache_data <= 0;
 			cache_valid <= 0;
+			active_slot <= 0;
+			weights_ready <= 0;
 
 			di <= 0;
 			fi <= 0;
@@ -417,6 +733,7 @@ module det_accelerator (
 			ri <= 0;
 			qi <= 0;
 			sample_value <= 0;
+			sample_advance <= 1;
 			avec <= 0;
 			bvec <= 0;
 			psum_rd <= 0;
@@ -430,16 +747,31 @@ module det_accelerator (
 			for (integer i = 0; i < 20; i = i + 1)
 				qp[i] <= 0;
 		end else begin
-			if (busy)
+			if (busy) begin
 				job_cycles <= job_cycles + 1;
-			if (state == MAC_STEP)
+				phase_cycles[phase] <= phase_cycles[phase] + 1;
+			end
+			if (busy && state == GATHER_A) begin
+				if (gather_parallel)
+					fast_gather <= fast_gather + 1;
+				else
+					serial_gather <= serial_gather + 1;
+			end
+			if (busy && prefetch_busy)
+				prefetch_active <= prefetch_active + 1;
+			if (busy && prefetch_busy && core_step)
+				prefetch_mac <= prefetch_mac + 1;
+			if (busy && state == IC_NEXT && !final_ci && !prefetch_done)
+				prefetch_wait <= prefetch_wait + 1;
+
+			if (core_step)
 				compute_cycles <= compute_cycles + 1;
 			if (dma_valid && !dma_ready)
 				wait_cycles <= wait_cycles + 1;
-			if (state == READ_BUS && dma_ready)
+			if (dma_valid && dma_ready && dma_wstrb == 0)
 				read_words <= read_words + 1;
-			if (state == WRITE_OUT && dma_ready)
-				write_bytes <= write_bytes + 1;
+			if (state == WRITE_OUT && main_dma_ready)
+				write_bytes <= write_bytes + {61'b0, write_count};
 			case (state)
 
 				IDLE: begin
@@ -531,16 +863,20 @@ module det_accelerator (
 					ytop <= oy * int'(d[D_SH]) - int'(d[D_PT]);
 					xtop <= ox * int'(d[D_SW]) - int'(d[D_PL]);
 					xi <= 0;
-					state <= X_ZERO;
+					if (weights_ready) begin
+						m0 <= 0;
+						n0 <= 0;
+						state <= MICRO_BEGIN;
+					end else
+						state <= X_ZERO;
 				end
 
 				X_ZERO: begin
-					xbuf[xi] <= 0;
-					if (xi + 1 == xsize) begin
+					if (xi + 4 == xsize) begin
 						branch_id <= 0;
 						state <= SOURCE_BEGIN;
 					end else
-						xi <= xi + 1;
+						xi <= xi + 4;
 				end
 
 				SOURCE_BEGIN: begin
@@ -572,7 +908,12 @@ module det_accelerator (
 					sample_value <= $signed(rdword[8 * req_addr[1:0] +: 8]);
 					dy <= 0;
 					dx <= 0;
-					state <= fused ? CONVERT_IN : SCATTER;
+					sample_advance <= 1;
+					if (ordinary_word) begin
+						sample_advance <= 4;
+						state <= SAMPLE_NEXT;
+					end else
+						state <= fused ? CONVERT_IN : SCATTER;
 				end
 
 				CONVERT_IN:
@@ -586,8 +927,6 @@ module det_accelerator (
 					end
 
 				SCATTER: begin
-					if (scatter_y >= 0 && scatter_y < xh && scatter_x >= 0 && scatter_x < xw)
-						xbuf[scatter_index] <= sample_value;
 					if (dx + 1 < ratio)
 						dx <= dx + 1;
 					else if (dy + 1 < ratio) begin
@@ -598,8 +937,8 @@ module det_accelerator (
 				end
 
 				SAMPLE_NEXT: begin
-					if (sc < sc1) begin
-						sc <= sc + 1;
+					if (sc + int'(sample_advance) <= sc1) begin
+						sc <= sc + int'(sample_advance);
 						state <= SAMPLE_REQ;
 					end else if (sx < sx1) begin
 						sx <= sx + 1;
@@ -620,37 +959,33 @@ module det_accelerator (
 						state <= SOURCE_BEGIN;
 					end else begin
 						wi <= 0;
-						state <= W_REQ;
+						m0 <= 0;
+						n0 <= 0;
+						state <= weights_ready ? MICRO_BEGIN : W_REQ;
 					end
 
 				W_REQ: begin
 					if (wi / (int'(d[D_KH]) * int'(d[D_KW]) * int'(d[D_TIC])) >= co_count ||
 						wi % int'(d[D_TIC]) >= ci_count) begin
-						wbuf[wi] <= 0;
-						if (wi + 1 == wsize) begin
+						if (wi + (wi % 4 == 0 ? 4 : 1) == wsize) begin
+							weights_ready <= 1;
 							m0 <= 0;
 							n0 <= 0;
 							state <= MICRO_BEGIN;
 						end else
-							wi <= wi + 1;
+							wi <= wi + (wi % 4 == 0 ? 4 : 1);
 					end else
-						read_at(d[D_WEIGHT] +
-								32'(((oc0 + wi / (int'(d[D_KH]) * int'(d[D_KW]) * int'(d[D_TIC]))) *
-											int'(d[D_KH]) * int'(d[D_KW]) +
-										wi / int'(d[D_TIC]) % (int'(d[D_KH]) * int'(d[D_KW]))) *
-										int'(d[D_CIN]) +
-									ic0 + wi % int'(d[D_TIC])),
-							W_GOT);
+						read_at(weight_read_addr, W_GOT);
 				end
 
 				W_GOT: begin
-					wbuf[wi] <= $signed(rdword[8 * req_addr[1:0] +: 8]);
-					if (wi + 1 == wsize) begin
+					if (wi + int'(weight_advance) == wsize) begin
+						weights_ready <= 1;
 						m0 <= 0;
 						n0 <= 0;
 						state <= MICRO_BEGIN;
 					end else begin
-						wi <= wi + 1;
+						wi <= wi + int'(weight_advance);
 						state <= W_REQ;
 					end
 				end
@@ -662,21 +997,24 @@ module det_accelerator (
 					lane <= 0;
 					avec <= 0;
 					bvec <= 0;
-					state <= ic0 == 0 ? (final_ci ? MICRO_PARAM_REQ : GATHER_A) : P_READ;
+					state <= ic0 == 0 ? ((final_ci && m0 == 0) ? MICRO_PARAM_REQ : GATHER_A) : P_READ;
 				end
 
 				P_READ: begin
-					psum_rd <= spatial < th * tw && outc < co_count ? psum[pindex] : 32'sd0;
+					psum_rd <= spatial < th * tw && outc < co_count ? p_read_data : 32'sd0;
 					state <= P_RESTORE;
 				end
 
 				P_RESTORE: begin
 					if (ri == 15) begin
 						ri <= 0;
-						state <= final_ci ? MICRO_PARAM_REQ : GATHER_A;
+						state <= (final_ci && m0 == 0) ? MICRO_PARAM_REQ : GATHER_A;
 					end else begin
 						ri <= ri + 1;
-						state <= P_READ;
+						// Prefetch the following accumulator while restoring this one.
+						psum_rd <= (m0 + (ri + 1) / 4 < th * tw && n0 + (ri + 1) % 4 < co_count)
+							? p_read_data
+							: 32'sd0;
 					end
 				end
 
@@ -705,73 +1043,66 @@ module det_accelerator (
 				end
 
 				GATHER_A: begin
-					avec[lane * 8 +: 8] <= m0 + lane < th * tw
-						? xbuf[(local_y * xw + local_x) * int'(d[D_TIC]) + local_c]
-						: 8'sd0;
-					if (lane == 3) begin
-						lane <= 0;
-						state <= GATHER_B;
-					end else
-						lane <= lane + 1;
-				end
-
-				GATHER_B: begin
-					bvec[lane * 8 +: 8] <=
-						wbuf[((n0 + lane) * int'(d[D_KH]) * int'(d[D_KW])) * int'(d[D_TIC]) + kpos];
-					if (lane == 3) begin
-						lane <= 0;
-						state <= MAC_STEP;
-					end else
-						lane <= lane + 1;
-				end
-
-				MAC_STEP:
-					state <= K_NEXT;
-
-				K_NEXT: begin
-					if (kpos + 1 == int'(d[D_KH]) * int'(d[D_KW]) * int'(d[D_TIC])) begin
-						ri <= 0;
-						state <= final_ci ? RESULT : P_SAVE;
+					// Conflict-free pixels consume all four banks in one cycle.
+					// Arbitrary short/odd row widths retain a serial fallback.
+					if (gather_parallel) begin
+						avec <= next_a;
+						bvec <= next_b;
 					end else begin
-						kpos <= kpos + 1;
-						state <= GATHER_A;
+						avec[lane * 8 +: 8] <= next_a[lane * 8 +: 8];
+						bvec[lane * 8 +: 8] <= next_b[lane * 8 +: 8];
 					end
+					if (gather_parallel || lane == 3) begin
+						lane <= 0;
+						if (kc + 1 == ci_count && kxy + 1 == int'(d[D_KH] * d[D_KW]))
+							state <= MAC_STEP;
+						else if (kc + 1 == ci_count)
+							kpos <= (kxy + 1) * int'(d[D_TIC]);
+						else
+							kpos <= kpos + 1;
+					end else
+						lane <= lane + 1;
+				end
+
+				MAC_STEP: begin
+					// Drain the last gathered vectors; earlier MACs overlap gather.
+					ri <= 0;
+					state <= final_ci ? RESULT : P_SAVE;
 				end
 
 				RESULT: begin
-					if (spatial < th * tw && outc < co_count) begin
-						if (biased > 64'sh7fffffff || biased < -64'sh80000000)
-							fail_job(5);
-						else begin
-							obuf[spatial * int'(d[D_TOC]) + outc] <= qresult;
-							state <= RESULT_NEXT;
-						end
-					end else
-						state <= RESULT_NEXT;
+					if (spatial < th * tw && outc < co_count &&
+						(biased > 64'sh7fffffff || biased < -64'sh80000000))
+						fail_job(5);
+					else begin
+						if (spatial < th * tw && outc < co_count)
+							for (integer byte_lane = 0; byte_lane < 4; byte_lane = byte_lane + 1)
+								if (outc % 4 == byte_lane)
+									obuf[(spatial * int'(d[D_TOC]) + outc) / 4][8 * byte_lane +: 8] <= qresult;
+						if (ri == 15)
+							state <= MICRO_NEXT;
+						else
+							ri <= ri + 1;
+					end
 				end
 
 				P_SAVE: begin
 					if (spatial < th * tw && outc < co_count)
 						psum[pindex] <= core_result;
-					state <= RESULT_NEXT;
-				end
-
-				RESULT_NEXT: begin
 					if (ri == 15)
 						state <= MICRO_NEXT;
-					else begin
+					else
 						ri <= ri + 1;
-						state <= final_ci ? RESULT : P_SAVE;
-					end
 				end
 
 				MICRO_NEXT: begin
-					if (n0 + 4 < int'(d[D_TOC])) begin
-						n0 <= n0 + 4;
-						state <= MICRO_BEGIN;
-					end else if (m0 + 4 < th * tw) begin
+					// Keep one four-channel quantization vector across all spatial blocks.
+					if (m0 + 4 < th * tw) begin
 						m0 <= m0 + 4;
-						n0 <= 0;
+						state <= MICRO_BEGIN;
+					end else if (n0 + 4 < co_count) begin
+						n0 <= n0 + 4;
+						m0 <= 0;
 						state <= MICRO_BEGIN;
 					end else
 						state <= IC_NEXT;
@@ -779,8 +1110,16 @@ module det_accelerator (
 
 				IC_NEXT: begin
 					if (!final_ci) begin
-						ic0 <= ic0 + int'(d[D_TIC]);
-						state <= TILE_BEGIN;
+						if (ENABLE_PREFETCH == 0) begin
+							weights_ready <= 0;
+							ic0 <= ic0 + int'(d[D_TIC]);
+							state <= TILE_BEGIN;
+						end else if (prefetch_done) begin
+							active_slot <= !active_slot;
+							weights_ready <= 1;
+							ic0 <= ic0 + int'(d[D_TIC]);
+							state <= TILE_BEGIN;
+						end
 					end else begin
 						xi <= 0;
 						wi <= 0;
@@ -789,9 +1128,9 @@ module det_accelerator (
 				end
 
 				WRITE_OUT:
-					if (dma_ready) begin
-						if (wi + 1 < co_count)
-							wi <= wi + 1;
+					if (main_dma_ready) begin
+						if (wi + int'(write_count) < co_count)
+							wi <= wi + int'(write_count);
 						else if (xi + 1 < th * tw) begin
 							xi <= xi + 1;
 							wi <= 0;
@@ -800,6 +1139,7 @@ module det_accelerator (
 					end
 
 				TILE_NEXT: begin
+					weights_ready <= 0;
 					ic0 <= 0;
 					if (oc0 + int'(d[D_TOC]) < int'(d[D_COUT])) begin
 						oc0 <= oc0 + int'(d[D_TOC]);
@@ -829,7 +1169,7 @@ module det_accelerator (
 				end
 
 				READ_BUS:
-					if (dma_ready) begin
+					if (main_dma_ready) begin
 						rdword <= dma_rdata;
 						cache_data <= dma_rdata;
 						cache_addr <= {req_addr[31:2], 2'b00};
@@ -859,12 +1199,21 @@ module det_accelerator (
 					reject_flag <= 0;
 					error_code <= 0;
 					cache_valid <= 0;
+					active_slot <= 0;
+					weights_ready <= 0;
 
 					job_cycles <= 0;
 					compute_cycles <= 0;
 					read_words <= 0;
 					write_bytes <= 0;
 					wait_cycles <= 0;
+					fast_gather <= 0;
+					serial_gather <= 0;
+					prefetch_active <= 0;
+					prefetch_mac <= 0;
+					prefetch_wait <= 0;
+					for (integer i = 0; i < 6; i = i + 1)
+						phase_cycles[i] <= 0;
 
 					if (desc_addr[3:0] != 0 || !in_range(desc_addr, 128)) begin
 						error_flag <= 1;

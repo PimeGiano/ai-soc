@@ -1,0 +1,145 @@
+{
+  "baseline_commit": "8bd18c4ed07a2c60051ac5dd46f59def4643721f",
+  "accelerator": {
+    "0": {
+      "valid_cases": 151,
+      "before_cycles": 9946468,
+      "after_cycles": 2422815,
+      "speedup": 4.10533532275473,
+      "log_sha256": "009b190a5c701e213410d7e1b416293f7ff9cc57ef0e362f06fd48edb4c9cc84",
+      "regressed_cases": [],
+      "phase_cycles": {
+        "load": 1038471,
+        "gather": 249213,
+        "partial": 162261,
+        "param": 166910,
+        "output": 67621,
+        "control": 738339
+      },
+      "stage1_cycles": 5561116,
+      "speedup_over_stage1": 2.2953118583135734,
+      "pipeline_cycles": {
+        "fast_gather": 241325,
+        "serial_gather": 0,
+        "prefetch_active": 1015918,
+        "prefetch_mac": 184544,
+        "prefetch_wait": 694071
+      }
+    },
+    "3": {
+      "valid_cases": 151,
+      "before_cycles": 10365021,
+      "after_cycles": 2823806,
+      "speedup": 3.6705853730744957,
+      "log_sha256": "9d99f6a96ffdce789d86f2d62da60e6bda263e50281aaa1e3b7c294850cfae29",
+      "regressed_cases": [],
+      "phase_cycles": {
+        "load": 1171415,
+        "gather": 249213,
+        "partial": 162261,
+        "param": 224945,
+        "output": 97815,
+        "control": 918157
+      },
+      "stage1_cycles": 5960773,
+      "speedup_over_stage1": 2.1109003238891058,
+      "pipeline_cycles": {
+        "fast_gather": 241325,
+        "serial_gather": 0,
+        "prefetch_active": 1189285,
+        "prefetch_mac": 184895,
+        "prefetch_wait": 865455
+      }
+    }
+  },
+  "models": {
+    "yolov3-tiny": {
+      "M": {
+        "subgraph": {
+          "before_cycles": 89664648,
+          "after_cycles": 9236118,
+          "speedup": 9.708044873398109,
+          "log_sha256": "cebcf49e3e87252588db6a67626bc3db045d1e9c933b3cbe73da14d9a7938271",
+          "stage1_cycles": 42817362,
+          "speedup_over_stage1": 4.6358613001696165
+        },
+        "whole": {
+          "before_cycles": 487569827,
+          "after_cycles": 91662823,
+          "speedup": 5.319166604764071,
+          "log_sha256": "a7cb248ba58ee4c2a68e1c2bdeec23354f569e5eca6608073002c6e6ec34b8f3",
+          "stage1_cycles": 239976915,
+          "speedup_over_stage1": 2.6180397586052964
+        }
+      },
+      "F": {
+        "subgraph": {
+          "before_cycles": 75971811,
+          "after_cycles": 8011873,
+          "speedup": 9.482403303197643,
+          "log_sha256": "070102d5e4f5b0fcd365344430fd5fdb29b7a2e2646d3bb2cdf8110a160ae3f9",
+          "stage1_cycles": 32663476,
+          "speedup_over_stage1": 4.076883894689794
+        },
+        "whole": {
+          "before_cycles": 473876990,
+          "after_cycles": 90438578,
+          "speedup": 5.239766043203377,
+          "log_sha256": "14e2f37f3ce98fc07db96212b266d99c6b50b30db41d585a01dbb330b56f8793",
+          "stage1_cycles": 229823029,
+          "speedup_over_stage1": 2.541205689899282
+        }
+      }
+    },
+    "yolov4-tiny": {
+      "M": {
+        "subgraph": {
+          "before_cycles": 89662073,
+          "after_cycles": 9236118,
+          "speedup": 9.707766076613574,
+          "log_sha256": "b3e19db2338ad9d8aa5ee9824eec80534ca8b96e8acfcda171bff75ea6a9e1c6",
+          "stage1_cycles": 42814787,
+          "speedup_over_stage1": 4.635582503385081
+        },
+        "whole": {
+          "before_cycles": 705396740,
+          "after_cycles": 95680736,
+          "speedup": 7.372400856113816,
+          "log_sha256": "7a93b3e09404db7f64caa86804d64d5888745b4a9a5c61c882ad024d160f6142",
+          "stage1_cycles": 414584720,
+          "speedup_over_stage1": 4.333000950159915
+        }
+      },
+      "F": {
+        "subgraph": {
+          "before_cycles": 75971811,
+          "after_cycles": 8011873,
+          "speedup": 9.482403303197643,
+          "log_sha256": "28203e7043236c23be722362e12ea9b2fbfbc4ddba6e2072d57714624f920cbb",
+          "stage1_cycles": 32663476,
+          "speedup_over_stage1": 4.076883894689794
+        },
+        "whole": {
+          "before_cycles": 691706478,
+          "after_cycles": 94456491,
+          "speedup": 7.323016879803422,
+          "log_sha256": "15d0336d37a6c42b75ca9a63b52aaf05b81f27f543f44b1ab2dd53781e86900a",
+          "stage1_cycles": 404433409,
+          "speedup_over_stage1": 4.281689958184028
+        }
+      }
+    }
+  },
+  "ablations": {
+    "serial": {
+      "cycles": 2729812,
+      "enabled_cycles": 2422815,
+      "speedup": 1.1267108714449927
+    },
+    "no_prefetch": {
+      "cycles": 2847921,
+      "enabled_cycles": 2422815,
+      "speedup": 1.1754595377690826
+    }
+  }
+}

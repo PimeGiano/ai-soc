@@ -1,0 +1,196 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="3300" height="1800" viewBox="0 0 3300 1800">
+<defs><marker id="pinArrow" markerWidth="6" markerHeight="6" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="none" stroke="black" stroke-width="1"/></marker><marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="none" stroke="#d32f2f" stroke-width="1.5"/></marker></defs>
+<rect width="100%" height="100%" fill="white"/>
+<rect x="75" y="100" width="3150" height="1570" fill="none" stroke="black" stroke-width="2"/>
+<rect x="400" y="210" width="370" height="460" fill="white" stroke="black" stroke-width="2.5"/>
+<text x="585.0" y="424.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="26">CPU / 指令缓存</text>
+<text x="585.0" y="468.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="26">A</text>
+<rect x="1450" y="190" width="400" height="600" fill="white" stroke="black" stroke-width="2.5"/>
+<text x="1650.0" y="474.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="26">仲裁 / 地址译码</text>
+<text x="1650.0" y="518.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="26">A</text>
+<rect x="2580" y="200" width="400" height="570" fill="white" stroke="black" stroke-width="2.5"/>
+<text x="2780.0" y="469.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="26">主存 / 系统 Testbench</text>
+<text x="2780.0" y="513.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="26">A / D</text>
+<rect x="400" y="1120" width="390" height="510" fill="white" stroke="black" stroke-width="2.5"/>
+<text x="595.0" y="1359.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="26">det_accelerator</text>
+<text x="595.0" y="1403.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="26">B / C</text>
+<rect x="2580" y="1120" width="390" height="510" fill="white" stroke="black" stroke-width="2.5"/>
+<text x="2775.0" y="1359.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="26">pool_accelerator</text>
+<text x="2775.0" y="1403.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="26">D</text>
+<line x1="340" y1="302.0" x2="400" y2="302.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="390" y="293.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">clk</text>
+<text x="370.0" y="322.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1</text>
+<line x1="340" y1="394.0" x2="400" y2="394.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="390" y="385.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">rst</text>
+<text x="370.0" y="414.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1</text>
+<line x1="340" y1="486.0" x2="400" y2="486.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="390" y="477.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">cbr</text>
+<text x="370.0" y="506.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1</text>
+<line x1="340" y1="578.0" x2="400" y2="578.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="390" y="569.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">cbd</text>
+<text x="370.0" y="598.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">32</text>
+<line x1="770" y1="286.6666666666667" x2="830" y2="286.6666666666667" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="780" y="277.6666666666667" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">cbv</text>
+<text x="800.0" y="306.6666666666667" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1</text>
+<line x1="770" y1="363.33333333333337" x2="830" y2="363.33333333333337" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="780" y="354.33333333333337" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">ci</text>
+<text x="800.0" y="383.33333333333337" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1</text>
+<line x1="770" y1="440.0" x2="830" y2="440.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="780" y="431.0" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">ca</text>
+<text x="800.0" y="460.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">32</text>
+<line x1="770" y1="516.6666666666667" x2="830" y2="516.6666666666667" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="780" y="507.66666666666674" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">cw</text>
+<text x="800.0" y="536.6666666666667" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">32</text>
+<line x1="770" y1="593.3333333333333" x2="830" y2="593.3333333333333" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="780" y="584.3333333333333" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">cs</text>
+<text x="800.0" y="613.3333333333333" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">4</text>
+<line x1="1390" y1="240.0" x2="1450" y2="240.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="1440" y="231.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">CPU: valid</text>
+<text x="1420.0" y="260.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1</text>
+<line x1="1390" y1="290.0" x2="1450" y2="290.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="1440" y="281.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">CPU: instr</text>
+<text x="1420.0" y="310.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1</text>
+<line x1="1390" y1="340.0" x2="1450" y2="340.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="1440" y="331.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">CPU: addr</text>
+<text x="1420.0" y="360.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">32</text>
+<line x1="1390" y1="390.0" x2="1450" y2="390.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="1440" y="381.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">CPU: wdata</text>
+<text x="1420.0" y="410.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">32</text>
+<line x1="1390" y1="440.0" x2="1450" y2="440.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="1440" y="431.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">CPU: wstrb</text>
+<text x="1420.0" y="460.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">4</text>
+<line x1="1450" y1="490.0" x2="1390" y2="490.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="1440" y="481.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">CPU: ready</text>
+<text x="1420.0" y="510.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1</text>
+<line x1="1450" y1="540.0" x2="1390" y2="540.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="1440" y="531.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">CPU: rdata</text>
+<text x="1420.0" y="560.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">32</text>
+<line x1="1390" y1="590.0" x2="1450" y2="590.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="1440" y="581.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">卷积 DMA 请求</text>
+<text x="1440" y="610.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1 / 32 / 32 / 4</text>
+<line x1="1450" y1="640.0" x2="1390" y2="640.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="1440" y="631.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">卷积 DMA 应答</text>
+<text x="1440" y="660.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1 / 32</text>
+<line x1="1450" y1="690.0" x2="1390" y2="690.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="1440" y="681.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">卷积 CSR 请求</text>
+<text x="1440" y="710.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1 / 8 / 32 / 4</text>
+<line x1="1390" y1="740.0" x2="1450" y2="740.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="1440" y="731.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">卷积 CSR 应答</text>
+<text x="1440" y="760.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1 / 32</text>
+<line x1="1850" y1="244.54545454545456" x2="1910" y2="244.54545454545456" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="1860" y="235.54545454545456" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">mem_valid</text>
+<text x="1880.0" y="264.54545454545456" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1</text>
+<line x1="1850" y1="299.0909090909091" x2="1910" y2="299.0909090909091" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="1860" y="290.0909090909091" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">mem_addr</text>
+<text x="1880.0" y="319.0909090909091" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">32</text>
+<line x1="1850" y1="353.6363636363636" x2="1910" y2="353.6363636363636" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="1860" y="344.6363636363636" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">mem_wdata</text>
+<text x="1880.0" y="373.6363636363636" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">32</text>
+<line x1="1850" y1="408.1818181818182" x2="1910" y2="408.1818181818182" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="1860" y="399.1818181818182" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">mem_wstrb</text>
+<text x="1880.0" y="428.1818181818182" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">4</text>
+<line x1="1910" y1="462.72727272727275" x2="1850" y2="462.72727272727275" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="1860" y="453.72727272727275" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">mem_ready</text>
+<text x="1880.0" y="482.72727272727275" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1</text>
+<line x1="1910" y1="517.2727272727273" x2="1850" y2="517.2727272727273" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="1860" y="508.27272727272725" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">mem_rdata</text>
+<text x="1880.0" y="537.2727272727273" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">32</text>
+<line x1="1910" y1="571.8181818181818" x2="1850" y2="571.8181818181818" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="1860" y="562.8181818181818" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">池化 DMA 请求</text>
+<text x="1860" y="591.8181818181818" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1 / 32 / 32 / 4</text>
+<line x1="1850" y1="626.3636363636364" x2="1910" y2="626.3636363636364" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="1860" y="617.3636363636364" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">池化 DMA 应答</text>
+<text x="1860" y="646.3636363636364" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1 / 32</text>
+<line x1="1850" y1="680.909090909091" x2="1910" y2="680.909090909091" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="1860" y="671.909090909091" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">池化 CSR 请求</text>
+<text x="1860" y="700.909090909091" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1 / 8 / 32 / 4</text>
+<line x1="1910" y1="735.4545454545455" x2="1850" y2="735.4545454545455" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="1860" y="726.4545454545455" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">池化 CSR 应答</text>
+<text x="1860" y="755.4545454545455" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1 / 32</text>
+<line x1="2520" y1="281.42857142857144" x2="2580" y2="281.42857142857144" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="2570" y="272.42857142857144" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">mem_valid</text>
+<text x="2550.0" y="301.42857142857144" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1</text>
+<line x1="2520" y1="362.8571428571429" x2="2580" y2="362.8571428571429" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="2570" y="353.8571428571429" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">mem_addr</text>
+<text x="2550.0" y="382.8571428571429" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">32</text>
+<line x1="2520" y1="444.2857142857143" x2="2580" y2="444.2857142857143" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="2570" y="435.2857142857143" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">mem_wdata</text>
+<text x="2550.0" y="464.2857142857143" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">32</text>
+<line x1="2520" y1="525.7142857142858" x2="2580" y2="525.7142857142858" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="2570" y="516.7142857142858" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">mem_wstrb</text>
+<text x="2550.0" y="545.7142857142858" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">4</text>
+<line x1="2580" y1="607.1428571428571" x2="2520" y2="607.1428571428571" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="2570" y="598.1428571428571" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">mem_ready</text>
+<text x="2550.0" y="627.1428571428571" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1</text>
+<line x1="2580" y1="688.5714285714286" x2="2520" y2="688.5714285714286" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="2570" y="679.5714285714286" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">mem_rdata</text>
+<text x="2550.0" y="708.5714285714286" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">32</text>
+<line x1="340" y1="1222.0" x2="400" y2="1222.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="390" y="1213.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">clk</text>
+<text x="370.0" y="1242.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1</text>
+<line x1="340" y1="1324.0" x2="400" y2="1324.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="390" y="1315.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">rst</text>
+<text x="370.0" y="1344.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1</text>
+<line x1="340" y1="1426.0" x2="400" y2="1426.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="390" y="1417.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">CSR 请求</text>
+<text x="390" y="1446.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1 / 8 / 32 / 4</text>
+<line x1="400" y1="1528.0" x2="340" y2="1528.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="390" y="1519.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">CSR 应答</text>
+<text x="390" y="1548.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1 / 32</text>
+<line x1="790" y1="1290.0" x2="850" y2="1290.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="800" y="1281.0" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">DMA 请求</text>
+<text x="800" y="1310.0" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1 / 32 / 32 / 4</text>
+<line x1="850" y1="1460.0" x2="790" y2="1460.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="800" y="1451.0" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">DMA 应答</text>
+<text x="800" y="1480.0" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1 / 32</text>
+<line x1="2520" y1="1290.0" x2="2580" y2="1290.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="2570" y="1281.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">CSR 请求</text>
+<text x="2570" y="1310.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1 / 8 / 32 / 4</text>
+<line x1="2580" y1="1460.0" x2="2520" y2="1460.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="2570" y="1451.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">CSR 应答</text>
+<text x="2570" y="1480.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1 / 32</text>
+<line x1="3030" y1="1222.0" x2="2970" y2="1222.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="2980" y="1213.0" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">clk</text>
+<text x="3000.0" y="1242.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1</text>
+<line x1="3030" y1="1324.0" x2="2970" y2="1324.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="2980" y="1315.0" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">rst</text>
+<text x="3000.0" y="1344.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1</text>
+<line x1="2970" y1="1426.0" x2="3030" y2="1426.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="2980" y="1417.0" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">DMA 请求</text>
+<text x="2980" y="1446.0" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1 / 32 / 32 / 4</text>
+<line x1="3030" y1="1528.0" x2="2970" y2="1528.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="2980" y="1519.0" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">DMA 应答</text>
+<text x="2980" y="1548.0" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1 / 32</text>
+<polyline points="1910,244.54545454545456 2520,281.42857142857144" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="1910,299.0909090909091 2520,362.8571428571429" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="1910,353.6363636363636 2520,444.2857142857143" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="1910,408.1818181818182 2520,525.7142857142858" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="2520,607.1428571428571 1910,462.72727272727275" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="2520,688.5714285714286 1910,517.2727272727273" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="830,286.6666666666667 1390,240.0" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="830,363.33333333333337 1390,290.0" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="830,440.0 1390,340.0" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="830,516.6666666666667 1390,390.0" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="830,593.3333333333333 1390,440.0" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="1390,490.0 1120,490 1120,740 220,740 220,486.0 340,486.0" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="1390,540.0 1190,540 1190,810 160,810 160,578.0 340,578.0" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="850,1290.0 1000,1193 1000,523 1390,590.0" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="1390,640.0 1180,590 1180,1484 850,1460.0" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="1390,690.0 1220,657 1220,950 160,950 160,1290 340,1426.0" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="340,1528.0 230,1517 230,1020 1320,1020 1320,723 1390,740.0" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="3030,1426.0 3140,1290 3140,880 2050,880 2050,572 1910,571.8181818181818" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="1910,626.3636363636364 2110,626 2110,1000 3200,1000 3200,1517 3030,1528.0" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="1910,680.909090909091 2200,681 2200,1193 2520,1290.0" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="2520,1460.0 2300,1484 2300,735 1910,735.4545454545455" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<text x="110" y="70" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="36">AI-SOC  系统接口框图</text>
+<text x="1480" y="1020" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">CSR请求：reg_valid(1)、reg_addr(8)</text>
+<text x="1480" y="1060" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">reg_wdata(32)、reg_wstrb(4)</text>
+<text x="1480" y="1120" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">CSR应答：reg_ready(1)、reg_rdata(32)</text>
+<text x="1480" y="1200" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">DMA请求：dma_valid(1)、dma_addr(32)</text>
+<text x="1480" y="1240" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">dma_wdata(32)、dma_wstrb(4)</text>
+<text x="1480" y="1300" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">DMA应答：dma_ready(1)、dma_rdata(32)</text>
+<text x="1480" y="1390" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">总线为逻辑分组，束线位宽分别标注。</text>
+<text x="1480" y="1440" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">同名clk/rst为全局网；resetn=!rst。</text>
+<text x="1480" y="1490" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">D池化/固件联调，C协审数值。</text>
+<text x="110" y="1740" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="24">A 系统/缓存/总线  ·  B 控制/存储/预取  ·  C MAC/定点  ·  D 池化/固件/模型联调</text>
+</svg>

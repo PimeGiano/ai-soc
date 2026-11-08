@@ -53,7 +53,19 @@ I1是CPU→仲裁器，另有mem_instr；I2译码到0x10000100；I3为DMA→仲�
 | 0x20/24 | READ_WORDS_LO/HI | DMA完成读字数，包含描述符/参数 |
 | 0x28/2c | WRITE_BYTES_LO/HI | DMA完成写字节数 |
 | 0x30/34 | DMA_WAIT_LO/HI | valid未ready周期 |
-| 0x3c | VERSION | 0x00020100 |
+| 0x3c | VERSION | 0x00020100（保留原接口；以下计数器为向后兼容扩展） |
+| 0x40/44 | LOAD_CYCLES_LO/HI | X清零、源加载/转换/散写、权重加载 |
+| 0x48/4c | GATHER_CYCLES_LO/HI | X/W并行取数及最后MAC排空 |
+| 0x50/54 | PARTIAL_CYCLES_LO/HI | P读取、恢复、保存 |
+| 0x58/5c | PARAM_CYCLES_LO/HI | 参数校验及微块量化参数读取 |
+| 0x60/64 | OUTPUT_CYCLES_LO/HI | RESULT及DMA写回 |
+| 0x68/6c | CONTROL_CYCLES_LO/HI | 其他控制与描述符阶段 |
+| 0x70/74 | FAST_GATHER_LO/HI | 四路并行取数拍数 |
+| 0x78/7c | SERIAL_GATHER_LO/HI | bank冲突时逐lane取数拍数 |
+| 0x80/84 | PREFETCH_ACTIVE_LO/HI | 后台预取忙周期 |
+| 0x88/8c | PREFETCH_MAC_LO/HI | 后台忙与core_step同时发生的周期 |
+| 0x90/94 | PREFETCH_WAIT_LO/HI | IC_NEXT等待下一块就绪的周期 |
+
 
 busy期间写配置/START及时应答、忽略且置REJECT；STATUS清状态仍可用。部分字/非对齐写拒绝；保留读0。空闲START锁存地址、清状态/计数，描述符地址非法不读总线；其他非法配置可能读取描述符/参数，但禁止输入/权重和输出访问。最终输出写完成后才DONE。忙时64位计数可能撕裂，正式读数在完成后进行。驱动有20亿cycle超时，仿真有独立watchdog。
 
@@ -70,7 +82,7 @@ busy期间写配置/START及时应答、忽略且置REJECT；STATUS清状态仍�
 | 16..17 | HOUT,WOUT | floor((输入+两边padding−kernel)/stride)+1，正值且匹配 |
 | 18..21 | TH,TW,TIC,TOC | 空间1..16，通道4/8/16，满足8KiB X/W和4KiB P/O容量 |
 | 22 | ACT | 0 linear、1 ReLU、2 leaky |
-| 23 | FLAGS | bit0复用必须1，bit2融合可选；bit1双bank未实现，置1报错；其他0 |
+| 23 | FLAGS | bit0复用必须1，bit2融合可选；bit1保持旧保留位语义、置1报错；当前双slot自动启用；其他0 |
 | 24 | FUSE_ADDR | 融合时指向16字节对齐64B子描述符，普通模式0 |
 | 25..31 | RESERVED | 0 |
 
@@ -91,7 +103,7 @@ busy期间写配置/START及时应答、忽略且置REJECT；STATUS清状态仍�
 
 ## 4. I4/I5/I6/I7：实际内部边界
 
-I4在det_accelerator内部：X/W为同步时序访问的字节数组，填充与计算互斥；X清零后按源散写，尾Cin/Cout和padding显式补零，全部完成才计算。P为1024×INT32，O为4096×INT8。X/W各8KiB，无第二bank。
+I4在det_accelerator内部：X/W各两组8KiB，每组由四个512×32位bank组成，独立单读/字节选通写口。活动slot供计算，非活动slot由tile_prefetch填充；后台请求与前台读请求共享原生DMA，等待期间锁定请求方。只有下一通道块X/W全部就绪才交换slot。P为1024×INT32，O为1024×32位，合计40KiB。融合首块走源优先散写，后台块走虚拟输入坐标映射与同一定点转换，两者数值一致。
 
 | conv_core端口（I5/I6） | 位宽 | 语义 |
 |---|---:|---|
@@ -119,3 +131,26 @@ I4在det_accelerator内部：X/W为同步时序访问的字节数组，填充与
 16字检测头记录布局见export_model.py；输出为count uint32后接最多100个24字节Box（5个float32坐标/score，uint32类别）。CPU解码与NumPy按3e-4容差比较，NaN不接受。
 
 ROI写0x20000008：bit31开始/结束，低16位ID，其余0，不嵌套。开始完成后清计数并开启，结束完成时冻结；标记事务排除。分类CPU_DATA、CPU_IFETCH、DMA，完成读计4字节，写计popcount(wstrb)。融合子图从M开始上采样或F配置前，到同一卷积输出完成且驱动返回；哈希检查/打印在ROI外。whole_roi=1时取消子图标记并用65534测整网，解码/NMS单独用65533。ROI是仿真设施，不作为可综合计数外设计入资源。
+
+阶段计数器在START/复位清零，BUSY时每拍恰好增加一组，完成后六组之和等于JOB_CYCLES。READ_DISPATCH/READ_BUS归入read_return对应的阶段，包含总线等待。COMPUTE_CYCLES单独统计实际core_step；因MAC与GATHER重叠，不能再与六组相加。WRITE_BYTES仍统计有效字节数，整字写一次增加4。
+
+后台预取与前台阶段重叠，因此六组阶段计数仍按前台状态互斥归类，后台剩余时间在IC_NEXT记CONTROL；不能把PREFETCH_ACTIVE再与六组相加。READ_WORDS/DMA_WAIT计入前台与后台实际总线活动。FAST+SERIAL+排空拍数等于GATHER_CYCLES。
+
+指令缓存只覆盖地址0x00000000～0x0000ffff中的取指读取，256个32位数据字、6位标签、有效位；普通数据读取与MMIO始终旁路。CPU对程序区的完成写入会失效对应行，复位清有效位。加速器DMA已被范围校验限制在数据区。
+
+## 独立2×2池化外设
+
+基址0x10000200，由spec/registers.json生成POOL_BASE和POOL_REG_*；与卷积CSR窗口独立。池化原生DMA作为第三个主设备接入外层仲裁，等待期间锁定请求。ROI将卷积与池化完成事务一起记为DMA。
+
+| 偏移 | 名称 | 含义 |
+|---|---|---|
+| 0x00 / 0x04 | SRC / DST | 对齐的NHWC INT8输入/输出地址 |
+| 0x08 / 0x0c / 0x10 | H / W / C | 1..160、1..160、1..1024 |
+| 0x14 | STRIDE | 1或2；kernel固定2×2 |
+| 0x18 | START | 写1启动，校验失败不发DMA |
+| 0x1c | STATUS | bit0忙、bit1完成、bit2错误；下次START清状态 |
+| 0x20 / 0x24 | CYCLES_LO/HI | 完成后读取64位忙周期 |
+
+源/目标必须位于数据区，范围不溢出且不重叠。配置写必须完整32位且地址对齐；忙期间配置写被忽略并置错误。输出高宽为floor((H-1)/stride)+1，右/下越界取-127。C为4的倍数时四通道比较与整字写回，否则逐字节回退。源/目标始终按对齐字访问，尾部用wstrb保护。
+
+firmware的type2操作在mode!=2、kernel=2时调用det_pool；mode=2或其他kernel保留CPU实现，因此B0仍是CPU卷积/池化基线。未将池化与卷积融合为同一个流式流水。

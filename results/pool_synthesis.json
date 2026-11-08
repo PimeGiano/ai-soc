@@ -1,0 +1,80 @@
+{
+  "stage": "RTL process/structural check; no FPGA placement/timing",
+  "scratch_bytes": 0,
+  "statistics": {
+    "creator": "Yosys 0.52 (git sha1 fee39a3284c90249e1d9684cf6944ffbbcbb8f90)",
+    "invocation": "stat -json ",
+    "modules": {
+      "\\pool_accelerator": {
+        "num_wires": 238,
+        "num_wire_bits": 3419,
+        "num_pub_wires": 42,
+        "num_pub_wire_bits": 960,
+        "num_ports": 14,
+        "num_port_bits": 182,
+        "num_memories": 0,
+        "num_memory_bits": 0,
+        "num_processes": 0,
+        "num_cells": 231,
+        "num_cells_by_type": {
+          "$add": 18,
+          "$eq": 17,
+          "$ge": 3,
+          "$gt": 9,
+          "$le": 1,
+          "$logic_and": 12,
+          "$logic_not": 7,
+          "$logic_or": 16,
+          "$lt": 8,
+          "$mul": 10,
+          "$mux": 68,
+          "$ne": 11,
+          "$not": 1,
+          "$pmux": 7,
+          "$reduce_and": 12,
+          "$reduce_bool": 8,
+          "$sdff": 6,
+          "$sdffe": 12,
+          "$shl": 2,
+          "$shr": 1,
+          "$sub": 2
+        }
+      }
+    },
+    "design": {
+      "num_wires": 238,
+      "num_wire_bits": 3419,
+      "num_pub_wires": 42,
+      "num_pub_wire_bits": 960,
+      "num_ports": 14,
+      "num_port_bits": 182,
+      "num_memories": 0,
+      "num_memory_bits": 0,
+      "num_processes": 0,
+      "num_cells": 231,
+      "num_cells_by_type": {
+        "$add": 18,
+        "$eq": 17,
+        "$ge": 3,
+        "$gt": 9,
+        "$le": 1,
+        "$logic_and": 12,
+        "$logic_not": 7,
+        "$logic_or": 16,
+        "$lt": 8,
+        "$mul": 10,
+        "$mux": 68,
+        "$ne": 11,
+        "$not": 1,
+        "$pmux": 7,
+        "$reduce_and": 12,
+        "$reduce_bool": 8,
+        "$sdff": 6,
+        "$sdffe": 12,
+        "$shl": 2,
+        "$shr": 1,
+        "$sub": 2
+      }
+    }
+  }
+}

@@ -88,12 +88,27 @@ for model in models:
 (base / "summary.json").write_text(json.dumps(models, indent=2) + "\n")
 tests = []
 for name in [
+	"pool.log",
+	"cache.log",
 	"converter.log",
 	"accel_delay0.log",
 	"accel_delay3.log",
+	"accel_delay15.log",
+	"stress_delay0.log",
+	"stress_delay15.log",
+	"ablation_serial.log",
+	"ablation_no_prefetch.log",
 	"smoke_ordinary.log",
 	"smoke_fused.log",
 	"smoke_cpu.log",
+	"smoke_pool_packed.log",
+	"smoke_pool_tail.log",
+	"smoke_pool_cpu.log",
+	"smoke_copy_identity.log",
+	"smoke_copy_scaled.log",
+	"smoke_copy_unaligned.log",
+	"smoke_slice_word.log",
+	"smoke_slice_tail.log",
 ]:
 	p = base / name
 	passed = p.exists() and "PASS" in p.read_text() and "FAIL" not in p.read_text()
@@ -115,7 +130,7 @@ lines = [
 	"",
 	*tests,
 	"",
-	"普通/融合RTL覆盖151组有效任务及7组非法任务，另验证对齐拒绝、busy拒绝、W1C、随机等待和任务中复位重跑。输入转换器2048样本含背压/复位；真实CPU小图包含普通卷积、融合和纯CPU基线。完整模型每层由CPU哈希和测试平台逐字节双重检查。",
+	"普通/融合RTL覆盖151组有效任务及7组非法任务，另验证对齐拒绝、busy拒绝、W1C、随机等待和任务中复位重跑（含后台预取）。另有6组容量/行旋转/融合跨源压力测试、串行取数/关闭预取消融，以及独立指令缓存冲突/失效/等待/复位测试。输入转换器2048样本含背压/复位；真实CPU小图包含普通卷积、融合和纯CPU基线。完整模型每层由CPU哈希和测试平台逐字节双重检查。",
 	"",
 	"## 融合子图：M物化 / F融合",
 	"",
@@ -143,9 +158,9 @@ lines = [
 	"",
 	"## 资源与未达目标",
 	"",
-	"已完成Yosys层次/进程/存储收集/结构检查；保留RAM，实际scratch24KiB，预算40KiB，无双bank重叠。synthesis.json为RTL级算子统计，不是门级面积/时序。",
+	"已完成Yosys层次/进程/存储收集/结构检查；保留RAM，实际scratch40KiB，X/W双slot、每slot四路bank，后台预取与计算重叠；CPU指令缓存数据/标签/有效位另计1248B。synthesis.json为RTL级算子统计，不是门级面积/时序。",
 	"",
-	"性能研究目标为子图数据流量减少30%、周期减少15%；实测周期目标达成，流量30%目标未达成，不能将功能通过写为所有性能达标。完整B0仅做小图，未测完整模型CPU周期。",
+	"性能研究目标为子图数据流量减少30%、周期减少15%；是否达标见summary.json各模型comparison中的布尔字段，不能将功能通过写为所有性能达标。CPU物化路径也使用精确查表优化，因此当前M/F差异不可套用旧版百分比。完整B0仅做小图，未测完整模型CPU周期。",
 	"",
 	"## 等尺度隔离实验（合成子图）",
 	"",

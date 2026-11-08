@@ -13,6 +13,6 @@ verilator --cc --exe --build --assert -Wall -j 2 -Irtl --top-module det_accelera
 	cat build/build_accel.log
 	exit 1
 }
-for delay in 0 3; do
+for delay in 0 3 15; do
 	build/accel/Vdet_accelerator build/vectors.mem build/jobs.txt "$delay" | tee "results/accel_delay${delay}.log"
 done

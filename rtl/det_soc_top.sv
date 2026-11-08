@@ -1,5 +1,9 @@
 `timescale 1ns / 1ps
-module det_soc_top (
+module det_soc_top #(
+	parameter ENABLE_ICACHE = 1,
+	parameter ENABLE_PREFETCH = 1,
+	parameter ENABLE_BANKED_GATHER = 1
+) (
 	input wire clk, rst,
 	output wire trap,
 	output wire mem_valid,
@@ -10,10 +14,16 @@ module det_soc_top (
 	output wire mem_dma, mem_instr
 );
 
-	wire cv, cr, dv, dr, sv, sr, ci;
+	wire cv, cr, dv, dr, sv, sr, ci, cbv, cbr;
+	wire [31:0] cbd;
 	wire [31:0] ca, cw, cd, da, dw, dd, sa, sw, sd;
 	wire [3:0] cs, ds, ss;
 	wire reg_select = sa[31:8] == 24'h100001;
+	wire pool_select = sa[31:8] == 24'h100002;
+	wire pool_rr, pool_dv, pool_dr, external_ready;
+	wire [31:0] pool_rd, pool_da, pool_dw;
+	wire [31:0] unused_pool_crdata, unused_pool_drdata;
+	wire [3:0] pool_ds;
 	wire rr;
 	wire [31:0] rd;
 	/* verilator lint_off PINCONNECTEMPTY */
@@ -55,15 +65,38 @@ module det_soc_top (
 		.trace_data()
 	);
 	/* verilator lint_on PINCONNECTEMPTY */
+	generate
+		if (ENABLE_ICACHE != 0) begin : cached_cpu
+
+			instruction_cache icache (
+				.clk(clk),
+				.rst(rst),
+				.cpu_valid(cv),
+				.cpu_instr(ci),
+				.cpu_addr(ca),
+				.cpu_wstrb(cs),
+				.cpu_ready(cr),
+				.cpu_rdata(cd),
+				.bus_valid(cbv),
+				.bus_ready(cbr),
+				.bus_rdata(cbd)
+			);
+		end else begin : uncached_cpu
+			assign cbv = cv;
+			assign cr = cbr;
+			assign cd = cbd;
+		end
+	endgenerate
+
 	native_arbiter arb (
 		.clk(clk),
 		.rst(rst),
-		.c_valid(cv),
+		.c_valid(cbv),
 		.c_addr(ca),
 		.c_wdata(cw),
 		.c_wstrb(cs),
-		.c_ready(cr),
-		.c_rdata(cd),
+		.c_ready(cbr),
+		.c_rdata(cbd),
 		.d_valid(dv),
 		.d_addr(da),
 		.d_wdata(dw),
@@ -77,7 +110,10 @@ module det_soc_top (
 		.s_ready(sr),
 		.s_rdata(sd)
 	);
-	det_accelerator accel (
+	det_accelerator #(
+		.ENABLE_PREFETCH(ENABLE_PREFETCH),
+		.ENABLE_BANKED_GATHER(ENABLE_BANKED_GATHER)
+	) accel (
 		.clk(clk),
 		.rst(rst),
 		.reg_valid(sv && reg_select),
@@ -94,20 +130,50 @@ module det_soc_top (
 		.dma_rdata(dd)
 	);
 
-	assign mem_valid = sv && !reg_select;
+	pool_accelerator pool_engine (
+		.clk(clk),
+		.rst(rst),
+		.reg_valid(sv && pool_select),
+		.reg_addr(sa[7:0]),
+		.reg_wdata(sw),
+		.reg_wstrb(ss),
+		.reg_ready(pool_rr),
+		.reg_rdata(pool_rd),
+		.dma_valid(pool_dv),
+		.dma_addr(pool_da),
+		.dma_wdata(pool_dw),
+		.dma_wstrb(pool_ds),
+		.dma_ready(pool_dr),
+		.dma_rdata(mem_rdata)
+	);
 
-	assign mem_addr = sa;
+	// Pool and convolution execute sequential graph operators. This outer
+	// arbiter nevertheless locks stalled requests and supports contention.
+	native_arbiter pool_arbiter (
+		.clk(clk),
+		.rst(rst),
+		.c_valid(sv && !reg_select && !pool_select),
+		.c_addr(sa),
+		.c_wdata(sw),
+		.c_wstrb(ss),
+		.c_ready(external_ready),
+		.c_rdata(unused_pool_crdata),
+		.d_valid(pool_dv),
+		.d_addr(pool_da),
+		.d_wdata(pool_dw),
+		.d_wstrb(pool_ds),
+		.d_ready(pool_dr),
+		.d_rdata(unused_pool_drdata),
+		.s_valid(mem_valid),
+		.s_addr(mem_addr),
+		.s_wdata(mem_wdata),
+		.s_wstrb(mem_wstrb),
+		.s_ready(mem_ready),
+		.s_rdata(mem_rdata)
+	);
 
-	assign mem_wdata = sw;
-
-	assign mem_wstrb = ss;
-
-	assign sr = reg_select ? rr : mem_ready;
-
-	assign sd = reg_select ? rd : mem_rdata;
-	// Only meaningful on a completed external transaction, when dr identifies owner.
-
-	assign mem_dma = dr && !reg_select;
-
+	assign sr = reg_select ? rr : (pool_select ? pool_rr : external_ready);
+	assign sd = reg_select ? rd : (pool_select ? pool_rd : mem_rdata);
+	assign mem_dma = pool_dr || (dr && !reg_select && !pool_select);
 	assign mem_instr = ci && !mem_dma;
 endmodule

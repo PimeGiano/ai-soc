@@ -1,159 +1,159 @@
-CASE 0 PASS cycles=833 compute=16 reads=55 writes=4
-CASE 1 PASS cycles=5226 compute=288 reads=103 writes=18
-CASE 2 PASS cycles=19524 compute=864 reads=585 writes=54
-CASE 3 PASS cycles=10746 compute=448 reads=438 writes=245
-CASE 4 PASS cycles=5701 compute=288 reads=114 writes=4
-CASE 5 PASS cycles=4038 compute=128 reads=129 writes=16
-CASE 6 PASS cycles=74561 compute=1400 reads=5762 writes=1071
-CASE 7 PASS cycles=2950 compute=144 reads=92 writes=12
-CASE 8 PASS cycles=12743 compute=640 reads=236 writes=45
-CASE 9 PASS cycles=55411 compute=2880 reads=1393 writes=75
-CASE 10 PASS cycles=952 compute=16 reads=71 writes=16
-CASE 11 PASS cycles=26273 compute=1728 reads=125 writes=18
-CASE 12 PASS cycles=5122 compute=80 reads=527 writes=204
-CASE 13 PASS cycles=19424 compute=420 reads=1005 writes=105
-CASE 14 PASS cycles=2202 compute=40 reads=239 writes=30
-CASE 15 PASS cycles=71786 compute=4320 reads=1038 writes=75
-CASE 16 PASS cycles=127012 compute=6912 reads=3041 writes=80
-CASE 17 PASS cycles=9694 compute=384 reads=204 writes=12
-CASE 18 PASS cycles=68903 compute=4608 reads=1016 writes=60
-CASE 19 PASS cycles=645 compute=12 reads=64 writes=6
-CASE 20 PASS cycles=62318 compute=3456 reads=1254 writes=45
-CASE 21 PASS cycles=21188 compute=1296 reads=292 writes=35
-CASE 22 PASS cycles=88632 compute=2880 reads=3761 writes=1190
-CASE 23 PASS cycles=21265 compute=1152 reads=613 writes=42
-CASE 24 PASS cycles=34485 compute=1728 reads=1002 writes=25
-CASE 25 PASS cycles=12462 compute=288 reads=1061 writes=360
-CASE 26 PASS cycles=4273 compute=176 reads=228 writes=126
-CASE 27 PASS cycles=20055 compute=448 reads=1216 writes=340
-CASE 28 PASS cycles=7999 compute=120 reads=654 writes=153
-CASE 29 PASS cycles=11689 compute=576 reads=320 writes=30
-CASE 30 PASS cycles=113391 compute=7488 reads=1346 writes=175
-CASE 31 PASS cycles=36184 compute=1296 reads=1631 writes=50
-CASE 32 PASS cycles=177498 compute=8640 reads=6814 writes=408
-CASE 33 PASS cycles=8868 compute=256 reads=431 writes=48
-CASE 34 PASS cycles=52202 compute=2880 reads=763 writes=272
-CASE 35 PASS cycles=7686 compute=160 reads=653 writes=320
-CASE 36 PASS cycles=5149 compute=288 reads=96 writes=18
-CASE 37 PASS cycles=10989 compute=576 reads=168 writes=4
-CASE 38 PASS cycles=20340 compute=560 reads=390 writes=49
-CASE 39 PASS cycles=2971 compute=96 reads=157 writes=50
-CASE 40 PASS cycles=160270 compute=9504 reads=3396 writes=175
-CASE 41 PASS cycles=15156 compute=640 reads=609 writes=280
-CASE 42 PASS cycles=5501 compute=96 reads=261 writes=36
-CASE 43 PASS cycles=132020 compute=4320 reads=6327 writes=510
-CASE 44 PASS cycles=9436 compute=384 reads=251 writes=126
-CASE 45 PASS cycles=1617 compute=48 reads=89 writes=9
-CASE 46 PASS cycles=7850 compute=256 reads=224 writes=12
-CASE 47 PASS cycles=1889 compute=48 reads=108 writes=24
-CASE 48 PASS cycles=94367 compute=4608 reads=2675 writes=120
-CASE 49 PASS cycles=9218 compute=576 reads=201 writes=60
-CASE 50 PASS cycles=2636 compute=64 reads=107 writes=6
-CASE 51 PASS cycles=8091 compute=320 reads=415 writes=150
-CASE 52 PASS cycles=9359 compute=576 reads=125 writes=20
-CASE 53 PASS cycles=44245 compute=2880 reads=142 writes=15
-CASE 54 PASS cycles=2634 compute=64 reads=142 writes=48
-CASE 55 PASS cycles=1602 compute=48 reads=100 writes=27
-CASE 56 PASS cycles=110822 compute=2400 reads=5629 writes=1020
-CASE 57 PASS cycles=21652 compute=720 reads=1250 writes=40
-CASE 58 PASS cycles=1889 compute=64 reads=86 writes=12
-CASE 59 PASS cycles=6046 compute=288 reads=159 writes=16
-CASE 60 PASS cycles=12674 compute=576 reads=239 writes=16
-CASE 61 PASS cycles=17197 compute=864 reads=517 writes=9
-CASE 62 PASS cycles=1419 compute=32 reads=71 writes=12
-CASE 63 PASS cycles=20942 compute=1296 reads=389 writes=18
-CASE 64 PASS cycles=9336 compute=576 reads=81 writes=4
-CASE 65 PASS cycles=56438 compute=2160 reads=1806 writes=153
-CASE 66 PASS cycles=84704 compute=4608 reads=2091 writes=68
-CASE 67 PASS cycles=16526 compute=384 reads=1567 writes=816
-CASE 68 PASS cycles=9670 compute=360 reads=497 writes=102
-CASE 69 PASS cycles=1941 compute=48 reads=141 writes=45
-CASE 70 PASS cycles=26842 compute=800 reads=500 writes=96
-CASE 71 PASS cycles=5888 compute=288 reads=189 writes=30
-CASE 72 PASS cycles=2666 compute=144 reads=58 writes=2
-CASE 73 PASS cycles=21093 compute=720 reads=395 writes=54
-CASE 74 PASS cycles=75746 compute=1920 reads=3053 writes=612
-CASE 75 PASS cycles=70312 compute=3456 reads=2357 writes=150
-CASE 76 PASS cycles=69476 compute=3072 reads=2475 writes=204
-CASE 77 PASS cycles=3786 compute=144 reads=193 writes=6
-CASE 78 PASS cycles=20451 compute=1152 reads=268 writes=4
-CASE 79 PASS cycles=55614 compute=3168 reads=1189 writes=175
-CASE 80 PASS cycles=15029 compute=864 reads=267 writes=30
-CASE 81 PASS cycles=15730 compute=1008 reads=163 writes=28
-CASE 82 PASS cycles=341082 compute=17280 reads=10637 writes=120
-CASE 83 PASS cycles=37069 compute=2160 reads=737 writes=30
-CASE 84 PASS cycles=2540 compute=96 reads=144 writes=45
-CASE 85 PASS cycles=33247 compute=1728 reads=793 writes=75
-CASE 86 PASS cycles=3074 compute=144 reads=98 writes=12
-CASE 87 PASS cycles=77250 compute=2880 reads=4241 writes=140
-CASE 88 PASS cycles=31698 compute=2304 reads=282 writes=18
-CASE 89 PASS cycles=14120 compute=512 reads=441 writes=80
-CASE 90 PASS cycles=5266 compute=288 reads=85 writes=8
-CASE 91 PASS cycles=16147 compute=576 reads=705 writes=36
-CASE 92 PASS cycles=1547 compute=64 reads=65 writes=12
-CASE 93 PASS cycles=6787 compute=144 reads=333 writes=60
-CASE 94 PASS cycles=194312 compute=8640 reads=9105 writes=306
-CASE 95 PASS cycles=20032 compute=1152 reads=365 writes=20
-CASE 96 PASS cycles=8419 compute=288 reads=477 writes=153
-CASE 97 PASS cycles=64185 compute=4032 reads=629 writes=105
-CASE 98 PASS cycles=15490 compute=400 reads=702 writes=210
-CASE 99 PASS cycles=2500 compute=144 reads=48 writes=2
-CASE 100 PASS cycles=18714 compute=1152 reads=482 writes=120
-CASE 101 PASS cycles=126473 compute=4608 reads=4197 writes=160
-CASE 102 PASS cycles=362669 compute=17280 reads=8065 writes=240
-CASE 103 PASS cycles=183635 compute=10368 reads=4227 writes=272
-CASE 104 PASS cycles=5805 compute=192 reads=203 writes=20
-CASE 105 PASS cycles=202653 compute=12096 reads=4995 writes=544
-CASE 106 PASS cycles=35717 compute=1440 reads=1529 writes=40
-CASE 107 PASS cycles=39497 compute=2160 reads=376 writes=12
-CASE 108 PASS cycles=17666 compute=1152 reads=205 writes=32
-CASE 109 PASS cycles=30581 compute=2304 reads=227 writes=80
-CASE 110 PASS cycles=56843 compute=2160 reads=1479 writes=48
-CASE 111 PASS cycles=58919 compute=3456 reads=759 writes=240
-CASE 112 PASS cycles=202814 compute=13104 reads=1640 writes=48
-CASE 113 PASS cycles=84012 compute=3456 reads=1816 writes=36
-CASE 114 PASS cycles=16550 compute=1152 reads=156 writes=12
-CASE 115 PASS cycles=125752 compute=5544 reads=4466 writes=160
-CASE 116 PASS cycles=25055 compute=1296 reads=353 writes=12
-CASE 117 PASS cycles=38212 compute=2880 reads=184 writes=36
-CASE 118 PASS cycles=84959 compute=5760 reads=981 writes=160
-CASE 119 PASS cycles=320297 compute=13824 reads=10169 writes=816
-CASE 120 PASS cycles=6479 compute=192 reads=509 writes=272
-CASE 121 PASS cycles=25454 compute=1260 reads=571 writes=16
-CASE 122 PASS cycles=45789 compute=2592 reads=991 writes=180
-CASE 123 PASS cycles=72187 compute=3456 reads=1939 writes=320
-CASE 124 PASS cycles=116313 compute=6912 reads=1561 writes=408
-CASE 125 PASS cycles=16530 compute=480 reads=748 writes=136
-CASE 126 PASS cycles=239593 compute=11520 reads=6505 writes=272
-CASE 127 PASS cycles=286729 compute=13824 reads=7529 writes=816
-CASE 128 PASS cycles=25653 compute=640 reads=1281 writes=136
-CASE 129 PASS cycles=55123 compute=2880 reads=2057 writes=544
-CASE 130 PASS cycles=545509 compute=27648 reads=12325 writes=816
-CASE 131 PASS cycles=213137 compute=10368 reads=7601 writes=544
-CASE 132 PASS cycles=76817 compute=3456 reads=1973 writes=240
-CASE 133 PASS cycles=83693 compute=4608 reads=1045 writes=16
-CASE 134 PASS cycles=111826 compute=6048 reads=2888 writes=408
-CASE 135 PASS cycles=205348 compute=10368 reads=5048 writes=160
-CASE 136 PASS cycles=130397 compute=6912 reads=2473 writes=80
-CASE 137 PASS cycles=381135 compute=20736 reads=10687 writes=816
-CASE 138 PASS cycles=4931 compute=96 reads=187 writes=16
-CASE 139 PASS cycles=98559 compute=6912 reads=803 writes=48
-CASE 140 PASS cycles=19901 compute=864 reads=659 writes=40
-CASE 141 PASS cycles=459129 compute=27648 reads=3585 writes=48
-CASE 142 PASS cycles=5921 compute=192 reads=433 writes=60
-CASE 143 PASS cycles=24533 compute=1728 reads=407 writes=120
-CASE 144 PASS cycles=19605 compute=384 reads=905 writes=80
-CASE 145 PASS cycles=774797 compute=46080 reads=15301 writes=1088
-CASE 146 PASS cycles=198385 compute=10368 reads=2625 writes=48
-CASE 147 PASS cycles=49997 compute=3456 reads=899 writes=160
-CASE 148 PASS cycles=3333 compute=128 reads=92 writes=4
-CASE 149 PASS cycles=9472 compute=384 reads=478 writes=204
-CASE 150 PASS cycles=130 compute=0 reads=32 writes=0
-CASE 151 PASS cycles=130 compute=0 reads=32 writes=0
-CASE 152 PASS cycles=130 compute=0 reads=32 writes=0
-CASE 153 PASS cycles=130 compute=0 reads=32 writes=0
-CASE 154 PASS cycles=130 compute=0 reads=32 writes=0
-CASE 155 PASS cycles=225435 compute=9216 reads=4650 writes=1
-CASE 156 PASS cycles=142 compute=0 reads=35 writes=0
-CASE 157 PASS cycles=193 compute=0 reads=48 writes=0
-DETECTION ACCEL PASS jobs=158 cycles=9952940 delay=0
+CASE 0 PASS cycles=474 compute=7 reads=55 writes=4 load=257 gather=8 partial=0 param=55 output=20 control=134 fast=7 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 1 PASS cycles=1188 compute=18 reads=103 writes=18 load=790 gather=20 partial=0 param=190 output=50 control=138 fast=18 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 2 PASS cycles=8150 compute=378 reads=585 writes=54 load=7012 gather=384 partial=0 param=450 output=150 control=154 fast=378 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 3 PASS cycles=2691 compute=28 reads=288 writes=245 load=759 gather=56 partial=0 param=1020 output=654 control=202 fast=28 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 4 PASS cycles=1739 compute=126 reads=114 writes=4 load=1347 gather=128 partial=0 param=90 output=36 control=138 fast=126 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 5 PASS cycles=1582 compute=56 reads=129 writes=16 load=912 gather=64 partial=0 param=300 output=144 control=162 fast=56 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 6 PASS cycles=41551 compute=1225 reads=5762 writes=1071 load=11960 gather=1575 partial=5775 param=12765 output=3679 control=5797 fast=1225 serial=0 prefetch=8275 overlap=700 prefetch_wait=4442
+CASE 7 PASS cycles=979 compute=27 reads=92 writes=12 load=664 gather=28 partial=0 param=125 output=28 control=134 fast=27 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 8 PASS cycles=2691 compute=85 reads=206 writes=45 load=1413 gather=95 partial=165 param=255 output=125 control=638 fast=85 serial=0 prefetch=651 overlap=80 prefetch_wait=479
+CASE 9 PASS cycles=13638 compute=630 reads=1393 writes=75 load=6139 gather=650 partial=330 param=710 output=235 control=5574 fast=630 serial=0 prefetch=5914 overlap=360 prefetch_wait=5374
+CASE 10 PASS cycles=592 compute=4 reads=71 writes=16 load=198 gather=8 partial=0 param=160 output=80 control=146 fast=4 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 11 PASS cycles=3008 compute=27 reads=125 writes=18 load=2515 gather=30 partial=0 param=255 output=66 control=142 fast=27 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 12 PASS cycles=2828 compute=20 reads=357 writes=204 load=1060 gather=40 partial=0 param=1050 output=488 control=190 fast=20 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 13 PASS cycles=7194 compute=357 reads=1005 writes=105 load=1230 gather=462 partial=2772 param=1425 output=441 control=864 fast=357 serial=0 prefetch=2979 overlap=336 prefetch_wait=398
+CASE 14 PASS cycles=1622 compute=30 reads=239 writes=30 load=512 gather=40 partial=0 param=710 output=190 control=170 fast=30 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 15 PASS cycles=16379 compute=810 reads=1038 writes=75 load=12951 gather=840 partial=0 param=1825 output=543 control=220 fast=810 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 16 PASS cycles=32122 compute=2448 reads=3041 writes=80 load=12161 gather=2496 partial=1056 param=1020 output=324 control=15065 fast=2448 serial=0 prefetch=17975 overlap=2304 prefetch_wait=14807
+CASE 17 PASS cycles=3054 compute=51 reads=194 writes=12 load=2131 gather=57 partial=99 param=55 output=60 control=652 fast=51 serial=0 prefetch=611 overlap=48 prefetch_wait=507
+CASE 18 PASS cycles=13118 compute=1368 reads=966 writes=60 load=8197 gather=1384 partial=264 param=330 output=179 control=2764 fast=1368 serial=0 prefetch=3898 overlap=1152 prefetch_wait=2596
+CASE 19 PASS cycles=429 compute=3 reads=64 writes=6 load=102 gather=6 partial=0 param=125 output=54 control=142 fast=3 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 20 PASS cycles=16479 compute=1026 reads=1254 writes=45 load=10313 gather=1038 partial=198 param=445 output=132 control=4353 fast=1026 serial=0 prefetch=5165 overlap=864 prefetch_wait=4190
+CASE 21 PASS cycles=5357 compute=567 reads=267 writes=35 load=4286 gather=576 partial=0 param=160 output=179 control=156 fast=567 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 22 PASS cycles=26259 compute=1900 reads=2741 writes=1190 load=8568 gather=2200 partial=6600 param=3180 output=2574 control=3137 fast=1900 serial=0 prefetch=8524 overlap=1446 prefetch_wait=2311
+CASE 23 PASS cycles=6598 compute=684 reads=583 writes=42 load=4440 gather=692 partial=132 param=190 output=106 control=1038 fast=684 serial=0 prefetch=1536 overlap=576 prefetch_wait=886
+CASE 24 PASS cycles=12268 compute=918 reads=1002 writes=25 load=8245 gather=930 partial=198 param=445 output=115 control=2335 fast=918 serial=0 prefetch=3147 overlap=864 prefetch_wait=2172
+CASE 25 PASS cycles=7980 compute=72 reads=1061 writes=360 load=1792 gather=144 partial=0 param=4240 output=1458 control=346 fast=72 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 26 PASS cycles=1244 compute=11 reads=123 writes=126 load=440 gather=22 partial=0 param=320 output=302 control=160 fast=11 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 27 PASS cycles=7743 compute=245 reads=961 writes=340 load=2584 gather=315 partial=1155 param=1760 output=840 control=1089 fast=245 serial=0 prefetch=1592 overlap=140 prefetch_wait=795
+CASE 28 PASS cycles=4496 compute=105 reads=654 writes=153 load=1248 gather=135 partial=495 param=1405 output=357 control=856 fast=105 serial=0 prefetch=951 overlap=60 prefetch_wait=621
+CASE 29 PASS cycles=4143 compute=252 reads=320 writes=30 load=3327 gather=256 partial=0 param=330 output=88 control=142 fast=252 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 30 PASS cycles=21706 compute=1638 reads=1246 writes=175 load=18143 gather=1664 partial=0 param=1135 output=564 control=200 fast=1638 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 31 PASS cycles=13679 compute=1026 reads=1631 writes=50 load=6109 gather=1044 partial=396 param=445 output=137 control=5548 fast=1026 serial=0 prefetch=6540 overlap=864 prefetch_wait=5358
+CASE 32 PASS cycles=56013 compute=6120 reads=6474 writes=408 load=25581 gather=6240 partial=2640 param=1760 output=976 control=18816 fast=6120 serial=0 prefetch=26286 overlap=5760 prefetch_wait=18366
+CASE 33 PASS cycles=4146 compute=152 reads=431 writes=48 load=2276 gather=168 partial=264 param=580 output=176 control=682 fast=152 serial=0 prefetch=768 overlap=128 prefetch_wait=496
+CASE 34 PASS cycles=12110 compute=180 reads=763 writes=272 load=9396 gather=200 partial=0 param=1760 output=544 control=210 fast=180 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 35 PASS cycles=4338 compute=120 reads=453 writes=320 load=1552 gather=160 partial=0 param=1480 output=912 control=234 fast=120 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 36 PASS cycles=1111 compute=18 reads=96 writes=18 load=713 gather=20 partial=0 param=190 output=50 control=138 fast=18 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 37 PASS cycles=2844 compute=153 reads=168 writes=4 load=1662 gather=155 partial=33 param=55 output=20 control=919 fast=153 serial=0 prefetch=944 overlap=144 prefetch_wait=782
+CASE 38 PASS cycles=3742 compute=266 reads=350 writes=49 load=681 gather=336 partial=1848 param=230 output=273 control=374 fast=266 serial=0 prefetch=1613 overlap=184 prefetch_wait=68
+CASE 39 PASS cycles=1185 compute=18 reads=132 writes=50 load=548 gather=24 partial=0 param=330 output=137 control=146 fast=18 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 40 PASS cycles=35270 compute=3366 reads=3321 writes=175 load=13814 gather=3432 partial=1452 param=1020 output=500 control=15052 fast=3366 serial=0 prefetch=19120 overlap=3168 prefetch_wait=14758
+CASE 41 PASS cycles=3766 compute=40 reads=409 writes=280 load=1094 gather=80 partial=0 param=1480 output=878 control=234 fast=40 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 42 PASS cycles=2847 compute=57 reads=231 writes=36 load=1920 gather=63 partial=99 param=125 output=84 control=556 fast=57 serial=0 prefetch=515 overlap=48 prefetch_wait=411
+CASE 43 PASS cycles=48554 compute=2550 reads=6327 writes=510 load=14055 gather=3000 partial=9900 param=10990 output=2814 control=7795 fast=2550 serial=0 prefetch=16875 overlap=2400 prefetch_wait=6405
+CASE 44 PASS cycles=2188 compute=12 reads=251 writes=126 load=828 gather=24 partial=0 param=840 output=318 control=178 fast=12 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 45 PASS cycles=839 compute=42 reads=89 writes=9 load=302 gather=48 partial=0 param=230 output=105 control=154 fast=42 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 46 PASS cycles=2917 compute=76 reads=214 writes=12 load=1951 gather=84 partial=132 param=90 output=76 control=584 fast=76 serial=0 prefetch=570 overlap=64 prefetch_wait=432
+CASE 47 PASS cycles=690 compute=9 reads=93 writes=24 load=276 gather=12 partial=0 param=190 output=72 control=140 fast=9 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 48 PASS cycles=34264 compute=2448 reads=2675 writes=120 load=23479 gather=2480 partial=528 param=1020 output=358 control=6399 fast=2448 serial=0 prefetch=8781 overlap=2304 prefetch_wait=6181
+CASE 49 PASS cycles=2097 compute=72 reads=151 writes=60 load=1354 gather=80 partial=0 param=330 output=179 control=154 fast=72 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 50 PASS cycles=1161 compute=38 reads=102 writes=6 load=662 gather=42 partial=66 param=55 output=38 control=298 fast=38 serial=0 prefetch=226 overlap=32 prefetch_wait=157
+CASE 51 PASS cycles=3271 compute=140 reads=315 writes=150 load=1693 gather=160 partial=0 param=790 output=446 control=182 fast=140 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 52 PASS cycles=1727 compute=54 reads=125 writes=20 load=1271 gather=56 partial=0 param=215 output=49 control=136 fast=54 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 53 PASS cycles=4765 compute=90 reads=142 writes=15 load=3950 gather=100 partial=0 param=370 output=175 control=170 fast=90 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 54 PASS cycles=1202 compute=12 reads=97 writes=48 load=809 gather=16 partial=0 param=125 output=112 control=140 fast=12 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 55 PASS cycles=611 compute=3 reads=70 writes=27 load=267 gather=6 partial=0 param=125 output=75 control=138 fast=3 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 56 PASS cycles=37482 compute=1700 reads=5629 writes=1020 load=7056 gather=2200 partial=13200 param=7440 output=2440 control=5146 fast=1700 serial=0 prefetch=17428 overlap=1600 prefetch_wait=3656
+CASE 57 PASS cycles=7811 compute=684 reads=1250 writes=40 load=1958 gather=704 partial=528 param=330 output=98 control=4193 fast=684 serial=0 prefetch=5087 overlap=576 prefetch_wait=4011
+CASE 58 PASS cycles=740 compute=7 reads=86 writes=12 load=445 gather=8 partial=0 param=125 output=28 control=134 fast=7 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 59 PASS cycles=2462 compute=252 reads=149 writes=16 load=1894 gather=256 partial=0 param=90 output=80 control=142 fast=252 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 60 PASS cycles=4350 compute=252 reads=239 writes=16 load=3708 gather=256 partial=0 param=160 output=80 control=146 fast=252 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 61 PASS cycles=4937 compute=306 reads=517 writes=9 load=1900 gather=312 partial=132 param=190 output=41 control=2362 fast=306 serial=0 prefetch=2606 overlap=288 prefetch_wait=2212
+CASE 62 PASS cycles=633 compute=12 reads=61 writes=12 load=309 gather=16 partial=0 param=90 output=76 control=142 fast=12 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 63 PASS cycles=4116 compute=918 reads=369 writes=18 load=1702 gather=936 partial=396 param=90 output=114 control=878 fast=918 serial=0 prefetch=1894 overlap=864 prefetch_wait=704
+CASE 64 PASS cycles=1500 compute=36 reads=81 writes=4 load=1086 gather=40 partial=0 param=160 output=68 control=146 fast=36 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 65 PASS cycles=25283 compute=945 reads=1806 writes=153 load=22371 gather=960 partial=0 param=1405 output=357 control=190 fast=945 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 66 PASS cycles=26102 compute=1530 reads=2091 writes=68 load=16918 gather=1550 partial=330 param=1050 output=216 control=6038 fast=1530 serial=0 prefetch=7482 overlap=1440 prefetch_wait=5856
+CASE 67 PASS cycles=6450 compute=80 reads=717 writes=816 load=1542 gather=160 partial=0 param=2470 output=1952 control=326 fast=80 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 68 PASS cycles=5205 compute=270 reads=412 writes=102 load=3832 gather=280 partial=0 param=695 output=238 control=160 fast=270 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 69 PASS cycles=706 compute=6 reads=91 writes=45 load=203 gather=12 partial=0 param=215 output=132 control=144 fast=6 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 70 PASS cycles=3797 compute=170 reads=440 writes=96 load=704 gather=220 partial=1320 param=450 output=256 control=847 fast=170 serial=0 prefetch=1981 overlap=160 prefetch_wait=581
+CASE 71 PASS cycles=2156 compute=108 reads=189 writes=30 load=1484 gather=112 partial=0 param=330 output=88 control=142 fast=108 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 72 PASS cycles=689 compute=27 reads=58 writes=2 load=454 gather=28 partial=0 param=55 output=18 control=134 fast=27 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 73 PASS cycles=5126 compute=255 reads=395 writes=54 load=1625 gather=300 partial=990 param=545 output=294 control=1372 fast=255 serial=0 prefetch=2127 overlap=240 prefetch_wait=1092
+CASE 74 PASS cycles=21130 compute=1020 reads=3053 writes=612 load=3386 gather=1320 partial=7920 param=4600 output=1464 control=2440 fast=1020 serial=0 prefetch=9742 overlap=940 prefetch_wait=1566
+CASE 75 PASS cycles=20932 compute=2448 reads=2257 writes=150 load=9568 gather=2496 partial=1056 param=560 output=382 control=6870 fast=2448 serial=0 prefetch=9780 overlap=2304 prefetch_wait=6612
+CASE 76 PASS cycles=22736 compute=1140 reads=2475 writes=204 load=10524 gather=1260 partial=1980 param=4600 output=1128 control=3244 fast=1140 serial=0 prefetch=4878 overlap=960 prefetch_wait=2802
+CASE 77 PASS cycles=2068 compute=126 reads=193 writes=6 load=1574 gather=128 partial=0 param=190 output=38 control=138 fast=126 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 78 PASS cycles=4931 compute=306 reads=268 writes=4 load=2971 gather=310 partial=66 param=90 output=36 control=1458 fast=306 serial=0 prefetch=1638 overlap=288 prefetch_wait=1314
+CASE 79 PASS cycles=16540 compute=1386 reads=1114 writes=175 load=13422 gather=1408 partial=0 param=1020 output=500 control=190 fast=1386 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 80 PASS cycles=3674 compute=162 reads=267 writes=30 load=2793 gather=168 partial=0 param=445 output=120 control=148 fast=162 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 81 PASS cycles=3091 compute=189 reads=148 writes=28 load=2443 gather=196 partial=0 param=160 output=140 control=152 fast=189 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 82 PASS cycles=84994 compute=7344 reads=10637 writes=120 load=18141 gather=7584 partial=6336 param=2860 output=870 control=49203 fast=7344 serial=0 prefetch=61361 overlap=6912 prefetch_wait=48449
+CASE 83 PASS cycles=6542 compute=459 reads=722 writes=30 load=1375 gather=474 partial=396 param=190 output=78 control=4029 fast=459 serial=0 prefetch=4662 overlap=432 prefetch_wait=3857
+CASE 84 PASS cycles=1064 compute=6 reads=144 writes=45 load=327 gather=12 partial=0 param=445 output=132 control=148 fast=6 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 85 PASS cycles=10961 compute=756 reads=793 writes=75 load=8982 gather=768 partial=0 param=790 output=255 control=166 fast=756 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 86 PASS cycles=1091 compute=27 reads=98 writes=12 load=776 gather=28 partial=0 param=125 output=28 control=134 fast=27 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 87 PASS cycles=26645 compute=2736 reads=4241 writes=140 load=6460 gather=2816 partial=2112 param=1020 output=375 control=13862 fast=2736 serial=0 prefetch=17828 overlap=2304 prefetch_wait=13524
+CASE 88 PASS cycles=4482 compute=306 reads=267 writes=18 load=2530 gather=310 partial=66 param=125 output=50 control=1401 fast=306 serial=0 prefetch=1585 overlap=288 prefetch_wait=1260
+CASE 89 PASS cycles=4840 compute=152 reads=391 writes=80 load=3056 gather=168 partial=264 param=330 output=196 control=826 fast=152 serial=0 prefetch=936 overlap=128 prefetch_wait=658
+CASE 90 PASS cycles=1246 compute=36 reads=85 writes=8 load=828 gather=40 partial=0 param=160 output=72 control=146 fast=36 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 91 PASS cycles=9035 compute=504 reads=705 writes=36 load=7617 gather=512 partial=0 param=580 output=164 control=162 fast=504 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 92 PASS cycles=440 compute=1 reads=65 writes=12 load=151 gather=2 partial=0 param=125 output=28 control=134 fast=1 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 93 PASS cycles=2540 compute=114 reads=283 writes=60 load=1012 gather=132 partial=396 param=215 output=147 control=638 fast=114 serial=0 prefetch=892 overlap=96 prefetch_wait=468
+CASE 94 PASS cycles=60974 compute=4590 reads=9105 writes=306 load=14142 gather=4740 partial=3960 param=2470 output=726 control=34936 fast=4590 serial=0 prefetch=42516 overlap=4320 prefetch_wait=34434
+CASE 95 PASS cycles=5063 compute=306 reads=365 writes=20 load=2949 gather=310 partial=66 param=215 output=49 control=1474 fast=306 serial=0 prefetch=1658 overlap=288 prefetch_wait=1333
+CASE 96 PASS cycles=3588 compute=105 reads=392 writes=153 load=1889 gather=120 partial=0 param=1050 output=357 control=172 fast=105 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 97 PASS cycles=11079 compute=252 reads=629 writes=105 load=8340 gather=280 partial=0 param=1710 output=535 control=214 fast=252 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 98 PASS cycles=4830 compute=175 reads=552 writes=210 load=1395 gather=225 partial=825 param=1035 output=610 control=740 fast=175 serial=0 prefetch=1025 overlap=100 prefetch_wait=465
+CASE 99 PASS cycles=505 compute=9 reads=48 writes=2 load=288 gather=10 partial=0 param=55 output=18 control=134 fast=9 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 100 PASS cycles=3764 compute=576 reads=382 writes=120 load=2021 gather=592 partial=0 param=560 output=358 control=233 fast=576 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 101 PASS cycles=56003 compute=3744 reads=4319 writes=160 load=33876 gather=3776 partial=528 param=1020 output=392 control=16411 fast=3744 serial=0 prefetch=18698 overlap=2304 prefetch_wait=16106
+CASE 102 PASS cycles=63033 compute=8640 reads=8065 writes=240 load=13296 gather=8880 partial=6336 param=2860 output=972 control=30689 fast=8640 serial=0 prefetch=42784 overlap=6912 prefetch_wait=29872
+CASE 103 PASS cycles=30544 compute=5400 reads=4079 writes=272 load=10524 gather=5490 partial=1980 param=1760 output=704 control=10086 fast=5400 serial=0 prefetch=15490 overlap=4228 prefetch_wait=9681
+CASE 104 PASS cycles=1518 compute=80 reads=203 writes=20 load=374 gather=92 partial=264 param=330 output=81 control=377 fast=80 serial=0 prefetch=432 overlap=64 prefetch_wait=152
+CASE 105 PASS cycles=36197 compute=9360 reads=4563 writes=544 load=6716 gather=9640 partial=7920 param=1050 output=1088 control=9783 fast=9360 serial=0 prefetch=25546 overlap=8640 prefetch_wait=8982
+CASE 106 PASS cycles=12807 compute=1296 reads=1553 writes=40 load=2376 gather=1336 partial=1056 param=560 output=162 control=7317 fast=1296 serial=0 prefetch=9132 overlap=1152 prefetch_wait=6996
+CASE 107 PASS cycles=7003 compute=540 reads=382 writes=12 load=1183 gather=555 partial=396 param=125 output=60 control=4684 fast=540 serial=0 prefetch=5244 overlap=432 prefetch_wait=4443
+CASE 108 PASS cycles=4006 compute=432 reads=180 writes=32 load=3066 gather=440 partial=0 param=125 output=160 control=215 fast=432 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 109 PASS cycles=3129 compute=144 reads=177 writes=80 load=2238 gather=152 partial=0 param=330 output=196 control=213 fast=144 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 110 PASS cycles=18314 compute=1944 reads=1686 writes=48 load=4462 gather=2004 partial=1584 param=440 output=240 control=9584 fast=1944 serial=0 prefetch=12403 overlap=1728 prefetch_wait=9199
+CASE 111 PASS cycles=13055 compute=432 reads=759 writes=240 load=10266 gather=456 partial=0 param=1480 output=588 control=265 fast=432 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 112 PASS cycles=23734 compute=3042 reads=1634 writes=48 load=2933 gather=3133 partial=2574 param=230 output=256 control=14608 fast=3042 serial=0 prefetch=19544 overlap=2808 prefetch_wait=14185
+CASE 113 PASS cycles=33974 compute=2808 reads=1970 writes=36 load=20536 gather=2832 partial=396 param=440 output=228 control=9542 fast=2808 serial=0 prefetch=11209 overlap=1728 prefetch_wait=9265
+CASE 114 PASS cycles=2584 compute=432 reads=146 writes=12 load=1777 gather=436 partial=0 param=90 output=76 control=205 fast=432 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 115 PASS cycles=34705 compute=5148 reads=4389 writes=160 load=7214 gather=5302 partial=4356 param=790 output=488 control=16555 fast=5148 serial=0 prefetch=25016 overlap=4752 prefetch_wait=15958
+CASE 116 PASS cycles=5116 compute=648 reads=362 writes=12 load=1125 gather=666 partial=396 param=230 output=108 control=2591 fast=648 serial=0 prefetch=3088 overlap=432 prefetch_wait=2338
+CASE 117 PASS cycles=3520 compute=360 reads=154 writes=36 load=2573 gather=370 partial=0 param=160 output=196 control=221 fast=360 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 118 PASS cycles=11983 compute=1440 reads=881 writes=160 load=9032 gather=1460 partial=0 param=790 output=456 control=245 fast=1440 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 119 PASS cycles=88809 compute=8640 reads=10169 writes=816 load=47880 gather=8800 partial=2640 param=6020 output=1952 control=21517 fast=8640 serial=0 prefetch=28092 overlap=5760 prefetch_wait=20860
+CASE 120 PASS cycles=2851 compute=40 reads=339 writes=272 load=952 gather=60 partial=0 param=1050 output=544 control=245 fast=40 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 121 PASS cycles=6685 compute=1170 reads=570 writes=16 load=1112 gather=1205 partial=990 param=125 output=96 control=3157 fast=1170 serial=0 prefetch=4927 overlap=1080 prefetch_wait=2870
+CASE 122 PASS cycles=10407 compute=1296 reads=916 writes=180 load=7621 gather=1314 partial=0 param=790 output=441 control=241 fast=1296 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 123 PASS cycles=18139 compute=1728 reads=1939 writes=320 load=12126 gather=1776 partial=0 param=2860 output=1040 control=337 fast=1728 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 124 PASS cycles=25425 compute=720 reads=1561 writes=408 load=20188 gather=760 partial=0 param=3180 output=976 control=321 fast=720 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 125 PASS cycles=8583 compute=330 reads=683 writes=136 load=4535 gather=360 partial=495 param=1050 output=352 control=1791 fast=330 serial=0 prefetch=2023 overlap=240 prefetch_wait=1508
+CASE 126 PASS cycles=43055 compute=6480 reads=6527 writes=272 load=7960 gather=6580 partial=2640 param=1760 output=544 control=23571 fast=6480 serial=0 prefetch=31398 overlap=5760 prefetch_wait=23130
+CASE 127 PASS cycles=67129 compute=6480 reads=7601 writes=816 load=34384 gather=6600 partial=1980 param=4600 output=1632 control=17933 fast=6480 serial=0 prefetch=22864 overlap=4320 prefetch_wait=17428
+CASE 128 PASS cycles=12801 compute=520 reads=1281 writes=136 load=6690 gather=560 partial=660 param=1760 output=432 control=2699 fast=520 serial=0 prefetch=3046 overlap=320 prefetch_wait=2366
+CASE 129 PASS cycles=18971 compute=2160 reads=1587 writes=544 load=9078 gather=2240 partial=1320 param=1050 output=1088 control=4195 fast=2160 serial=0 prefetch=6002 overlap=1440 prefetch_wait=3812
+CASE 130 PASS cycles=127709 compute=10800 reads=12325 writes=816 load=73976 gather=10920 partial=1980 param=4600 output=1632 control=34601 fast=10800 serial=0 prefetch=43852 overlap=8640 prefetch_wait=34096
+CASE 131 PASS cycles=52959 compute=7920 reads=7327 writes=544 load=11494 gather=8160 partial=6600 param=1760 output=1088 control=23857 fast=7920 serial=0 prefetch=36760 overlap=7200 prefetch_wait=23100
+CASE 132 PASS cycles=26761 compute=2592 reads=1873 writes=240 load=22264 gather=2616 partial=0 param=1020 output=588 control=273 fast=2592 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 133 PASS cycles=19442 compute=1872 reads=1074 writes=16 load=5033 gather=1904 partial=792 param=300 output=144 control=11269 fast=1872 serial=0 prefetch=13404 overlap=1728 prefetch_wait=10972
+CASE 134 PASS cycles=18192 compute=3780 reads=2685 writes=408 load=4454 gather=3885 partial=2310 param=1760 output=896 control=4887 fast=3780 serial=0 prefetch=8718 overlap=2446 prefetch_wait=4452
+CASE 135 PASS cycles=53472 compute=4752 reads=5104 writes=160 load=19188 gather=4824 partial=1584 param=1480 output=520 control=25876 fast=4752 serial=0 prefetch=30243 overlap=3456 prefetch_wait=25491
+CASE 136 PASS cycles=23905 compute=2880 reads=2473 writes=80 load=7804 gather=2928 partial=1056 param=1020 output=324 control=10773 fast=2880 serial=0 prefetch=13620 overlap=2304 prefetch_wait=10452
+CASE 137 PASS cycles=98259 compute=11880 reads=10531 writes=816 load=35566 gather=12060 partial=3960 param=3180 output=1632 control=41861 fast=11880 serial=0 prefetch=53152 overlap=8640 prefetch_wait=41244
+CASE 138 PASS cycles=1883 compute=96 reads=191 writes=16 load=462 gather=120 partial=528 param=300 output=144 control=329 fast=96 serial=0 prefetch=460 overlap=64 prefetch_wait=56
+CASE 139 PASS cycles=19042 compute=2160 reads=786 writes=48 load=11428 gather=2184 partial=396 param=160 output=240 control=4634 fast=2160 serial=0 prefetch=6333 overlap=1728 prefetch_wait=4381
+CASE 140 PASS cycles=4923 compute=720 reads=659 writes=40 load=1566 gather=732 partial=264 param=330 output=98 control=1933 fast=720 serial=0 prefetch=2500 overlap=576 prefetch_wait=1708
+CASE 141 PASS cycles=101825 compute=7776 reads=3657 writes=48 load=52362 gather=7872 partial=1584 param=1700 output=816 control=37491 fast=7776 serial=0 prefetch=44738 overlap=6912 prefetch_wait=36962
+CASE 142 PASS cycles=3212 compute=48 reads=433 writes=60 load=960 gather=72 partial=0 param=1480 output=435 control=265 fast=48 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 143 PASS cycles=4921 compute=648 reads=307 writes=120 load=3416 gather=660 partial=0 param=330 output=294 control=221 fast=648 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 144 PASS cycles=7593 compute=384 reads=905 writes=80 load=1960 gather=480 partial=2112 param=1940 output=580 control=521 fast=384 serial=0 prefetch=1320 overlap=200 prefetch_wait=8
+CASE 145 PASS cycles=112103 compute=25920 reads=15191 writes=1088 load=29324 gather=26320 partial=10560 param=3180 output=2176 control=40543 fast=25920 serial=0 prefetch=72590 overlap=23040 prefetch_wait=39454
+CASE 146 PASS cycles=46829 compute=4752 reads=2901 writes=48 load=15428 gather=4824 partial=1584 param=860 output=432 control=23701 fast=4752 serial=0 prefetch=27996 overlap=3456 prefetch_wait=23268
+CASE 147 PASS cycles=9431 compute=2592 reads=777 writes=160 load=2982 gather=2640 partial=1056 param=330 output=392 control=2031 fast=2592 serial=0 prefetch=4914 overlap=2304 prefetch_wait=1734
+CASE 148 PASS cycles=1014 compute=26 reads=92 writes=4 load=434 gather=28 partial=33 param=55 output=20 control=444 fast=26 serial=0 prefetch=278 overlap=16 prefetch_wait=244
+CASE 149 PASS cycles=3606 compute=90 reads=393 writes=204 load=1812 gather=105 partial=0 param=1050 output=408 control=231 fast=90 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 150 PASS cycles=130 compute=0 reads=32 writes=0 load=0 gather=0 partial=0 param=0 output=0 control=130 fast=0 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 151 PASS cycles=130 compute=0 reads=32 writes=0 load=0 gather=0 partial=0 param=0 output=0 control=130 fast=0 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 152 PASS cycles=130 compute=0 reads=32 writes=0 load=0 gather=0 partial=0 param=0 output=0 control=130 fast=0 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 153 PASS cycles=130 compute=0 reads=32 writes=0 load=0 gather=0 partial=0 param=0 output=0 control=130 fast=0 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 154 PASS cycles=130 compute=0 reads=32 writes=0 load=0 gather=0 partial=0 param=0 output=0 control=130 fast=0 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 155 PASS cycles=28685 compute=9216 reads=4650 writes=1 load=375 gather=9472 partial=8415 param=55 output=17 control=10351 fast=9216 serial=0 prefetch=27540 overlap=9180 prefetch_wait=9452
+CASE 156 PASS cycles=142 compute=0 reads=35 writes=0 load=0 gather=0 partial=0 param=12 output=0 control=130 fast=0 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+CASE 157 PASS cycles=193 compute=0 reads=48 writes=0 load=0 gather=0 partial=0 param=0 output=0 control=193 fast=0 serial=0 prefetch=0 overlap=0 prefetch_wait=0
+DETECTION ACCEL PASS jobs=158 cycles=2434294 delay=0

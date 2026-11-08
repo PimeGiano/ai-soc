@@ -23,14 +23,18 @@ case "$mode" in
 		;;
 esac
 python3 scripts/gen_spec.py
+bash scripts/test_pool.sh
+bash scripts/test_cache.sh
 bash scripts/test_converter.sh
 bash scripts/test_accel.sh
+bash scripts/test_stress.sh
 bash scripts/build_firmware.sh
 bash scripts/build_soc.sh
 bash scripts/test_soc.sh
 bash scripts/test_probe.sh
 bash scripts/synth.sh
 if [[ "$mode" == full ]]; then
+	bash scripts/test_ablation.sh
 	python3 scripts/fetch_models.py
 	for model in yolov3-tiny yolov4-tiny; do
 		for variant in M F; do
@@ -46,6 +50,7 @@ if [[ "$mode" == full ]]; then
 			python3 scripts/check_boxes.py "$result"
 		done
 	done
+	python3 scripts/compare_performance.py
 fi
 python3 scripts/summarize.py
 printf 'DETECTION %s PASS\n' "$mode"

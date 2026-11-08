@@ -2,45 +2,45 @@
   "equal": {
     "M": {
       "id": 7,
-      "cycles": 1541294,
+      "cycles": 357129,
       "cpu_data": {
-        "reads": 13583,
-        "writes": 4042,
-        "read_bytes": 54332,
-        "write_bytes": 6268
+        "reads": 3435,
+        "writes": 2925,
+        "read_bytes": 13740,
+        "write_bytes": 3600
       },
       "cpu_instr": {
-        "reads": 408086,
+        "reads": 368,
         "writes": 0,
-        "read_bytes": 1632344,
+        "read_bytes": 1472,
         "write_bytes": 0
       },
       "dma": {
-        "reads": 15505,
-        "writes": 1700,
-        "read_bytes": 62020,
+        "reads": 14145,
+        "writes": 1400,
+        "read_bytes": 56580,
         "write_bytes": 1700
       }
     },
     "F": {
       "id": 7,
-      "cycles": 857412,
+      "cycles": 172233,
       "cpu_data": {
         "reads": 8,
-        "writes": 0,
+        "writes": 1,
         "read_bytes": 32,
-        "write_bytes": 0
+        "write_bytes": 4
       },
       "cpu_instr": {
-        "reads": 260023,
+        "reads": 50,
         "writes": 0,
-        "read_bytes": 1040092,
+        "read_bytes": 200,
         "write_bytes": 0
       },
       "dma": {
-        "reads": 15355,
-        "writes": 1700,
-        "read_bytes": 61420,
+        "reads": 13995,
+        "writes": 1400,
+        "read_bytes": 55980,
         "write_bytes": 1700
       }
     }
@@ -48,45 +48,45 @@
   "unequal": {
     "M": {
       "id": 7,
-      "cycles": 1750494,
+      "cycles": 441815,
       "cpu_data": {
-        "reads": 13583,
-        "writes": 4042,
-        "read_bytes": 54332,
-        "write_bytes": 6268
+        "reads": 6037,
+        "writes": 3439,
+        "read_bytes": 24148,
+        "write_bytes": 4120
       },
       "cpu_instr": {
-        "reads": 460086,
+        "reads": 496,
         "writes": 0,
-        "read_bytes": 1840344,
+        "read_bytes": 1984,
         "write_bytes": 0
       },
       "dma": {
-        "reads": 15505,
-        "writes": 1700,
-        "read_bytes": 62020,
+        "reads": 14145,
+        "writes": 1400,
+        "read_bytes": 56580,
         "write_bytes": 1700
       }
     },
     "F": {
       "id": 7,
-      "cycles": 857412,
+      "cycles": 172233,
       "cpu_data": {
         "reads": 8,
-        "writes": 0,
+        "writes": 1,
         "read_bytes": 32,
-        "write_bytes": 0
+        "write_bytes": 4
       },
       "cpu_instr": {
-        "reads": 260023,
+        "reads": 50,
         "writes": 0,
-        "read_bytes": 1040092,
+        "read_bytes": 200,
         "write_bytes": 0
       },
       "dma": {
-        "reads": 15355,
-        "writes": 1700,
-        "read_bytes": 61420,
+        "reads": 13995,
+        "writes": 1400,
+        "read_bytes": 55980,
         "write_bytes": 1700
       }
     }

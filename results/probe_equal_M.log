@@ -1,7 +1,7 @@
-ROI {"id":7,"cycles":1541294,"cpu_data":{"reads":13583,"writes":4042,"read_bytes":54332,"write_bytes":6268},"cpu_instr":{"reads":408086,"writes":0,"read_bytes":1632344,"write_bytes":0},"dma":{"reads":15505,"writes":1700,"read_bytes":62020,"write_bytes":1700}}
+ROI {"id":7,"cycles":357129,"cpu_data":{"reads":3435,"writes":2925,"read_bytes":13740,"write_bytes":3600},"cpu_instr":{"reads":368,"writes":0,"read_bytes":1472,"write_bytes":0},"dma":{"reads":14145,"writes":1400,"read_bytes":56580,"write_bytes":1700}}
 LAYER 0 PASS
 LAYER 1 PASS
 LAYER 2 PASS
 ROI {"id":65533,"cycles":100,"cpu_data":{"reads":7,"writes":5,"read_bytes":28,"write_bytes":20},"cpu_instr":{"reads":24,"writes":0,"read_bytes":96,"write_bytes":0},"dma":{"reads":0,"writes":0,"read_bytes":0,"write_bytes":0}}
 DETECTION GRAPH PASS
-DETECTION SOC PASS layers=1 boxes=0 cycles=1696472 wall_s=0.427557
+DETECTION SOC PASS layers=1 boxes=0 cycles=512292 wall_s=0.439745

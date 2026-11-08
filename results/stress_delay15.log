@@ -1,0 +1,7 @@
+CASE 0 PASS cycles=360976 compute=95040 reads=15457 writes=4864 load=153412 gather=96000 partial=21120 param=2181 output=39812 control=48451 fast=95040 serial=0 prefetch=133624 overlap=74323 prefetch_wait=46185
+CASE 1 PASS cycles=38628 compute=1088 reads=1437 writes=1024 load=27014 gather=1216 partial=2112 param=527 output=3301 control=4458 fast=1088 serial=0 prefetch=6071 overlap=1024 prefetch_wait=3832
+CASE 2 PASS cycles=265472 compute=31185 reads=13681 writes=1377 load=120726 gather=31500 partial=6930 param=5013 output=11068 control=90235 fast=31185 serial=0 prefetch=122990 overlap=28446 prefetch_wait=89234
+CASE 3 PASS cycles=297795 compute=19584 reads=11921 writes=1280 load=228163 gather=19840 partial=4224 param=1468 output=11265 control=32835 fast=19584 serial=0 prefetch=52810 overlap=18432 prefetch_wait=31954
+CASE 4 PASS cycles=194205 compute=58320 reads=9241 writes=2380 load=53837 gather=58860 partial=11880 param=4845 output=19313 control=45470 fast=58320 serial=0 prefetch=100033 overlap=47421 prefetch_wait=43840
+CASE 5 PASS cycles=226595 compute=58320 reads=9759 writes=2380 load=91023 gather=58860 partial=11880 param=5023 output=19669 control=40140 fast=58320 serial=0 prefetch=93297 overlap=46327 prefetch_wait=38474
+DETECTION ACCEL PASS jobs=6 cycles=1388702 delay=15

@@ -1,0 +1,28 @@
+digraph Interfaces {
+graph [rankdir=LR];
+node [shape=record,fontname="Microsoft YaHei",fontsize=12];
+ctrl [label="{{<l0> clk (1)|<l1> rst (1)|<l2> reg_valid (1)|<l3> reg_addr (8)|<l4> reg_wdata (32)|<l5> reg_wstrb (4)|<l6> reg_ready (1)|<l7> reg_rdata (32)|<l8> dma_valid (1)|<l9> dma_addr (32)|<l10> dma_wdata (32)|<l11> dma_wstrb (4)|<l12> dma_ready (1)|<l13> dma_rdata (32)|<l14> fq_data (8)|<l15> prefetch_done (1)|<l16> prefetch_busy (1)}|控制 / 地址生成\nB|{<r0> x_read_addr (36)|<r1> x_read_data (128)|<r2> core_clear (1)|<r3> P_RESTORE (1)|<r4> ri[3:0] (4)|<r5> psum_rd (32)|<r6> core_step (1)|<r7> avec (32)|<r8> bvec (32)|<r9> core_result (32)|<r10> biased[31:0] (32)|<r11> qmult (31)|<r12> qshift (6)|<r13> qresult (8)}}"];
+core [label="{{<l0> clk (1)|<l1> rst (1)|<l2> clear (1)|<l3> restore (1)|<l4> index (4)|<l5> restore_data (32)|<l6> step (1)|<l7> a_vector (32)|<l8> b_vector (32)}|conv_core\nC|{<r0> result (32)}}"];
+q [label="{{<l0> value (32)|<l1> multiplier (31)|<l2> shift (6)}|requant\nC|{<r0> result (8)}}"];
+bank [label="{{<l0> clk (1)|<l1> write_valid (1)|<l2> write_bank (2)|<l3> write_addr (9)|<l4> write_data (32)|<l5> write_strobe (4)|<l6> read_addr (36)}|banked_scratch ×4\nB|{<r0> read_data (128)}}"];
+pf [label="{{<l0> clk (1)|<l1> rst (1)|<l2> start (1)|<l3> consume (1)|<l4> read_ready (1)|<l5> read_data (32)}|tile_prefetch\nB|{<r0> busy (1)|<r1> done (1)|<r2> read_valid (1)|<r3> read_addr (32)|<r4> x_write / w_write (1 / 1)|<r5> write_index (13)|<r6> write_data (32)|<r7> write_strobe (4)}}"];
+fq [label="{{<l0> clk (1)|<l1> rst (1)|<l2> cfg_valid (1)|<l3> in_valid (1)|<l4> src_id (1)|<l5> in_data (8)|<l6> out_ready (1)}|fuse_requant\nC|{<r0> cfg_ready (1)|<r1> in_ready (1)|<r2> out_valid (1)|<r3> out_data (8)}}"];
+pool [label="{{<l0> clk (1)|<l1> rst (1)|<l2> reg_valid (1)|<l3> reg_addr (8)|<l4> reg_wdata (32)|<l5> reg_wstrb (4)}|pool_accelerator\nD|{<r0> reg_ready (1)|<r1> reg_rdata (32)|<r2> dma_valid (1)|<r3> dma_addr (32)|<r4> dma_wdata (32)|<r5> dma_wstrb (4)|<r6> dma_ready (1)|<r7> dma_rdata (32)}}"];
+ctrl:r2 -> core:l2 [color=red];
+ctrl:r3 -> core:l3 [color=red];
+ctrl:r4 -> core:l4 [color=red];
+ctrl:r5 -> core:l5 [color=red];
+ctrl:r6 -> core:l6 [color=red];
+ctrl:r7 -> core:l7 [color=red];
+ctrl:r8 -> core:l8 [color=red];
+core:r0 -> ctrl:r9 [color=red];
+ctrl:r10 -> q:l0 [color=red];
+ctrl:r11 -> q:l1 [color=red];
+ctrl:r12 -> q:l2 [color=red];
+q:r0 -> ctrl:r13 [color=red];
+ctrl:r0 -> bank:l6 [color=red];
+bank:r0 -> ctrl:r1 [color=red];
+fq:r3 -> ctrl:l14 [color=red];
+pf:r0 -> ctrl:l16 [color=red];
+pf:r1 -> ctrl:l15 [color=red];
+}

@@ -1,0 +1,99 @@
+{
+  "baseline_commit": "8bd18c4ed07a2c60051ac5dd46f59def4643721f",
+  "accelerator": {
+    "0": {
+      "valid_cases": 151,
+      "before_cycles": 9946468,
+      "after_cycles": 5561116,
+      "speedup": 1.7885740919628363,
+      "log_sha256": "74a914224e6a1b1b55332f5f73e134b826898d5231aa887abdbd41175d9e1b04",
+      "regressed_cases": [],
+      "phase_cycles": {
+        "load": 2957235,
+        "gather": 2032035,
+        "partial": 239877,
+        "param": 189690,
+        "output": 90453,
+        "control": 51826
+      }
+    },
+    "3": {
+      "valid_cases": 151,
+      "before_cycles": 10365021,
+      "after_cycles": 5960773,
+      "speedup": 1.7388719550299936,
+      "log_sha256": "8b109c26c6e2c961c30e295983572fac3ab76eeb4960e7c38d40d9091c1e69e6",
+      "regressed_cases": [],
+      "phase_cycles": {
+        "load": 3260950,
+        "gather": 2032035,
+        "partial": 239877,
+        "param": 247291,
+        "output": 120330,
+        "control": 60290
+      }
+    }
+  },
+  "models": {
+    "yolov3-tiny": {
+      "M": {
+        "subgraph": {
+          "before_cycles": 89664648,
+          "after_cycles": 42817362,
+          "speedup": 2.094118923066769,
+          "log_sha256": "1a88445e3ae16c9d1046339d8128b79d6715f0aec775b6c0723ecc4ab901b4ff"
+        },
+        "whole": {
+          "before_cycles": 487569827,
+          "after_cycles": 239976915,
+          "speedup": 2.031736373475757,
+          "log_sha256": "68987e4737d9130799e79914ba244ac867180db7e3598f0205bfa50386950784"
+        }
+      },
+      "F": {
+        "subgraph": {
+          "before_cycles": 75971811,
+          "after_cycles": 32663476,
+          "speedup": 2.325894861894062,
+          "log_sha256": "7ef041c5360091fe7035ffb05da0ed6207432e32ad0b1d8a1bf33f1e1b2a1a27"
+        },
+        "whole": {
+          "before_cycles": 473876990,
+          "after_cycles": 229823029,
+          "speedup": 2.0619212620333185,
+          "log_sha256": "1b633badf7090cc7473dfed14698d863151165a853cf9d2c5e88e28bb75dfa05"
+        }
+      }
+    },
+    "yolov4-tiny": {
+      "M": {
+        "subgraph": {
+          "before_cycles": 89662073,
+          "after_cycles": 42814787,
+          "speedup": 2.094184726412396,
+          "log_sha256": "1054e619ee1dd54811f4b3ae783f59ce7b1c41f0b4af55ac15c85786b632caca"
+        },
+        "whole": {
+          "before_cycles": 705396740,
+          "after_cycles": 414584720,
+          "speedup": 1.7014537824741829,
+          "log_sha256": "cc61725e516213bbf7a89e83e10b8b9246351699bf7afd23e6aafba14e1998b4"
+        }
+      },
+      "F": {
+        "subgraph": {
+          "before_cycles": 75971811,
+          "after_cycles": 32663476,
+          "speedup": 2.325894861894062,
+          "log_sha256": "0797aee01a0738cfa25fa3182539da014e3e3e79d079875defe5596451d27b71"
+        },
+        "whole": {
+          "before_cycles": 691706478,
+          "after_cycles": 404433409,
+          "speedup": 1.7103099363386174,
+          "log_sha256": "3a5239e114bc7d869d4e62ac5b925d6598b2cc05d549e48339e8462be5b051e8"
+        }
+      }
+    }
+  }
+}

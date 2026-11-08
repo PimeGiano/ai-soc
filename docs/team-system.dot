@@ -1,0 +1,30 @@
+digraph Interfaces {
+graph [rankdir=LR];
+node [shape=record,fontname="Microsoft YaHei",fontsize=12];
+cpu [label="{{<l0> clk (1)|<l1> rst (1)|<l2> cbr (1)|<l3> cbd (32)}|CPU / 指令缓存\nA|{<r0> cbv (1)|<r1> ci (1)|<r2> ca (32)|<r3> cw (32)|<r4> cs (4)}}"];
+bus [label="{{<l0> CPU: valid (1)|<l1> CPU: instr (1)|<l2> CPU: addr (32)|<l3> CPU: wdata (32)|<l4> CPU: wstrb (4)|<l5> CPU: ready (1)|<l6> CPU: rdata (32)|<l7> 卷积 DMA 请求 (1 / 32 / 32 / 4)|<l8> 卷积 DMA 应答 (1 / 32)|<l9> 卷积 CSR 请求 (1 / 8 / 32 / 4)|<l10> 卷积 CSR 应答 (1 / 32)}|仲裁 / 地址译码\nA|{<r0> mem_valid (1)|<r1> mem_addr (32)|<r2> mem_wdata (32)|<r3> mem_wstrb (4)|<r4> mem_ready (1)|<r5> mem_rdata (32)|<r6> 池化 DMA 请求 (1 / 32 / 32 / 4)|<r7> 池化 DMA 应答 (1 / 32)|<r8> 池化 CSR 请求 (1 / 8 / 32 / 4)|<r9> 池化 CSR 应答 (1 / 32)}}"];
+mem [label="{{<l0> mem_valid (1)|<l1> mem_addr (32)|<l2> mem_wdata (32)|<l3> mem_wstrb (4)|<l4> mem_ready (1)|<l5> mem_rdata (32)}|主存 / 系统 Testbench\nA / D|{ }}"];
+conv [label="{{<l0> clk (1)|<l1> rst (1)|<l2> CSR 请求 (1 / 8 / 32 / 4)|<l3> CSR 应答 (1 / 32)}|det_accelerator\nB / C|{<r0> DMA 请求 (1 / 32 / 32 / 4)|<r1> DMA 应答 (1 / 32)}}"];
+pool [label="{{<l0> CSR 请求 (1 / 8 / 32 / 4)|<l1> CSR 应答 (1 / 32)}|pool_accelerator\nD|{<r0> clk (1)|<r1> rst (1)|<r2> DMA 请求 (1 / 32 / 32 / 4)|<r3> DMA 应答 (1 / 32)}}"];
+bus:r0 -> mem:l0 [color=red];
+bus:r1 -> mem:l1 [color=red];
+bus:r2 -> mem:l2 [color=red];
+bus:r3 -> mem:l3 [color=red];
+mem:l4 -> bus:r4 [color=red];
+mem:l5 -> bus:r5 [color=red];
+cpu:r0 -> bus:l0 [color=red];
+cpu:r1 -> bus:l1 [color=red];
+cpu:r2 -> bus:l2 [color=red];
+cpu:r3 -> bus:l3 [color=red];
+cpu:r4 -> bus:l4 [color=red];
+bus:l5 -> cpu:l2 [color=red];
+bus:l6 -> cpu:l3 [color=red];
+conv:r0 -> bus:l7 [color=red];
+bus:l8 -> conv:r1 [color=red];
+bus:l9 -> conv:l2 [color=red];
+conv:l3 -> bus:l10 [color=red];
+pool:r2 -> bus:r6 [color=red];
+bus:r7 -> pool:r3 [color=red];
+bus:r8 -> pool:l0 [color=red];
+pool:l1 -> bus:r9 [color=red];
+}

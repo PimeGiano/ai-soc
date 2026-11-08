@@ -1,0 +1,2610 @@
+{
+  "baseline_commit": "8bd18c4ed07a2c60051ac5dd46f59def4643721f",
+  "scope": "Identical deterministic 158-job suite; valid cases only in aggregate. Existing full-model ROI results before RTL optimization.",
+  "accelerator": {
+    "0": {
+      "log_sha256": "f2d1cfe0f9326d54fa58541344c9cd8da29e509e9dbee7faab38e0fc3cb22aa9",
+      "cases": [
+        {
+          "case": 0,
+          "cycles": 833,
+          "compute": 16,
+          "reads": 55,
+          "writes": 4
+        },
+        {
+          "case": 1,
+          "cycles": 5226,
+          "compute": 288,
+          "reads": 103,
+          "writes": 18
+        },
+        {
+          "case": 2,
+          "cycles": 19524,
+          "compute": 864,
+          "reads": 585,
+          "writes": 54
+        },
+        {
+          "case": 3,
+          "cycles": 10746,
+          "compute": 448,
+          "reads": 438,
+          "writes": 245
+        },
+        {
+          "case": 4,
+          "cycles": 5701,
+          "compute": 288,
+          "reads": 114,
+          "writes": 4
+        },
+        {
+          "case": 5,
+          "cycles": 4038,
+          "compute": 128,
+          "reads": 129,
+          "writes": 16
+        },
+        {
+          "case": 6,
+          "cycles": 74561,
+          "compute": 1400,
+          "reads": 5762,
+          "writes": 1071
+        },
+        {
+          "case": 7,
+          "cycles": 2950,
+          "compute": 144,
+          "reads": 92,
+          "writes": 12
+        },
+        {
+          "case": 8,
+          "cycles": 12743,
+          "compute": 640,
+          "reads": 236,
+          "writes": 45
+        },
+        {
+          "case": 9,
+          "cycles": 55411,
+          "compute": 2880,
+          "reads": 1393,
+          "writes": 75
+        },
+        {
+          "case": 10,
+          "cycles": 952,
+          "compute": 16,
+          "reads": 71,
+          "writes": 16
+        },
+        {
+          "case": 11,
+          "cycles": 26273,
+          "compute": 1728,
+          "reads": 125,
+          "writes": 18
+        },
+        {
+          "case": 12,
+          "cycles": 5122,
+          "compute": 80,
+          "reads": 527,
+          "writes": 204
+        },
+        {
+          "case": 13,
+          "cycles": 19424,
+          "compute": 420,
+          "reads": 1005,
+          "writes": 105
+        },
+        {
+          "case": 14,
+          "cycles": 2202,
+          "compute": 40,
+          "reads": 239,
+          "writes": 30
+        },
+        {
+          "case": 15,
+          "cycles": 71786,
+          "compute": 4320,
+          "reads": 1038,
+          "writes": 75
+        },
+        {
+          "case": 16,
+          "cycles": 127012,
+          "compute": 6912,
+          "reads": 3041,
+          "writes": 80
+        },
+        {
+          "case": 17,
+          "cycles": 9694,
+          "compute": 384,
+          "reads": 204,
+          "writes": 12
+        },
+        {
+          "case": 18,
+          "cycles": 68903,
+          "compute": 4608,
+          "reads": 1016,
+          "writes": 60
+        },
+        {
+          "case": 19,
+          "cycles": 645,
+          "compute": 12,
+          "reads": 64,
+          "writes": 6
+        },
+        {
+          "case": 20,
+          "cycles": 62318,
+          "compute": 3456,
+          "reads": 1254,
+          "writes": 45
+        },
+        {
+          "case": 21,
+          "cycles": 21188,
+          "compute": 1296,
+          "reads": 292,
+          "writes": 35
+        },
+        {
+          "case": 22,
+          "cycles": 88632,
+          "compute": 2880,
+          "reads": 3761,
+          "writes": 1190
+        },
+        {
+          "case": 23,
+          "cycles": 21265,
+          "compute": 1152,
+          "reads": 613,
+          "writes": 42
+        },
+        {
+          "case": 24,
+          "cycles": 34485,
+          "compute": 1728,
+          "reads": 1002,
+          "writes": 25
+        },
+        {
+          "case": 25,
+          "cycles": 12462,
+          "compute": 288,
+          "reads": 1061,
+          "writes": 360
+        },
+        {
+          "case": 26,
+          "cycles": 4273,
+          "compute": 176,
+          "reads": 228,
+          "writes": 126
+        },
+        {
+          "case": 27,
+          "cycles": 20055,
+          "compute": 448,
+          "reads": 1216,
+          "writes": 340
+        },
+        {
+          "case": 28,
+          "cycles": 7999,
+          "compute": 120,
+          "reads": 654,
+          "writes": 153
+        },
+        {
+          "case": 29,
+          "cycles": 11689,
+          "compute": 576,
+          "reads": 320,
+          "writes": 30
+        },
+        {
+          "case": 30,
+          "cycles": 113391,
+          "compute": 7488,
+          "reads": 1346,
+          "writes": 175
+        },
+        {
+          "case": 31,
+          "cycles": 36184,
+          "compute": 1296,
+          "reads": 1631,
+          "writes": 50
+        },
+        {
+          "case": 32,
+          "cycles": 177498,
+          "compute": 8640,
+          "reads": 6814,
+          "writes": 408
+        },
+        {
+          "case": 33,
+          "cycles": 8868,
+          "compute": 256,
+          "reads": 431,
+          "writes": 48
+        },
+        {
+          "case": 34,
+          "cycles": 52202,
+          "compute": 2880,
+          "reads": 763,
+          "writes": 272
+        },
+        {
+          "case": 35,
+          "cycles": 7686,
+          "compute": 160,
+          "reads": 653,
+          "writes": 320
+        },
+        {
+          "case": 36,
+          "cycles": 5149,
+          "compute": 288,
+          "reads": 96,
+          "writes": 18
+        },
+        {
+          "case": 37,
+          "cycles": 10989,
+          "compute": 576,
+          "reads": 168,
+          "writes": 4
+        },
+        {
+          "case": 38,
+          "cycles": 20340,
+          "compute": 560,
+          "reads": 390,
+          "writes": 49
+        },
+        {
+          "case": 39,
+          "cycles": 2971,
+          "compute": 96,
+          "reads": 157,
+          "writes": 50
+        },
+        {
+          "case": 40,
+          "cycles": 160270,
+          "compute": 9504,
+          "reads": 3396,
+          "writes": 175
+        },
+        {
+          "case": 41,
+          "cycles": 15156,
+          "compute": 640,
+          "reads": 609,
+          "writes": 280
+        },
+        {
+          "case": 42,
+          "cycles": 5501,
+          "compute": 96,
+          "reads": 261,
+          "writes": 36
+        },
+        {
+          "case": 43,
+          "cycles": 132020,
+          "compute": 4320,
+          "reads": 6327,
+          "writes": 510
+        },
+        {
+          "case": 44,
+          "cycles": 9436,
+          "compute": 384,
+          "reads": 251,
+          "writes": 126
+        },
+        {
+          "case": 45,
+          "cycles": 1617,
+          "compute": 48,
+          "reads": 89,
+          "writes": 9
+        },
+        {
+          "case": 46,
+          "cycles": 7850,
+          "compute": 256,
+          "reads": 224,
+          "writes": 12
+        },
+        {
+          "case": 47,
+          "cycles": 1889,
+          "compute": 48,
+          "reads": 108,
+          "writes": 24
+        },
+        {
+          "case": 48,
+          "cycles": 94367,
+          "compute": 4608,
+          "reads": 2675,
+          "writes": 120
+        },
+        {
+          "case": 49,
+          "cycles": 9218,
+          "compute": 576,
+          "reads": 201,
+          "writes": 60
+        },
+        {
+          "case": 50,
+          "cycles": 2636,
+          "compute": 64,
+          "reads": 107,
+          "writes": 6
+        },
+        {
+          "case": 51,
+          "cycles": 8091,
+          "compute": 320,
+          "reads": 415,
+          "writes": 150
+        },
+        {
+          "case": 52,
+          "cycles": 9359,
+          "compute": 576,
+          "reads": 125,
+          "writes": 20
+        },
+        {
+          "case": 53,
+          "cycles": 44245,
+          "compute": 2880,
+          "reads": 142,
+          "writes": 15
+        },
+        {
+          "case": 54,
+          "cycles": 2634,
+          "compute": 64,
+          "reads": 142,
+          "writes": 48
+        },
+        {
+          "case": 55,
+          "cycles": 1602,
+          "compute": 48,
+          "reads": 100,
+          "writes": 27
+        },
+        {
+          "case": 56,
+          "cycles": 110822,
+          "compute": 2400,
+          "reads": 5629,
+          "writes": 1020
+        },
+        {
+          "case": 57,
+          "cycles": 21652,
+          "compute": 720,
+          "reads": 1250,
+          "writes": 40
+        },
+        {
+          "case": 58,
+          "cycles": 1889,
+          "compute": 64,
+          "reads": 86,
+          "writes": 12
+        },
+        {
+          "case": 59,
+          "cycles": 6046,
+          "compute": 288,
+          "reads": 159,
+          "writes": 16
+        },
+        {
+          "case": 60,
+          "cycles": 12674,
+          "compute": 576,
+          "reads": 239,
+          "writes": 16
+        },
+        {
+          "case": 61,
+          "cycles": 17197,
+          "compute": 864,
+          "reads": 517,
+          "writes": 9
+        },
+        {
+          "case": 62,
+          "cycles": 1419,
+          "compute": 32,
+          "reads": 71,
+          "writes": 12
+        },
+        {
+          "case": 63,
+          "cycles": 20942,
+          "compute": 1296,
+          "reads": 389,
+          "writes": 18
+        },
+        {
+          "case": 64,
+          "cycles": 9336,
+          "compute": 576,
+          "reads": 81,
+          "writes": 4
+        },
+        {
+          "case": 65,
+          "cycles": 56438,
+          "compute": 2160,
+          "reads": 1806,
+          "writes": 153
+        },
+        {
+          "case": 66,
+          "cycles": 84704,
+          "compute": 4608,
+          "reads": 2091,
+          "writes": 68
+        },
+        {
+          "case": 67,
+          "cycles": 16526,
+          "compute": 384,
+          "reads": 1567,
+          "writes": 816
+        },
+        {
+          "case": 68,
+          "cycles": 9670,
+          "compute": 360,
+          "reads": 497,
+          "writes": 102
+        },
+        {
+          "case": 69,
+          "cycles": 1941,
+          "compute": 48,
+          "reads": 141,
+          "writes": 45
+        },
+        {
+          "case": 70,
+          "cycles": 26842,
+          "compute": 800,
+          "reads": 500,
+          "writes": 96
+        },
+        {
+          "case": 71,
+          "cycles": 5888,
+          "compute": 288,
+          "reads": 189,
+          "writes": 30
+        },
+        {
+          "case": 72,
+          "cycles": 2666,
+          "compute": 144,
+          "reads": 58,
+          "writes": 2
+        },
+        {
+          "case": 73,
+          "cycles": 21093,
+          "compute": 720,
+          "reads": 395,
+          "writes": 54
+        },
+        {
+          "case": 74,
+          "cycles": 75746,
+          "compute": 1920,
+          "reads": 3053,
+          "writes": 612
+        },
+        {
+          "case": 75,
+          "cycles": 70312,
+          "compute": 3456,
+          "reads": 2357,
+          "writes": 150
+        },
+        {
+          "case": 76,
+          "cycles": 69476,
+          "compute": 3072,
+          "reads": 2475,
+          "writes": 204
+        },
+        {
+          "case": 77,
+          "cycles": 3786,
+          "compute": 144,
+          "reads": 193,
+          "writes": 6
+        },
+        {
+          "case": 78,
+          "cycles": 20451,
+          "compute": 1152,
+          "reads": 268,
+          "writes": 4
+        },
+        {
+          "case": 79,
+          "cycles": 55614,
+          "compute": 3168,
+          "reads": 1189,
+          "writes": 175
+        },
+        {
+          "case": 80,
+          "cycles": 15029,
+          "compute": 864,
+          "reads": 267,
+          "writes": 30
+        },
+        {
+          "case": 81,
+          "cycles": 15730,
+          "compute": 1008,
+          "reads": 163,
+          "writes": 28
+        },
+        {
+          "case": 82,
+          "cycles": 341082,
+          "compute": 17280,
+          "reads": 10637,
+          "writes": 120
+        },
+        {
+          "case": 83,
+          "cycles": 37069,
+          "compute": 2160,
+          "reads": 737,
+          "writes": 30
+        },
+        {
+          "case": 84,
+          "cycles": 2540,
+          "compute": 96,
+          "reads": 144,
+          "writes": 45
+        },
+        {
+          "case": 85,
+          "cycles": 33247,
+          "compute": 1728,
+          "reads": 793,
+          "writes": 75
+        },
+        {
+          "case": 86,
+          "cycles": 3074,
+          "compute": 144,
+          "reads": 98,
+          "writes": 12
+        },
+        {
+          "case": 87,
+          "cycles": 77250,
+          "compute": 2880,
+          "reads": 4241,
+          "writes": 140
+        },
+        {
+          "case": 88,
+          "cycles": 31698,
+          "compute": 2304,
+          "reads": 282,
+          "writes": 18
+        },
+        {
+          "case": 89,
+          "cycles": 14120,
+          "compute": 512,
+          "reads": 441,
+          "writes": 80
+        },
+        {
+          "case": 90,
+          "cycles": 5266,
+          "compute": 288,
+          "reads": 85,
+          "writes": 8
+        },
+        {
+          "case": 91,
+          "cycles": 16147,
+          "compute": 576,
+          "reads": 705,
+          "writes": 36
+        },
+        {
+          "case": 92,
+          "cycles": 1547,
+          "compute": 64,
+          "reads": 65,
+          "writes": 12
+        },
+        {
+          "case": 93,
+          "cycles": 6787,
+          "compute": 144,
+          "reads": 333,
+          "writes": 60
+        },
+        {
+          "case": 94,
+          "cycles": 194312,
+          "compute": 8640,
+          "reads": 9105,
+          "writes": 306
+        },
+        {
+          "case": 95,
+          "cycles": 20032,
+          "compute": 1152,
+          "reads": 365,
+          "writes": 20
+        },
+        {
+          "case": 96,
+          "cycles": 8419,
+          "compute": 288,
+          "reads": 477,
+          "writes": 153
+        },
+        {
+          "case": 97,
+          "cycles": 64185,
+          "compute": 4032,
+          "reads": 629,
+          "writes": 105
+        },
+        {
+          "case": 98,
+          "cycles": 15490,
+          "compute": 400,
+          "reads": 702,
+          "writes": 210
+        },
+        {
+          "case": 99,
+          "cycles": 2500,
+          "compute": 144,
+          "reads": 48,
+          "writes": 2
+        },
+        {
+          "case": 100,
+          "cycles": 18714,
+          "compute": 1152,
+          "reads": 482,
+          "writes": 120
+        },
+        {
+          "case": 101,
+          "cycles": 126473,
+          "compute": 4608,
+          "reads": 4197,
+          "writes": 160
+        },
+        {
+          "case": 102,
+          "cycles": 362669,
+          "compute": 17280,
+          "reads": 8065,
+          "writes": 240
+        },
+        {
+          "case": 103,
+          "cycles": 183635,
+          "compute": 10368,
+          "reads": 4227,
+          "writes": 272
+        },
+        {
+          "case": 104,
+          "cycles": 5805,
+          "compute": 192,
+          "reads": 203,
+          "writes": 20
+        },
+        {
+          "case": 105,
+          "cycles": 202653,
+          "compute": 12096,
+          "reads": 4995,
+          "writes": 544
+        },
+        {
+          "case": 106,
+          "cycles": 35717,
+          "compute": 1440,
+          "reads": 1529,
+          "writes": 40
+        },
+        {
+          "case": 107,
+          "cycles": 39497,
+          "compute": 2160,
+          "reads": 376,
+          "writes": 12
+        },
+        {
+          "case": 108,
+          "cycles": 17666,
+          "compute": 1152,
+          "reads": 205,
+          "writes": 32
+        },
+        {
+          "case": 109,
+          "cycles": 30581,
+          "compute": 2304,
+          "reads": 227,
+          "writes": 80
+        },
+        {
+          "case": 110,
+          "cycles": 56843,
+          "compute": 2160,
+          "reads": 1479,
+          "writes": 48
+        },
+        {
+          "case": 111,
+          "cycles": 58919,
+          "compute": 3456,
+          "reads": 759,
+          "writes": 240
+        },
+        {
+          "case": 112,
+          "cycles": 202814,
+          "compute": 13104,
+          "reads": 1640,
+          "writes": 48
+        },
+        {
+          "case": 113,
+          "cycles": 84012,
+          "compute": 3456,
+          "reads": 1816,
+          "writes": 36
+        },
+        {
+          "case": 114,
+          "cycles": 16550,
+          "compute": 1152,
+          "reads": 156,
+          "writes": 12
+        },
+        {
+          "case": 115,
+          "cycles": 125752,
+          "compute": 5544,
+          "reads": 4466,
+          "writes": 160
+        },
+        {
+          "case": 116,
+          "cycles": 25055,
+          "compute": 1296,
+          "reads": 353,
+          "writes": 12
+        },
+        {
+          "case": 117,
+          "cycles": 38212,
+          "compute": 2880,
+          "reads": 184,
+          "writes": 36
+        },
+        {
+          "case": 118,
+          "cycles": 84959,
+          "compute": 5760,
+          "reads": 981,
+          "writes": 160
+        },
+        {
+          "case": 119,
+          "cycles": 320297,
+          "compute": 13824,
+          "reads": 10169,
+          "writes": 816
+        },
+        {
+          "case": 120,
+          "cycles": 6479,
+          "compute": 192,
+          "reads": 509,
+          "writes": 272
+        },
+        {
+          "case": 121,
+          "cycles": 25454,
+          "compute": 1260,
+          "reads": 571,
+          "writes": 16
+        },
+        {
+          "case": 122,
+          "cycles": 45789,
+          "compute": 2592,
+          "reads": 991,
+          "writes": 180
+        },
+        {
+          "case": 123,
+          "cycles": 72187,
+          "compute": 3456,
+          "reads": 1939,
+          "writes": 320
+        },
+        {
+          "case": 124,
+          "cycles": 116313,
+          "compute": 6912,
+          "reads": 1561,
+          "writes": 408
+        },
+        {
+          "case": 125,
+          "cycles": 16530,
+          "compute": 480,
+          "reads": 748,
+          "writes": 136
+        },
+        {
+          "case": 126,
+          "cycles": 239593,
+          "compute": 11520,
+          "reads": 6505,
+          "writes": 272
+        },
+        {
+          "case": 127,
+          "cycles": 286729,
+          "compute": 13824,
+          "reads": 7529,
+          "writes": 816
+        },
+        {
+          "case": 128,
+          "cycles": 25653,
+          "compute": 640,
+          "reads": 1281,
+          "writes": 136
+        },
+        {
+          "case": 129,
+          "cycles": 55123,
+          "compute": 2880,
+          "reads": 2057,
+          "writes": 544
+        },
+        {
+          "case": 130,
+          "cycles": 545509,
+          "compute": 27648,
+          "reads": 12325,
+          "writes": 816
+        },
+        {
+          "case": 131,
+          "cycles": 213137,
+          "compute": 10368,
+          "reads": 7601,
+          "writes": 544
+        },
+        {
+          "case": 132,
+          "cycles": 76817,
+          "compute": 3456,
+          "reads": 1973,
+          "writes": 240
+        },
+        {
+          "case": 133,
+          "cycles": 83693,
+          "compute": 4608,
+          "reads": 1045,
+          "writes": 16
+        },
+        {
+          "case": 134,
+          "cycles": 111826,
+          "compute": 6048,
+          "reads": 2888,
+          "writes": 408
+        },
+        {
+          "case": 135,
+          "cycles": 205348,
+          "compute": 10368,
+          "reads": 5048,
+          "writes": 160
+        },
+        {
+          "case": 136,
+          "cycles": 130397,
+          "compute": 6912,
+          "reads": 2473,
+          "writes": 80
+        },
+        {
+          "case": 137,
+          "cycles": 381135,
+          "compute": 20736,
+          "reads": 10687,
+          "writes": 816
+        },
+        {
+          "case": 138,
+          "cycles": 4931,
+          "compute": 96,
+          "reads": 187,
+          "writes": 16
+        },
+        {
+          "case": 139,
+          "cycles": 98559,
+          "compute": 6912,
+          "reads": 803,
+          "writes": 48
+        },
+        {
+          "case": 140,
+          "cycles": 19901,
+          "compute": 864,
+          "reads": 659,
+          "writes": 40
+        },
+        {
+          "case": 141,
+          "cycles": 459129,
+          "compute": 27648,
+          "reads": 3585,
+          "writes": 48
+        },
+        {
+          "case": 142,
+          "cycles": 5921,
+          "compute": 192,
+          "reads": 433,
+          "writes": 60
+        },
+        {
+          "case": 143,
+          "cycles": 24533,
+          "compute": 1728,
+          "reads": 407,
+          "writes": 120
+        },
+        {
+          "case": 144,
+          "cycles": 19605,
+          "compute": 384,
+          "reads": 905,
+          "writes": 80
+        },
+        {
+          "case": 145,
+          "cycles": 774797,
+          "compute": 46080,
+          "reads": 15301,
+          "writes": 1088
+        },
+        {
+          "case": 146,
+          "cycles": 198385,
+          "compute": 10368,
+          "reads": 2625,
+          "writes": 48
+        },
+        {
+          "case": 147,
+          "cycles": 49997,
+          "compute": 3456,
+          "reads": 899,
+          "writes": 160
+        },
+        {
+          "case": 148,
+          "cycles": 3333,
+          "compute": 128,
+          "reads": 92,
+          "writes": 4
+        },
+        {
+          "case": 149,
+          "cycles": 9472,
+          "compute": 384,
+          "reads": 478,
+          "writes": 204
+        },
+        {
+          "case": 150,
+          "cycles": 130,
+          "compute": 0,
+          "reads": 32,
+          "writes": 0
+        },
+        {
+          "case": 151,
+          "cycles": 130,
+          "compute": 0,
+          "reads": 32,
+          "writes": 0
+        },
+        {
+          "case": 152,
+          "cycles": 130,
+          "compute": 0,
+          "reads": 32,
+          "writes": 0
+        },
+        {
+          "case": 153,
+          "cycles": 130,
+          "compute": 0,
+          "reads": 32,
+          "writes": 0
+        },
+        {
+          "case": 154,
+          "cycles": 130,
+          "compute": 0,
+          "reads": 32,
+          "writes": 0
+        },
+        {
+          "case": 155,
+          "cycles": 225435,
+          "compute": 9216,
+          "reads": 4650,
+          "writes": 1
+        },
+        {
+          "case": 156,
+          "cycles": 142,
+          "compute": 0,
+          "reads": 35,
+          "writes": 0
+        },
+        {
+          "case": 157,
+          "cycles": 193,
+          "compute": 0,
+          "reads": 48,
+          "writes": 0
+        }
+      ]
+    },
+    "3": {
+      "log_sha256": "f95dc0d084f32df22687c4b89de74dc1c16fe9030dc63e7638a1e272c8845bdd",
+      "cases": [
+        {
+          "case": 0,
+          "cycles": 909,
+          "compute": 16,
+          "reads": 55,
+          "writes": 4
+        },
+        {
+          "case": 1,
+          "cycles": 5395,
+          "compute": 288,
+          "reads": 103,
+          "writes": 18
+        },
+        {
+          "case": 2,
+          "cycles": 20490,
+          "compute": 864,
+          "reads": 585,
+          "writes": 54
+        },
+        {
+          "case": 3,
+          "cycles": 11737,
+          "compute": 448,
+          "reads": 438,
+          "writes": 245
+        },
+        {
+          "case": 4,
+          "cycles": 5874,
+          "compute": 288,
+          "reads": 114,
+          "writes": 4
+        },
+        {
+          "case": 5,
+          "cycles": 4265,
+          "compute": 128,
+          "reads": 129,
+          "writes": 16
+        },
+        {
+          "case": 6,
+          "cycles": 85025,
+          "compute": 1400,
+          "reads": 5762,
+          "writes": 1071
+        },
+        {
+          "case": 7,
+          "cycles": 3109,
+          "compute": 144,
+          "reads": 92,
+          "writes": 12
+        },
+        {
+          "case": 8,
+          "cycles": 13158,
+          "compute": 640,
+          "reads": 236,
+          "writes": 45
+        },
+        {
+          "case": 9,
+          "cycles": 57671,
+          "compute": 2880,
+          "reads": 1393,
+          "writes": 75
+        },
+        {
+          "case": 10,
+          "cycles": 1096,
+          "compute": 16,
+          "reads": 71,
+          "writes": 16
+        },
+        {
+          "case": 11,
+          "cycles": 26482,
+          "compute": 1728,
+          "reads": 125,
+          "writes": 18
+        },
+        {
+          "case": 12,
+          "cycles": 6219,
+          "compute": 80,
+          "reads": 527,
+          "writes": 204
+        },
+        {
+          "case": 13,
+          "cycles": 21068,
+          "compute": 420,
+          "reads": 1005,
+          "writes": 105
+        },
+        {
+          "case": 14,
+          "cycles": 2608,
+          "compute": 40,
+          "reads": 239,
+          "writes": 30
+        },
+        {
+          "case": 15,
+          "cycles": 73429,
+          "compute": 4320,
+          "reads": 1038,
+          "writes": 75
+        },
+        {
+          "case": 16,
+          "cycles": 131583,
+          "compute": 6912,
+          "reads": 3041,
+          "writes": 80
+        },
+        {
+          "case": 17,
+          "cycles": 10009,
+          "compute": 384,
+          "reads": 204,
+          "writes": 12
+        },
+        {
+          "case": 18,
+          "cycles": 70492,
+          "compute": 4608,
+          "reads": 1016,
+          "writes": 60
+        },
+        {
+          "case": 19,
+          "cycles": 756,
+          "compute": 12,
+          "reads": 64,
+          "writes": 6
+        },
+        {
+          "case": 20,
+          "cycles": 64264,
+          "compute": 3456,
+          "reads": 1254,
+          "writes": 45
+        },
+        {
+          "case": 21,
+          "cycles": 21676,
+          "compute": 1296,
+          "reads": 292,
+          "writes": 35
+        },
+        {
+          "case": 22,
+          "cycles": 96128,
+          "compute": 2880,
+          "reads": 3761,
+          "writes": 1190
+        },
+        {
+          "case": 23,
+          "cycles": 22250,
+          "compute": 1152,
+          "reads": 613,
+          "writes": 42
+        },
+        {
+          "case": 24,
+          "cycles": 36010,
+          "compute": 1728,
+          "reads": 1002,
+          "writes": 25
+        },
+        {
+          "case": 25,
+          "cycles": 14493,
+          "compute": 288,
+          "reads": 1061,
+          "writes": 360
+        },
+        {
+          "case": 26,
+          "cycles": 4824,
+          "compute": 176,
+          "reads": 228,
+          "writes": 126
+        },
+        {
+          "case": 27,
+          "cycles": 22371,
+          "compute": 448,
+          "reads": 1216,
+          "writes": 340
+        },
+        {
+          "case": 28,
+          "cycles": 9175,
+          "compute": 120,
+          "reads": 654,
+          "writes": 153
+        },
+        {
+          "case": 29,
+          "cycles": 12245,
+          "compute": 576,
+          "reads": 320,
+          "writes": 30
+        },
+        {
+          "case": 30,
+          "cycles": 115671,
+          "compute": 7488,
+          "reads": 1346,
+          "writes": 175
+        },
+        {
+          "case": 31,
+          "cycles": 38752,
+          "compute": 1296,
+          "reads": 1631,
+          "writes": 50
+        },
+        {
+          "case": 32,
+          "cycles": 188404,
+          "compute": 8640,
+          "reads": 6814,
+          "writes": 408
+        },
+        {
+          "case": 33,
+          "cycles": 9605,
+          "compute": 256,
+          "reads": 431,
+          "writes": 48
+        },
+        {
+          "case": 34,
+          "cycles": 53793,
+          "compute": 2880,
+          "reads": 763,
+          "writes": 272
+        },
+        {
+          "case": 35,
+          "cycles": 9130,
+          "compute": 160,
+          "reads": 653,
+          "writes": 320
+        },
+        {
+          "case": 36,
+          "cycles": 5318,
+          "compute": 288,
+          "reads": 96,
+          "writes": 18
+        },
+        {
+          "case": 37,
+          "cycles": 11268,
+          "compute": 576,
+          "reads": 168,
+          "writes": 4
+        },
+        {
+          "case": 38,
+          "cycles": 20993,
+          "compute": 560,
+          "reads": 390,
+          "writes": 49
+        },
+        {
+          "case": 39,
+          "cycles": 3272,
+          "compute": 96,
+          "reads": 157,
+          "writes": 50
+        },
+        {
+          "case": 40,
+          "cycles": 165672,
+          "compute": 9504,
+          "reads": 3396,
+          "writes": 175
+        },
+        {
+          "case": 41,
+          "cycles": 16442,
+          "compute": 640,
+          "reads": 609,
+          "writes": 280
+        },
+        {
+          "case": 42,
+          "cycles": 5943,
+          "compute": 96,
+          "reads": 261,
+          "writes": 36
+        },
+        {
+          "case": 43,
+          "cycles": 142210,
+          "compute": 4320,
+          "reads": 6327,
+          "writes": 510
+        },
+        {
+          "case": 44,
+          "cycles": 9974,
+          "compute": 384,
+          "reads": 251,
+          "writes": 126
+        },
+        {
+          "case": 45,
+          "cycles": 1758,
+          "compute": 48,
+          "reads": 89,
+          "writes": 9
+        },
+        {
+          "case": 46,
+          "cycles": 8191,
+          "compute": 256,
+          "reads": 224,
+          "writes": 12
+        },
+        {
+          "case": 47,
+          "cycles": 2085,
+          "compute": 48,
+          "reads": 108,
+          "writes": 24
+        },
+        {
+          "case": 48,
+          "cycles": 98653,
+          "compute": 4608,
+          "reads": 2675,
+          "writes": 120
+        },
+        {
+          "case": 49,
+          "cycles": 9614,
+          "compute": 576,
+          "reads": 201,
+          "writes": 60
+        },
+        {
+          "case": 50,
+          "cycles": 2787,
+          "compute": 64,
+          "reads": 107,
+          "writes": 6
+        },
+        {
+          "case": 51,
+          "cycles": 8933,
+          "compute": 320,
+          "reads": 415,
+          "writes": 150
+        },
+        {
+          "case": 52,
+          "cycles": 9578,
+          "compute": 576,
+          "reads": 125,
+          "writes": 20
+        },
+        {
+          "case": 53,
+          "cycles": 44463,
+          "compute": 2880,
+          "reads": 142,
+          "writes": 15
+        },
+        {
+          "case": 54,
+          "cycles": 2873,
+          "compute": 64,
+          "reads": 142,
+          "writes": 48
+        },
+        {
+          "case": 55,
+          "cycles": 1773,
+          "compute": 48,
+          "reads": 100,
+          "writes": 27
+        },
+        {
+          "case": 56,
+          "cycles": 120739,
+          "compute": 2400,
+          "reads": 5629,
+          "writes": 1020
+        },
+        {
+          "case": 57,
+          "cycles": 23571,
+          "compute": 720,
+          "reads": 1250,
+          "writes": 40
+        },
+        {
+          "case": 58,
+          "cycles": 2056,
+          "compute": 64,
+          "reads": 86,
+          "writes": 12
+        },
+        {
+          "case": 59,
+          "cycles": 6330,
+          "compute": 288,
+          "reads": 159,
+          "writes": 16
+        },
+        {
+          "case": 60,
+          "cycles": 13058,
+          "compute": 576,
+          "reads": 239,
+          "writes": 16
+        },
+        {
+          "case": 61,
+          "cycles": 17971,
+          "compute": 864,
+          "reads": 517,
+          "writes": 9
+        },
+        {
+          "case": 62,
+          "cycles": 1532,
+          "compute": 32,
+          "reads": 71,
+          "writes": 12
+        },
+        {
+          "case": 63,
+          "cycles": 21563,
+          "compute": 1296,
+          "reads": 389,
+          "writes": 18
+        },
+        {
+          "case": 64,
+          "cycles": 9462,
+          "compute": 576,
+          "reads": 81,
+          "writes": 4
+        },
+        {
+          "case": 65,
+          "cycles": 59430,
+          "compute": 2160,
+          "reads": 1806,
+          "writes": 153
+        },
+        {
+          "case": 66,
+          "cycles": 87937,
+          "compute": 4608,
+          "reads": 2091,
+          "writes": 68
+        },
+        {
+          "case": 67,
+          "cycles": 20101,
+          "compute": 384,
+          "reads": 1567,
+          "writes": 816
+        },
+        {
+          "case": 68,
+          "cycles": 10573,
+          "compute": 360,
+          "reads": 497,
+          "writes": 102
+        },
+        {
+          "case": 69,
+          "cycles": 2220,
+          "compute": 48,
+          "reads": 141,
+          "writes": 45
+        },
+        {
+          "case": 70,
+          "cycles": 27776,
+          "compute": 800,
+          "reads": 500,
+          "writes": 96
+        },
+        {
+          "case": 71,
+          "cycles": 6189,
+          "compute": 288,
+          "reads": 189,
+          "writes": 30
+        },
+        {
+          "case": 72,
+          "cycles": 2751,
+          "compute": 144,
+          "reads": 58,
+          "writes": 2
+        },
+        {
+          "case": 73,
+          "cycles": 21779,
+          "compute": 720,
+          "reads": 395,
+          "writes": 54
+        },
+        {
+          "case": 74,
+          "cycles": 81257,
+          "compute": 1920,
+          "reads": 3053,
+          "writes": 612
+        },
+        {
+          "case": 75,
+          "cycles": 74015,
+          "compute": 3456,
+          "reads": 2357,
+          "writes": 150
+        },
+        {
+          "case": 76,
+          "cycles": 73399,
+          "compute": 3072,
+          "reads": 2475,
+          "writes": 204
+        },
+        {
+          "case": 77,
+          "cycles": 4090,
+          "compute": 144,
+          "reads": 193,
+          "writes": 6
+        },
+        {
+          "case": 78,
+          "cycles": 20863,
+          "compute": 1152,
+          "reads": 268,
+          "writes": 4
+        },
+        {
+          "case": 79,
+          "cycles": 57653,
+          "compute": 3168,
+          "reads": 1189,
+          "writes": 175
+        },
+        {
+          "case": 80,
+          "cycles": 15433,
+          "compute": 864,
+          "reads": 267,
+          "writes": 30
+        },
+        {
+          "case": 81,
+          "cycles": 16032,
+          "compute": 1008,
+          "reads": 163,
+          "writes": 28
+        },
+        {
+          "case": 82,
+          "cycles": 357310,
+          "compute": 17280,
+          "reads": 10637,
+          "writes": 120
+        },
+        {
+          "case": 83,
+          "cycles": 38226,
+          "compute": 2160,
+          "reads": 737,
+          "writes": 30
+        },
+        {
+          "case": 84,
+          "cycles": 2806,
+          "compute": 96,
+          "reads": 144,
+          "writes": 45
+        },
+        {
+          "case": 85,
+          "cycles": 34566,
+          "compute": 1728,
+          "reads": 793,
+          "writes": 75
+        },
+        {
+          "case": 86,
+          "cycles": 3231,
+          "compute": 144,
+          "reads": 98,
+          "writes": 12
+        },
+        {
+          "case": 87,
+          "cycles": 83749,
+          "compute": 2880,
+          "reads": 4241,
+          "writes": 140
+        },
+        {
+          "case": 88,
+          "cycles": 32149,
+          "compute": 2304,
+          "reads": 282,
+          "writes": 18
+        },
+        {
+          "case": 89,
+          "cycles": 14910,
+          "compute": 512,
+          "reads": 441,
+          "writes": 80
+        },
+        {
+          "case": 90,
+          "cycles": 5396,
+          "compute": 288,
+          "reads": 85,
+          "writes": 8
+        },
+        {
+          "case": 91,
+          "cycles": 17249,
+          "compute": 576,
+          "reads": 705,
+          "writes": 36
+        },
+        {
+          "case": 92,
+          "cycles": 1654,
+          "compute": 64,
+          "reads": 65,
+          "writes": 12
+        },
+        {
+          "case": 93,
+          "cycles": 7409,
+          "compute": 144,
+          "reads": 333,
+          "writes": 60
+        },
+        {
+          "case": 94,
+          "cycles": 208350,
+          "compute": 8640,
+          "reads": 9105,
+          "writes": 306
+        },
+        {
+          "case": 95,
+          "cycles": 20607,
+          "compute": 1152,
+          "reads": 365,
+          "writes": 20
+        },
+        {
+          "case": 96,
+          "cycles": 9326,
+          "compute": 288,
+          "reads": 477,
+          "writes": 153
+        },
+        {
+          "case": 97,
+          "cycles": 65313,
+          "compute": 4032,
+          "reads": 629,
+          "writes": 105
+        },
+        {
+          "case": 98,
+          "cycles": 16853,
+          "compute": 400,
+          "reads": 702,
+          "writes": 210
+        },
+        {
+          "case": 99,
+          "cycles": 2567,
+          "compute": 144,
+          "reads": 48,
+          "writes": 2
+        },
+        {
+          "case": 100,
+          "cycles": 19625,
+          "compute": 1152,
+          "reads": 482,
+          "writes": 120
+        },
+        {
+          "case": 101,
+          "cycles": 132979,
+          "compute": 4608,
+          "reads": 4197,
+          "writes": 160
+        },
+        {
+          "case": 102,
+          "cycles": 374989,
+          "compute": 17280,
+          "reads": 8065,
+          "writes": 240
+        },
+        {
+          "case": 103,
+          "cycles": 190394,
+          "compute": 10368,
+          "reads": 4227,
+          "writes": 272
+        },
+        {
+          "case": 104,
+          "cycles": 6148,
+          "compute": 192,
+          "reads": 203,
+          "writes": 20
+        },
+        {
+          "case": 105,
+          "cycles": 211173,
+          "compute": 12096,
+          "reads": 4995,
+          "writes": 544
+        },
+        {
+          "case": 106,
+          "cycles": 38101,
+          "compute": 1440,
+          "reads": 1529,
+          "writes": 40
+        },
+        {
+          "case": 107,
+          "cycles": 40077,
+          "compute": 2160,
+          "reads": 376,
+          "writes": 12
+        },
+        {
+          "case": 108,
+          "cycles": 18019,
+          "compute": 1152,
+          "reads": 205,
+          "writes": 32
+        },
+        {
+          "case": 109,
+          "cycles": 31042,
+          "compute": 2304,
+          "reads": 227,
+          "writes": 80
+        },
+        {
+          "case": 110,
+          "cycles": 59099,
+          "compute": 2160,
+          "reads": 1479,
+          "writes": 48
+        },
+        {
+          "case": 111,
+          "cycles": 60397,
+          "compute": 3456,
+          "reads": 759,
+          "writes": 240
+        },
+        {
+          "case": 112,
+          "cycles": 205351,
+          "compute": 13104,
+          "reads": 1640,
+          "writes": 48
+        },
+        {
+          "case": 113,
+          "cycles": 86779,
+          "compute": 3456,
+          "reads": 1816,
+          "writes": 36
+        },
+        {
+          "case": 114,
+          "cycles": 16818,
+          "compute": 1152,
+          "reads": 156,
+          "writes": 12
+        },
+        {
+          "case": 115,
+          "cycles": 132756,
+          "compute": 5544,
+          "reads": 4466,
+          "writes": 160
+        },
+        {
+          "case": 116,
+          "cycles": 25594,
+          "compute": 1296,
+          "reads": 353,
+          "writes": 12
+        },
+        {
+          "case": 117,
+          "cycles": 38559,
+          "compute": 2880,
+          "reads": 184,
+          "writes": 36
+        },
+        {
+          "case": 118,
+          "cycles": 86683,
+          "compute": 5760,
+          "reads": 981,
+          "writes": 160
+        },
+        {
+          "case": 119,
+          "cycles": 336719,
+          "compute": 13824,
+          "reads": 10169,
+          "writes": 816
+        },
+        {
+          "case": 120,
+          "cycles": 7684,
+          "compute": 192,
+          "reads": 509,
+          "writes": 272
+        },
+        {
+          "case": 121,
+          "cycles": 26332,
+          "compute": 1260,
+          "reads": 571,
+          "writes": 16
+        },
+        {
+          "case": 122,
+          "cycles": 47507,
+          "compute": 2592,
+          "reads": 991,
+          "writes": 180
+        },
+        {
+          "case": 123,
+          "cycles": 75529,
+          "compute": 3456,
+          "reads": 1939,
+          "writes": 320
+        },
+        {
+          "case": 124,
+          "cycles": 119252,
+          "compute": 6912,
+          "reads": 1561,
+          "writes": 408
+        },
+        {
+          "case": 125,
+          "cycles": 17856,
+          "compute": 480,
+          "reads": 748,
+          "writes": 136
+        },
+        {
+          "case": 126,
+          "cycles": 249843,
+          "compute": 11520,
+          "reads": 6505,
+          "writes": 272
+        },
+        {
+          "case": 127,
+          "cycles": 299157,
+          "compute": 13824,
+          "reads": 7529,
+          "writes": 816
+        },
+        {
+          "case": 128,
+          "cycles": 27796,
+          "compute": 640,
+          "reads": 1281,
+          "writes": 136
+        },
+        {
+          "case": 129,
+          "cycles": 59110,
+          "compute": 2880,
+          "reads": 2057,
+          "writes": 544
+        },
+        {
+          "case": 130,
+          "cycles": 565503,
+          "compute": 27648,
+          "reads": 12325,
+          "writes": 816
+        },
+        {
+          "case": 131,
+          "cycles": 225297,
+          "compute": 10368,
+          "reads": 7601,
+          "writes": 544
+        },
+        {
+          "case": 132,
+          "cycles": 80200,
+          "compute": 3456,
+          "reads": 1973,
+          "writes": 240
+        },
+        {
+          "case": 133,
+          "cycles": 85327,
+          "compute": 4608,
+          "reads": 1045,
+          "writes": 16
+        },
+        {
+          "case": 134,
+          "cycles": 116835,
+          "compute": 6048,
+          "reads": 2888,
+          "writes": 408
+        },
+        {
+          "case": 135,
+          "cycles": 213212,
+          "compute": 10368,
+          "reads": 5048,
+          "writes": 160
+        },
+        {
+          "case": 136,
+          "cycles": 134251,
+          "compute": 6912,
+          "reads": 2473,
+          "writes": 80
+        },
+        {
+          "case": 137,
+          "cycles": 398435,
+          "compute": 20736,
+          "reads": 10687,
+          "writes": 816
+        },
+        {
+          "case": 138,
+          "cycles": 5235,
+          "compute": 96,
+          "reads": 187,
+          "writes": 16
+        },
+        {
+          "case": 139,
+          "cycles": 99853,
+          "compute": 6912,
+          "reads": 803,
+          "writes": 48
+        },
+        {
+          "case": 140,
+          "cycles": 20921,
+          "compute": 864,
+          "reads": 659,
+          "writes": 40
+        },
+        {
+          "case": 141,
+          "cycles": 464559,
+          "compute": 27648,
+          "reads": 3585,
+          "writes": 48
+        },
+        {
+          "case": 142,
+          "cycles": 6670,
+          "compute": 192,
+          "reads": 433,
+          "writes": 60
+        },
+        {
+          "case": 143,
+          "cycles": 25304,
+          "compute": 1728,
+          "reads": 407,
+          "writes": 120
+        },
+        {
+          "case": 144,
+          "cycles": 20988,
+          "compute": 384,
+          "reads": 905,
+          "writes": 80
+        },
+        {
+          "case": 145,
+          "cycles": 799246,
+          "compute": 46080,
+          "reads": 15301,
+          "writes": 1088
+        },
+        {
+          "case": 146,
+          "cycles": 202431,
+          "compute": 10368,
+          "reads": 2625,
+          "writes": 48
+        },
+        {
+          "case": 147,
+          "cycles": 51581,
+          "compute": 3456,
+          "reads": 899,
+          "writes": 160
+        },
+        {
+          "case": 148,
+          "cycles": 3483,
+          "compute": 128,
+          "reads": 92,
+          "writes": 4
+        },
+        {
+          "case": 149,
+          "cycles": 10517,
+          "compute": 384,
+          "reads": 478,
+          "writes": 204
+        },
+        {
+          "case": 150,
+          "cycles": 170,
+          "compute": 0,
+          "reads": 32,
+          "writes": 0
+        },
+        {
+          "case": 151,
+          "cycles": 183,
+          "compute": 0,
+          "reads": 32,
+          "writes": 0
+        },
+        {
+          "case": 152,
+          "cycles": 172,
+          "compute": 0,
+          "reads": 32,
+          "writes": 0
+        },
+        {
+          "case": 153,
+          "cycles": 176,
+          "compute": 0,
+          "reads": 32,
+          "writes": 0
+        },
+        {
+          "case": 154,
+          "cycles": 172,
+          "compute": 0,
+          "reads": 32,
+          "writes": 0
+        },
+        {
+          "case": 155,
+          "cycles": 232388,
+          "compute": 9216,
+          "reads": 4650,
+          "writes": 1
+        },
+        {
+          "case": 156,
+          "cycles": 196,
+          "compute": 0,
+          "reads": 35,
+          "writes": 0
+        },
+        {
+          "case": 157,
+          "cycles": 271,
+          "compute": 0,
+          "reads": 48,
+          "writes": 0
+        }
+      ]
+    }
+  },
+  "models": {
+    "yolov3-tiny": {
+      "M": {
+        "subgraph": [
+          {
+            "id": 22,
+            "cycles": 89664648,
+            "cpu_data": {
+              "reads": 193083,
+              "writes": 51942,
+              "read_bytes": 772332,
+              "write_bytes": 54168
+            },
+            "cpu_instr": {
+              "reads": 25888144,
+              "writes": 0,
+              "read_bytes": 103552576,
+              "write_bytes": 0
+            },
+            "dma": {
+              "reads": 1139232,
+              "writes": 25600,
+              "read_bytes": 4556928,
+              "write_bytes": 25600
+            }
+          },
+          {
+            "id": 65533,
+            "cycles": 15293565,
+            "cpu_data": {
+              "reads": 223181,
+              "writes": 177742,
+              "read_bytes": 892724,
+              "write_bytes": 710968
+            },
+            "cpu_instr": {
+              "reads": 3110367,
+              "writes": 0,
+              "read_bytes": 12441468,
+              "write_bytes": 0
+            },
+            "dma": {
+              "reads": 0,
+              "writes": 0,
+              "read_bytes": 0,
+              "write_bytes": 0
+            }
+          }
+        ],
+        "whole": [
+          {
+            "id": 65534,
+            "cycles": 487569827,
+            "cpu_data": {
+              "reads": 1502421,
+              "writes": 526034,
+              "read_bytes": 6009684,
+              "write_bytes": 1316936
+            },
+            "cpu_instr": {
+              "reads": 140174322,
+              "writes": 0,
+              "read_bytes": 560697288,
+              "write_bytes": 0
+            },
+            "dma": {
+              "reads": 5855546,
+              "writes": 911875,
+              "read_bytes": 23422184,
+              "write_bytes": 911875
+            }
+          },
+          {
+            "id": 65533,
+            "cycles": 15293565,
+            "cpu_data": {
+              "reads": 223181,
+              "writes": 177742,
+              "read_bytes": 892724,
+              "write_bytes": 710968
+            },
+            "cpu_instr": {
+              "reads": 3110367,
+              "writes": 0,
+              "read_bytes": 12441468,
+              "write_bytes": 0
+            },
+            "dma": {
+              "reads": 0,
+              "writes": 0,
+              "read_bytes": 0,
+              "write_bytes": 0
+            }
+          }
+        ]
+      },
+      "F": {
+        "subgraph": [
+          {
+            "id": 22,
+            "cycles": 75971811,
+            "cpu_data": {
+              "reads": 8,
+              "writes": 0,
+              "read_bytes": 32,
+              "write_bytes": 0
+            },
+            "cpu_instr": {
+              "reads": 23048173,
+              "writes": 0,
+              "read_bytes": 92192692,
+              "write_bytes": 0
+            },
+            "dma": {
+              "reads": 1090608,
+              "writes": 25600,
+              "read_bytes": 4362432,
+              "write_bytes": 25600
+            }
+          },
+          {
+            "id": 65533,
+            "cycles": 15293565,
+            "cpu_data": {
+              "reads": 223181,
+              "writes": 177742,
+              "read_bytes": 892724,
+              "write_bytes": 710968
+            },
+            "cpu_instr": {
+              "reads": 3110367,
+              "writes": 0,
+              "read_bytes": 12441468,
+              "write_bytes": 0
+            },
+            "dma": {
+              "reads": 0,
+              "writes": 0,
+              "read_bytes": 0,
+              "write_bytes": 0
+            }
+          }
+        ],
+        "whole": [
+          {
+            "id": 65534,
+            "cycles": 473876990,
+            "cpu_data": {
+              "reads": 1309346,
+              "writes": 474092,
+              "read_bytes": 5237384,
+              "write_bytes": 1262768
+            },
+            "cpu_instr": {
+              "reads": 137334351,
+              "writes": 0,
+              "read_bytes": 549337404,
+              "write_bytes": 0
+            },
+            "dma": {
+              "reads": 5806922,
+              "writes": 911875,
+              "read_bytes": 23227688,
+              "write_bytes": 911875
+            }
+          },
+          {
+            "id": 65533,
+            "cycles": 15293565,
+            "cpu_data": {
+              "reads": 223181,
+              "writes": 177742,
+              "read_bytes": 892724,
+              "write_bytes": 710968
+            },
+            "cpu_instr": {
+              "reads": 3110367,
+              "writes": 0,
+              "read_bytes": 12441468,
+              "write_bytes": 0
+            },
+            "dma": {
+              "reads": 0,
+              "writes": 0,
+              "read_bytes": 0,
+              "write_bytes": 0
+            }
+          }
+        ]
+      }
+    },
+    "yolov4-tiny": {
+      "M": {
+        "subgraph": [
+          {
+            "id": 36,
+            "cycles": 89662073,
+            "cpu_data": {
+              "reads": 193083,
+              "writes": 51942,
+              "read_bytes": 772332,
+              "write_bytes": 54168
+            },
+            "cpu_instr": {
+              "reads": 25887732,
+              "writes": 0,
+              "read_bytes": 103550928,
+              "write_bytes": 0
+            },
+            "dma": {
+              "reads": 1139232,
+              "writes": 25600,
+              "read_bytes": 4556928,
+              "write_bytes": 25600
+            }
+          },
+          {
+            "id": 65533,
+            "cycles": 15318061,
+            "cpu_data": {
+              "reads": 223154,
+              "writes": 177711,
+              "read_bytes": 892616,
+              "write_bytes": 710844
+            },
+            "cpu_instr": {
+              "reads": 3114611,
+              "writes": 0,
+              "read_bytes": 12458444,
+              "write_bytes": 0
+            },
+            "dma": {
+              "reads": 0,
+              "writes": 0,
+              "read_bytes": 0,
+              "write_bytes": 0
+            }
+          }
+        ],
+        "whole": [
+          {
+            "id": 65534,
+            "cycles": 705396740,
+            "cpu_data": {
+              "reads": 3276869,
+              "writes": 891212,
+              "read_bytes": 13107476,
+              "write_bytes": 1260848
+            },
+            "cpu_instr": {
+              "reads": 190468962,
+              "writes": 0,
+              "read_bytes": 761875848,
+              "write_bytes": 0
+            },
+            "dma": {
+              "reads": 6930504,
+              "writes": 937475,
+              "read_bytes": 27722016,
+              "write_bytes": 937475
+            }
+          },
+          {
+            "id": 65533,
+            "cycles": 15318061,
+            "cpu_data": {
+              "reads": 223154,
+              "writes": 177711,
+              "read_bytes": 892616,
+              "write_bytes": 710844
+            },
+            "cpu_instr": {
+              "reads": 3114611,
+              "writes": 0,
+              "read_bytes": 12458444,
+              "write_bytes": 0
+            },
+            "dma": {
+              "reads": 0,
+              "writes": 0,
+              "read_bytes": 0,
+              "write_bytes": 0
+            }
+          }
+        ]
+      },
+      "F": {
+        "subgraph": [
+          {
+            "id": 36,
+            "cycles": 75971811,
+            "cpu_data": {
+              "reads": 8,
+              "writes": 0,
+              "read_bytes": 32,
+              "write_bytes": 0
+            },
+            "cpu_instr": {
+              "reads": 23048173,
+              "writes": 0,
+              "read_bytes": 92192692,
+              "write_bytes": 0
+            },
+            "dma": {
+              "reads": 1090608,
+              "writes": 25600,
+              "read_bytes": 4362432,
+              "write_bytes": 25600
+            }
+          },
+          {
+            "id": 65533,
+            "cycles": 15318061,
+            "cpu_data": {
+              "reads": 223154,
+              "writes": 177711,
+              "read_bytes": 892616,
+              "write_bytes": 710844
+            },
+            "cpu_instr": {
+              "reads": 3114611,
+              "writes": 0,
+              "read_bytes": 12458444,
+              "write_bytes": 0
+            },
+            "dma": {
+              "reads": 0,
+              "writes": 0,
+              "read_bytes": 0,
+              "write_bytes": 0
+            }
+          }
+        ],
+        "whole": [
+          {
+            "id": 65534,
+            "cycles": 691706478,
+            "cpu_data": {
+              "reads": 3083794,
+              "writes": 839270,
+              "read_bytes": 12335176,
+              "write_bytes": 1206680
+            },
+            "cpu_instr": {
+              "reads": 187629403,
+              "writes": 0,
+              "read_bytes": 750517612,
+              "write_bytes": 0
+            },
+            "dma": {
+              "reads": 6881880,
+              "writes": 937475,
+              "read_bytes": 27527520,
+              "write_bytes": 937475
+            }
+          },
+          {
+            "id": 65533,
+            "cycles": 15318061,
+            "cpu_data": {
+              "reads": 223154,
+              "writes": 177711,
+              "read_bytes": 892616,
+              "write_bytes": 710844
+            },
+            "cpu_instr": {
+              "reads": 3114611,
+              "writes": 0,
+              "read_bytes": 12458444,
+              "write_bytes": 0
+            },
+            "dma": {
+              "reads": 0,
+              "writes": 0,
+              "read_bytes": 0,
+              "write_bytes": 0
+            }
+          }
+        ]
+      }
+    }
+  }
+}

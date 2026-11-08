@@ -1,0 +1,1 @@
+POOL PASS cases=100 invalid=5 tail/stride/wait/reset cycles=1185855

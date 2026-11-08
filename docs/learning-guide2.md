@@ -1,6 +1,6 @@
 # 理解 ai-soc：从 YOLO 模型到 RISC-V AI 加速器的完整执行链
 
-> **适用仓库**：[PimeGiano/ai-soc](https://github.com/PimeGiano/ai-soc)（`main` 分支，按 2026-11-07 可见源码整理）  
+> **适用仓库**：[PimeGiano/ai-soc](https://github.com/PimeGiano/ai-soc)（`main` 分支，按2026-11-08优化后的源码更新）
 > **文档定位**：架构理解与代码阅读指南，非逐行 API 手册。先回答“为什么这样设计、不同部分如何连接”，再说明在哪里查具体实现。  
 > **建议阅读方式**：第一次阅读重点看第 1、2、3、4、6、8、11 节；第二遍再看数据布局、量化、验证和性能。已有代码经验的读者可直接从第 4 节的完整调用链开始。
 
@@ -13,7 +13,7 @@
 3. **Python、Firmware、RTL 分别做什么？** Python 在主机上准备模型、量化参数、描述符、参考结果；Firmware 是 PicoRV32 执行的 RISC-V 机器码，负责逐层调度、驱动硬件和软件算子；RTL 描述 CPU、总线、DMA、卷积阵列及控制逻辑。
 4. **三者怎样连接？** 通过 **`model.mem` → 模拟内存 ← `firmware.bin`**，然后由 CPU **MMIO** 发命令，加速器通过 **DMA** 访问相同的内存。最终测试平台读出结果，再由 Python 验证。
 5. **4×4 INT8 是什么意思？** 输入、权重为 **INT8（8 位有符号整数）**；4×4 表示 **16 个并行 MAC**，每个 MAC 使用 **INT32 累加器**。INT8 是精度，4×4 是阵列规模，不能混为一谈。
-6. **项目现在做到哪一步？** 已有可运行的 CPU+RTL 联合仿真、完整模型执行、逐层检查、融合前后性能对照；**没有**流片、FPGA 实测、DDR 控制器、真实 FPS/功耗、时序收敛，也**没有**实现双 bank X/W 缓冲。
+6. **项目现在做到哪一步？** 已有可运行的 CPU+RTL 联合仿真、完整模型执行、逐层检查、融合前后性能对照；**没有**流片、FPGA 实测、DDR 控制器、真实 FPS/功耗、时序收敛，已实现双slot X/W缓冲与四路分bank。
 
 一句话描述项目：**在一个可运行 RISC-V 固件的仿真 SoC 中，用专用卷积硬件执行神经网络的高密度乘加，并把多尺度特征融合时不必要的主存中间张量消除掉。**
 
@@ -339,7 +339,7 @@ do {
 
 ### 5.1 PicoRV32 为什么需要和加速器一起存在？
 
-CPU 擅长执行控制、分支以及多种异构操作。项目中的 CPU 负责图解释、池化、切片、部分物化操作、解码和 NMS。加速器专门处理普通卷积和支持的融合卷积。
+CPU 擅长执行控制、分支以及多种异构操作。CPU负责图解释、切片、物化操作、解码和NMS；普通/融合卷积由卷积加速器执行，2×2池化由独立池化外设执行，其他kernel及B0保留CPU路径。
 
 同一个 `det_accelerator` 有两种总线身份：
 
@@ -373,7 +373,7 @@ assign mem_valid = sv && !reg_select;
 | `0x10000100–0x100001FF` | 加速器控制寄存器 CSR |
 | `0x20000000/04/08` | 测试平台打印、退出、ROI 计量标记，不是物理 UART/DDR 外设 |
 
-**关键区别**：64 MiB 主存由 C++ Testbench 实现，不是 `det_soc_top` 里已经设计出来的真实 DDR 控制器；24 KiB 本地 Scratch 则是加速器 RTL 内描述的 X/W/P/O 存储资源。
+**关键区别**：64 MiB 主存由 C++ Testbench 实现，不是 `det_soc_top` 里已经设计出来的真实 DDR 控制器；40 KiB 本地 Scratch 则是加速器 RTL 内描述的 X/W/P/O 存储资源。
 
 ### 5.4 32 位总线为什么能传输 INT8？
 
@@ -472,8 +472,8 @@ for 输出 Tile 的 oy, ox:
   for 输出通道块 oc0:
     for 输入通道块 ic0:
       准备这一块的 X / W
-      for 输出空间微块 m0（步长4）:
-        for 输出通道微块 n0（步长4）:
+      for 输出通道微块 n0（步长4）:
+        for 输出空间微块 m0（步长4）:
           初始化或恢复16个部分和
           for kpos in [0, KH*KW*TIC):
             取4个 A、取4个 B、一次 4×4 MAC
@@ -487,11 +487,11 @@ for 输出 Tile 的 oy, ox:
 
 | 缓冲 | 当前 RTL 容量 | 内容 | 为什么需要 |
 |---|---:|---|---|
-| X (`xbuf`) | 8 KiB | 当前输入 Tile | 不必每次 MAC 都重读外部输入 |
-| W (`wbuf`) | 8 KiB | 当前权重 Tile | 多个输出空间位置复用同组权重 |
+| X (`banked_scratch`) | 16 KiB | 当前输入 Tile | 不必每次 MAC 都重读外部输入 |
+| W (`banked_scratch`) | 16 KiB | 当前权重 Tile | 多个输出空间位置复用同组权重 |
 | P (`psum`) | 4 KiB | 尚未完成的 INT32 部分和 | 16 个 `acc` 装不下整个 Tile，跨输入通道块继续累加 |
 | O (`obuf`) | 4 KiB | 已完成 Bias/激活/重新量化的 INT8 输出 | 汇总后再通过 DMA 输出 |
-| **合计** | **24 KiB** | 单 bank Scratch | **40 KiB 是设计预算，不是已经实例化的容量** |
+| **合计** | **40 KiB** | 双slot、每slot四路bank | 指令缓存数据/标签/有效位另外占1248B |
 
 例如输出 Tile `8×8×16` 共有 1024 个输出元素，P 需要 `1024×4=4096 B`。而 `conv_core` 只有 16 个累加寄存器，即 64 B 的 INT32 值。两者职责不同。
 
@@ -537,48 +537,26 @@ Y=\underbrace{\sum_{c=0}^{15}X_cW_c}_{\text{第一块}}+\underbrace{\sum_{c=16}^
 | 融合转换 | `CONVERT_IN/OUT` | 从对应源分支转换到统一量化尺度 |
 | 权重准备 | `W_REQ/GOT` | 将当前权重块加载到 W |
 | 微块准备 | `MICRO_BEGIN`、`P_READ/RESTORE` | 16 个累加器清零，或恢复之前的部分和 |
-| 乘加 | `GATHER_A`、`GATHER_B`、`MAC_STEP`、`K_NEXT` | 遍历 K 维，每次计算 16 个乘积累加 |
-| 收尾 | `P_SAVE` 或 `RESULT`、`RESULT_NEXT` | 暂存部分和，或 Bias/激活/量化进 O |
+| 乘加 | `GATHER_A`、`MAC_STEP` | 遍历 K 维，每次计算 16 个乘积累加 |
+| 收尾 | `P_SAVE` 或 `RESULT` | 暂存部分和，或 Bias/激活/量化进 O |
 | 推进 | `MICRO_NEXT`、`IC_NEXT`、`WRITE_OUT`、`TILE_NEXT` | 推进微块、输入通道、写回和下一个 Tile |
 | 公共 DMA 读取 | `READ_DISPATCH/READ_BUS` | 复用的一套读事务控制，含一个对齐字缓存 |
 
-其中 `TILE_BEGIN`、`MICRO_BEGIN`、`GATHER_A/B`、`MAC_STEP`、`K_NEXT`、`P_SAVE/RESULT` 和 `WRITE_OUT` 是理解代码的骨架。
+其中 `TILE_BEGIN`、`MICRO_BEGIN`、`GATHER_A`、`MAC_STEP`、`P_SAVE/RESULT` 和 `WRITE_OUT` 是理解代码的骨架。
 
-### 8.1 为什么明明有 16 个 MAC，却只有平均 1.6 MAC/cycle？
+### 8.1 四路bank怎样使16个MAC连续工作？
 
-控制器在每个 `kpos` 需要：
+每组输入和权重分别分成四个2KiB bank。W按输出通道模4分bank；X按输出步长与行位置旋转bank，使连续四个输出空间位置即使跨短行也能无冲突读取。行填充若超出单bank容量则保留紧凑映射，并由冲突检测回退逐lane读取，避免复制存储或越界。
 
-| 状态 | 周期 | 工作 |
-|---|---:|---|
-| `GATHER_A` | 4 | 从 X 逐个采集 4 个 INT8 激活 |
-| `GATHER_B` | 4 | 从 W 逐个采集 4 个 INT8 权重 |
-| `MAC_STEP` | 1 | **16 个 MAC 同时执行** |
-| `K_NEXT` | 1 | 推进 K 索引 |
-| **合计** | **10** | 完成一个 K 位置 |
+无冲突时，GATHER_A一拍装入完整avec/bvec并计算上一组向量，最后MAC_STEP一拍排空，K个位置共K+1拍。长K时接近16 MAC/cycle，但不含装载、部分和、参数、输出或CPU操作。第一轮4K+1、原版10K都是历史基线。
 
-因此，就这个稳定的 K 循环而言：
+第二份slot由tile_prefetch装载下一输入通道块，同时当前slot计算；只有下一块X/W就绪后才能交换。融合后台通过虚拟坐标和requant处理，不生成完整上采样/拼接张量。FAST/SERIAL和PREFETCH计数可以判断供数冲突与剩余等待。
 
-\[
-\text{平均 MAC 吞吐}=\frac{16}{10}=1.6\ \text{MAC/cycle}
-\]
-
-这是**计算内循环**的平均值，不是整网吞吐；还没有计入 X 清零、W 加载、DMA 等待、P 恢复、输出写回、CPU 调度等额外开销，也没有扣除尾块中无效 lane。
-
-例如 `TH=TW=8, TIC=TOC=16, KH=KW=3`：
-
-- 空间位置 `M=64`，输出通道 `N=16`；
-- Microtile 个数 `(64/4)×(16/4)=64`；
-- 每个 Microtile 的 K 长度 `3×3×16=144`；
-- 执行总数 `64×144×16=147456 MAC`；
-- K 循环周期 `64×144×10=92160`。
-
-如果四个 A 和四个 B 能够**每个周期**稳定供应一次 `step`，相同的有效计算只需 `9216` 个 MAC 使能周期。把这个理想值当作上限对照很有用，但它**不是**已经实现的流水结构或整任务实际周期。
-
-因此，当前最大的直观改进点之一是**供数与计算重叠**，而不是把 `4×4` 一律扩大。扩大阵列还必须同步解决输入端口、Buffer bank、部分和与输出带宽问题。
+CPU取指命中1KiB instruction_cache时不再访问共享总线；程序区数据访问和MMIO仍旁路。2×2池化由独立硬件执行，CPU回退路径移出重复地址计算，上采样/拼接查表执行精确整数转换。
 
 ### 8.2 一次部分和恢复需要多少周期？
 
-P 中的 INT32 被逐项读取：`P_READ → P_RESTORE`，每个累加器约两拍，16 个共 **32 拍**。因此小 K 或频繁切换输入通道块时，恢复开销可能更显著。
+P中的INT32先用 `P_READ` 预取第一项，再连续16拍 `P_RESTORE`；恢复当前项的同时预取下一项，总共 **17拍**。`P_SAVE` 和 `RESULT` 每拍推进一个累加器，各16拍，不再插入 `RESULT_NEXT` 空拍。小K或频繁切换输入通道块时，这些开销仍需要关注。
 
 ### 8.3 RTL 中的 `always`、`<=` 和 `genvar` 怎么理解？
 
@@ -586,7 +564,7 @@ P 中的 INT32 被逐项读取：`P_READ → P_RESTORE`，每个累加器约两�
 - `<=`：非阻塞赋值，同一时钟边沿上的寄存器更新不能被当作前一条语句立刻生效。
 - `always @*`、连续 `assign`：主要描述组合逻辑。
 - `genvar`：**编译展开硬件**，不是时钟周期中的软件循环。
-- FSM 从 `GATHER_B` 转到 `MAC_STEP` 后，`MAC_STEP` 对应的后续时钟边沿才使用已经装入的向量执行 MAC。
+- FSM在下一组 `GATHER_A` 的lane0边沿使用上一组向量，最后一组在 `MAC_STEP` 边沿执行；向量更新与MAC使用旧值的关系要结合非阻塞赋值理解。
 
 ## 9. 多尺度融合的真实语义：不能只看“省掉 U、C”
 
@@ -695,9 +673,9 @@ y_q=\operatorname{clip}\Bigl(\operatorname{round}_{away}(value\cdot m/2^s),-127,
 
 最重要的可比性条件是：**M/F 使用相同的 MAC 阵列和大体相同的分块架构，不能把更强计算硬件的收益伪装成融合收益。** M/F 差异还包含输入尺度转换位置由 CPU 转向硬件，因此应结合等尺度隔离实验解释“消除物化”的纯粹贡献。
 
-### 11.2 仓库当前的实测结果
+### 11.2 优化前基线与当前结果
 
-以下来自 [`results/summary.md`](../results/summary.md) 中保存的测试记录，不是理论峰值。
+下表是本轮供数优化前的历史基线，保存在 [`results/performance_baseline.json`](../results/performance_baseline.json)，用于说明融合收益口径。当前M/F结果见 [`results/summary.md`](../results/summary.md)，同一路径优化前后见 [`results/performance.md`](../results/performance.md)。量化AP不受等价RTL调度优化影响。
 
 | 指标 | YOLOv3-tiny | YOLOv4-tiny |
 |---|---:|---:|
@@ -713,7 +691,7 @@ y_q=\operatorname{clip}\Bigl(\operatorname{round}_{away}(value\cdot m/2^s),-127,
 - 整网周期包括 CPU 算子、驱动、轮询与硬件网络执行，但不包括主机图片预处理和另外统计的解码/NMS。
 - 量化 AP 的测试由**主机**使用不重叠的 100 张 COCO train2017 校准与 500 张 val2017 评价；不代表 500 张都执行了 RTL 全系统仿真。
 - 默认图片的单次演示校准标记为 `demo-only`，不能冒充独立精度评测。
-- 子图周期减少目标达到约 15%；**30% 数据流量降低的研究目标并未达到**。报告结果时应同时保留未达目标。
+- 历史基线的子图周期减少目标达到约15%，30%数据流量降低目标未达到；优化后的目标达成情况以当前summary为准。报告结果时应同时保留未达目标。
 
 ### 11.3 为什么子图快 15%，整网只有约 2%？
 
@@ -738,13 +716,13 @@ y_q=\operatorname{clip}\Bigl(\operatorname{round}_{away}(value\cdot m/2^s),-127,
 | 通用 INT8 卷积，1×1、3×3 等受限配置 | **已实现**，受描述符约束 |
 | 2×最近邻上采样 + 通道拼接 + 卷积融合 | **已实现**指定形式的双源融合 |
 | 输出 INT32→INT8 重新量化，输入分支尺度转换 | **已实现** |
-| 4×4 广播式 MAC + 24 KiB 单 bank X/W/P/O | **已实现** |
-| 两份 X/W bank、DMA/计算重叠 | **未实现**；40 KiB 是预算，不是实占 |
+| 4×4 广播式 MAC + 40 KiB双slot X/W/P/O | **已实现** |
+| 两份X/W slot、DMA/计算重叠 | **已实现**；40KiB实际scratch，缓存另外统计 |
 | AXI/DDR 控制器、真实 SRAM 宏、FPGA、芯片流片 | **未实现** |
 | 通用 ONNX 图、任意模型、训练、深度可分离卷积/attention | **不支持**或不在当前范围 |
 | 完整门级时序、真实频率、FPS、功耗 | **没有可依据的实测** |
 
-> 特别注意：`docs/design.md` 包含目标、预算、可选扩展；是否已做完以 `docs/implementation.md`、RTL 与测试结果为准，不能把“规划中的双 bank”讲成现有功能。
+> 特别注意：`docs/design.md` 包含目标、预算、可选扩展；是否已做完以 `docs/implementation.md`、RTL 与测试结果为准，当前双slot已由后台状态机和回归证明；更大阵列、物理频率仍未验证。
 
 ## 13. 如何有目的地阅读代码，而不是一次看完所有文件？
 
@@ -763,7 +741,7 @@ y_q=\operatorname{clip}\Bigl(\operatorname{round}_{away}(value\cdot m/2^s),-127,
 ### 路线 B：理解数据如何被计算
 
 1. [`rtl/conv_core.sv`](../rtl/conv_core.sv)：理解 4 空间位置 × 4 输出通道、一个 `kpos` 一次外积。
-2. `det_accelerator.sv` 中 `TILE_BEGIN`、`MICRO_BEGIN`、`GATHER_A/B`、`MAC_STEP`、`K_NEXT`。
+2. `det_accelerator.sv` 中 `TILE_BEGIN`、`MICRO_BEGIN`、`GATHER_A`、`MAC_STEP`。
 3. `P_READ/P_RESTORE/P_SAVE/RESULT`：理解为何需要 4 KiB P 和输出量化。
 4. `SOURCE_BEGIN/SCATTER`：理解普通卷积与双源融合如何共用同一个计算核心。
 
@@ -830,7 +808,7 @@ y_q=\operatorname{clip}\Bigl(\operatorname{round}_{away}(value\cdot m/2^s),-127,
 因为计算的数值语义一样，数据准备路径不同；F 省掉部分完整主存中间张量，但增加局部地址映射与转换逻辑。
 
 **Q10：如何客观报告项目效果？**  
-分别报告功能对拍、子图周期/流量、整网周期、主机精度与 RTL 验证范围；明确 24 KiB 真实 Scratch、未实现双 bank、无物理 FPS/功耗依据。
+分别报告功能对拍、子图周期/流量、整网周期、主机精度与 RTL 验证范围；明确40 KiB真实Scratch、预取覆盖范围与冲突回退、无物理 FPS/功耗依据。
 
 ---
 
@@ -877,3 +855,7 @@ bash scripts/run_all.sh accuracy
 - [`spec/registers.json`](../spec/registers.json) → [`scripts/gen_spec.py`](../scripts/gen_spec.py)：C 的 `firmware/spec.h` 与 RTL 的 `rtl/spec.vh` 如何由统一规范生成。
 
 **最终应该形成的系统直觉**：先想清楚哪部分数据在外部内存、哪部分留在片上、谁决定下一步、谁发起总线事务、何时真正发生 MAC、如何确保数值一致、什么指标能够支持性能结论。掌握这几个问题，理解这个项目就不再依赖逐行记忆代码。
+
+末尾Cin块会跳过TIC中的补零归约项，输出通道微块也只遍历有效co_count；K+1中的K应使用该块实际有效通道数乘kernel面积，不能把旧版COMPUTE_CYCLES不变当作当前验收条件。数值对拍与实际MAC计数分别验证。
+
+阅读CPU数据搬运时请区分main.c中的converted_copy与driver.c的memcpy：前者执行精确尺度转换，即使恒等倍率也把-128饱和成-127；后者是普通字节拷贝，必须保留-128。两者都只在地址对齐时使用32位访问，否则回退字节路径。

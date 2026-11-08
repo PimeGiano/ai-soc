@@ -1,0 +1,21 @@
+{
+  "stage": "RTL structural memory check; not FPGA placement/timing",
+  "memories": {
+    "tags": {
+      "WIDTH": 6,
+      "SIZE": 256,
+      "RD_PORTS": 1,
+      "WR_PORTS": 1
+    },
+    "words": {
+      "WIDTH": 32,
+      "SIZE": 256,
+      "RD_PORTS": 1,
+      "WR_PORTS": 1
+    }
+  },
+  "data_bytes": 1024,
+  "tag_bytes": 192,
+  "valid_bytes": 32,
+  "total_storage_bytes": 1248
+}

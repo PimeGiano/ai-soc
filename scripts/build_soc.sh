@@ -17,12 +17,14 @@ python3 - <<'PY_BUILD'
 import hashlib, json
 from pathlib import Path
 
-files = sorted(Path("rtl").glob("*.sv")) + [Path("rtl/spec.vh"), Path("third_party/picorv32.v")]
+files = sorted(Path("rtl").glob("*.sv")) + sorted(Path("rtl").glob("*.vh")) + [Path("third_party/picorv32.v")]
 h = hashlib.sha256()
 for p in files:
 	h.update(str(p).encode())
 	h.update(p.read_bytes())
 Path("results/build.json").write_text(
-	json.dumps({"rtl_sha256": h.hexdigest(), "files": [str(p) for p in files]}, indent=2) + "\n"
+	json.dumps({"rtl_sha256": h.hexdigest(), "files": [str(p) for p in files],
+		"firmware_sha256": hashlib.sha256(Path("build/firmware.bin").read_bytes()).hexdigest(),
+		"parameters": {"ENABLE_ICACHE": 1, "ENABLE_PREFETCH": 1, "ENABLE_BANKED_GATHER": 1}}, indent=2) + "\n"
 )
 PY_BUILD
