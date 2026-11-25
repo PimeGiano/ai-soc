@@ -47,6 +47,23 @@ static float sigmoid(float x)
 	return 1.f / (1.f + ex(-x));
 }
 
+static float activation(uint32_t cache[256], int8_t sample, float scale, int exponential)
+{
+	union {
+		uint32_t bits;
+		float value;
+	} entry;
+	unsigned index = (uint8_t)sample;
+	entry.bits = cache[index];
+	// Both functions return strictly positive values for finite scaled logits.
+	if (!entry.bits) {
+		float x = sample * scale;
+		entry.value = exponential ? ex(x) : sigmoid(x);
+		cache[index] = entry.bits;
+	}
+	return entry.value;
+}
+
 static float fmax2(float a, float b)
 {
 	return a > b ? a : b;
@@ -71,16 +88,27 @@ void det_postprocess(const uint32_t *h)
 		if (classes + 5 != cc / 3)
 			die("head format");
 
+		uint32_t sigmoid_cache[256], exp_cache[256];
+		for (unsigned i = 0; i < 256; i++) {
+			sigmoid_cache[i] = 0;
+			exp_cache[i] = 0;
+		}
 		for (uint32_t y = 0; y < hh; y++)
 			for (uint32_t z = 0; z < ww; z++)
 				for (uint32_t a = 0; a < 3; a++) {
 					const int8_t *v = x + (y * ww + z) * cc + a * (classes + 5);
+					float objectness = activation(sigmoid_cache, v[4], scale, 0);
+					if (objectness < .25f)
+						continue;
 					uint32_t label = 0;
+					int8_t best = v[5];
 
 					for (uint32_t c = 1; c < classes; c++)
-						if (v[5 + c] > v[5 + label])
+						if (v[5 + c] > best) {
+							best = v[5 + c];
 							label = c;
-					float score = sigmoid(v[4] * scale) * sigmoid(v[5 + label] * scale);
+						}
+					float score = objectness * activation(sigmoid_cache, best, scale, 0);
 
 					if (score < .25f)
 						continue;
@@ -88,17 +116,21 @@ void det_postprocess(const uint32_t *h)
 					if (count == 512)
 						die("candidate overflow");
 					float cx =
-						(sigmoid(v[0] * scale) * sxy - (sxy - 1.f) * .5f + (float)z) / (float)ww;
+						(activation(sigmoid_cache, v[0], scale, 0) * sxy -
+						 (sxy - 1.f) * .5f + (float)z) / (float)ww;
 					float cy =
-						(sigmoid(v[1] * scale) * sxy - (sxy - 1.f) * .5f + (float)y) / (float)hh;
-					float bw = ex(v[2] * scale) * (float)d[6 + a * 2] / (float)size,
-						  bh = ex(v[3] * scale) * (float)d[7 + a * 2] / (float)size;
+						(activation(sigmoid_cache, v[1], scale, 0) * sxy -
+						 (sxy - 1.f) * .5f + (float)y) / (float)hh;
+					float bw = activation(exp_cache, v[2], scale, 1) *
+						(float)d[6 + a * 2] / (float)size;
+					float bh = activation(exp_cache, v[3], scale, 1) *
+						(float)d[7 + a * 2] / (float)size;
 					candidates[count++] = (Box){
 						cx - bw * .5f, cy - bh * .5f, cx + bw * .5f, cy + bh * .5f, score, label};
 				}
 	}
 
-	// Stable selection sort: equal scores preserve initial source order.
+	// Stable insertion sort: equal scores preserve initial source order.
 	for (uint32_t i = 1; i < count; i++) {
 		Box v = candidates[i];
 		uint32_t k = i;

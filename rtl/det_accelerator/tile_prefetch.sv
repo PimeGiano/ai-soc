@@ -80,10 +80,15 @@ module tile_prefetch (
 	assign busy = state != IDLE;
 	assign read_valid = state == REQUEST && !rst;
 	assign read_addr = {request_addr[31:2], 2'b00};
-	assign x_write = state == STORE && target_x && !rst;
-	assign w_write = state == STORE && !target_x && !rst;
+	// Ordinary data can enter scratch on the same edge that completes the read.
+	// Fused inputs still register the response ahead of the requantizer.
+	wire store_response = state == REQUEST && read_ready && !(target_x && fused);
+	wire store_sample = state == STORE || store_response;
+	assign x_write = store_sample && target_x && !rst;
+	assign w_write = store_sample && !target_x && !rst;
 	assign write_index = index[12:0];
-	wire signed [7:0] raw_sample = sample_word[8 * request_addr[1:0] +: 8];
+	wire [31:0] write_word = store_response ? read_data : sample_word;
+	wire signed [7:0] raw_sample = write_word[8 * request_addr[1:0] +: 8];
 	wire signed [7:0] converted;
 	requant input_quant (
 		.value({{24{raw_sample[7]}}, raw_sample}),
@@ -92,7 +97,7 @@ module tile_prefetch (
 		.result(converted)
 	);
 	assign write_data = target_x && fused ? {4{converted}} :
-		(advance == 4 ? sample_word : {4{raw_sample}});
+		(advance == 4 ? write_word : {4{raw_sample}});
 	assign write_strobe = advance == 4 ? 4'b1111 : (4'b0001 << index[1:0]);
 
 	always @(posedge clk) begin
@@ -136,26 +141,28 @@ module tile_prefetch (
 						cache_data[request_addr[3:2]] <= read_data;
 						cache_tag[request_addr[3:2]] <= request_addr[31:4];
 						cache_valid[request_addr[3:2]] <= 1;
-						state <= STORE;
+						if (!store_response)
+							state <= STORE;
 					end
 
-				STORE:
-					if (index + {29'b0, advance} == 32'(total)) begin
-						if (!target_x) begin
-							target_x <= 1;
-							index <= 0;
-							state <= X_SCAN;
-						end else begin
-							done <= 1;
-							state <= IDLE;
-						end
-					end else begin
-						index <= index + {29'b0, advance};
-						state <= target_x ? X_SCAN : W_SCAN;
-					end
+				STORE: begin
+				end
 
 				default: state <= IDLE;
 			endcase
+			if (store_sample) begin
+				if (index + {29'b0, advance} != 32'(total)) begin
+					index <= index + {29'b0, advance};
+					state <= target_x ? X_SCAN : W_SCAN;
+				end else if (!target_x) begin
+					target_x <= 1;
+					index <= 0;
+					state <= X_SCAN;
+				end else begin
+					done <= 1;
+					state <= IDLE;
+				end
+			end
 		end
 	end
 

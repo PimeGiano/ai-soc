@@ -6,20 +6,26 @@ source "$(dirname "${BASH_SOURCE[0]}")/env.sh"
 cd "$AI_SOC_ROOT"
 
 mkdir -p build/synth results
-# Keep SRAM as memory cells; mapping 24KiB into flip-flops misrepresents the design.
-yosys -Q -T -p 'read_verilog -sv -Irtl rtl/requant.sv rtl/fuse_requant.sv rtl/conv_core.sv rtl/banked_scratch.sv rtl/tile_prefetch.sv rtl/det_accelerator.sv; hierarchy -check -top det_accelerator; proc; opt; memory_dff; memory_share; memory_collect; opt_clean; check; write_json build/synth/netlist.json; stat -json' >build/synth/accelerator.log 2>&1
+# Preserve inferred SRAM cells for the structural check.
+accel_rtl=(rtl/det_accelerator/*.sv)
+yosys -Q -T -p "read_verilog -sv -Irtl/det_accelerator ${accel_rtl[*]}; hierarchy -check -top det_accelerator; proc; opt; memory_dff; memory_share; memory_collect; opt_clean; check; write_json build/synth/netlist.json; stat -json" >build/synth/accelerator.log 2>&1
 python3 - <<'PY'
 from pathlib import Path
 import json
 
 p = Path("build/synth/accelerator.log").read_text()
-netlist = json.loads(Path("build/synth/netlist.json").read_text())
+modules = json.loads(Path("build/synth/netlist.json").read_text())["modules"]
+engines = modules["det_accelerator"]["cells"]
+assert engines["pool_engine"]["type"] == "pool_accelerator"
+conv = modules[engines["conv_engine"]["type"]]["cells"]
+datapath = conv["datapath"]["type"]
+tile_buffer = modules[conv["tile_buffer"]["type"]]["cells"]
 scratch = {}
-for module, prefix, copies in [("det_accelerator", "", 1), ("banked_scratch", "banked/", 4)]:
-	for name, cell in netlist["modules"][module]["cells"].items():
+for module, prefix, copies in [(datapath, "", 1), ("banked_scratch", "banked/", 4)]:
+	for name, cell in modules[module]["cells"].items():
 		if cell["type"] != "$mem_v2":
 			continue
-		if module == "det_accelerator" and name not in {"psum", "obuf"}:
+		if module == datapath and name not in {"psum", "obuf"}:
 			continue
 		params = cell["parameters"]
 		entry = {key: int(params[key], 2) for key in ["WIDTH", "SIZE", "RD_PORTS", "WR_PORTS"]}
@@ -28,7 +34,7 @@ for module, prefix, copies in [("det_accelerator", "", 1), ("banked_scratch", "b
 		entry["instances"] = copies
 		scratch[prefix + name] = entry
 assert len(scratch) == 6
-instances = sum(cell["type"] == "banked_scratch" for cell in netlist["modules"]["det_accelerator"]["cells"].values())
+instances = sum(cell["type"] == "banked_scratch" for cell in tile_buffer.values())
 assert instances == 4
 assert sum(m["WIDTH"] * m["SIZE"] // 8 * m["instances"] for m in scratch.values()) == 40960
 data, _ = json.JSONDecoder().raw_decode(p[p.rfind("\n{") + 1 :])
@@ -71,7 +77,7 @@ Path("results/cache_synthesis.json").write_text(json.dumps({
 print("Instruction cache structure PASS: 1024B data + 192B tags + 32B valid bits")
 PY_CACHE
 
-yosys -Q -T -p 'read_verilog -sv -Irtl rtl/pool_accelerator.sv; hierarchy -check -top pool_accelerator; proc; opt; check; stat -json' >build/synth/pool.log 2>&1
+yosys -Q -T -p 'read_verilog -sv -Irtl/det_accelerator rtl/det_accelerator/pool_accelerator.sv; hierarchy -check -top pool_accelerator; proc; opt; check; stat -json' >build/synth/pool.log 2>&1
 python3 - <<'PY_POOL'
 import json
 from pathlib import Path

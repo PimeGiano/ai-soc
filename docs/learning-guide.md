@@ -24,6 +24,7 @@
 14. [如何解释性能、精度和综合结果](#如何解释性能精度和综合结果)
 15. [分阶段动手练习](#分阶段动手练习)
 16. [术语、自检答案与后续方向](#术语自检答案与后续方向)
+17. [从图片到检测框](#从图片到检测框)
 
 ## 先认识最终要学会什么
 
@@ -70,11 +71,11 @@
 | 1 | 本文前三节、[README](../README.md)、[框图](architecture.svg) | 项目分成哪些执行部分，当前能运行什么 | 能用自己的话画出Python→内存→CPU→加速器→CPU的路径 |
 | 2 | [run_all.sh](../scripts/run_all.sh) | quick/full/accuracy分别验证什么 | 能运行quick，并指出每类PASS的含义 |
 | 3 | [reference.py](../scripts/reference.py) | 普通卷积、定点舍入、物化融合的数学结果 | 手算一个小卷积，再用NumPy对上 |
-| 4 | [conv_core.sv](../rtl/conv_core.sv) | 4个A与4个B如何广播，16个acc如何更新 | 能算出两次step后的任一acc |
-| 5 | [requant.sv](../rtl/requant.sv)、[fuse_requant.sv](../rtl/fuse_requant.sv) | 位宽、负数舍入、饱和、valid/ready | 能解释-1除以2为何输出-1，以及背压时保存什么 |
+| 4 | [conv_core.sv](../rtl/det_accelerator/conv_core.sv) | 4个A与4个B如何广播，16个acc如何更新 | 能算出两次step后的任一acc |
+| 5 | [requant.sv](../rtl/det_accelerator/requant.sv)、[fuse_requant.sv](../rtl/det_accelerator/fuse_requant.sv) | 位宽、负数舍入、饱和、valid/ready | 能解释-1除以2为何输出-1，以及背压时保存什么 |
 | 6 | [driver.c](../firmware/driver.c)、[driver.h](../firmware/driver.h)、[接口文档](interfaces.md) | 软件怎样配置任务、启动、等完成 | 能从det_conv追到DESC_ADDR、CTRL、STATUS |
 | 7 | [det_soc_top.sv](../rtl/det_soc_top.sv)、[native_arbiter.sv](../rtl/native_arbiter.sv) | CPU/DMA共享内存、MMIO译码、事务完成 | 能解释为什么等待期间不能切换总线主人 |
-| 8 | [det_accelerator.sv](../rtl/det_accelerator.sv) | 按本文状态分组读，先普通卷积，再融合取数 | 能沿状态机走完一个跨Cin块任务 |
+| 8 | [det_conv_scheduler.sv](../rtl/det_accelerator/det_conv_scheduler.sv) | 按本文状态分组读，先普通卷积，再融合取数 | 能沿状态机走完一个跨Cin块任务 |
 | 9 | [gen_vectors.py](../scripts/gen_vectors.py)、[accelerator.cpp](../tb/accelerator.cpp) | 参考、激励、内存、错误注入怎样分工 | 能添加一个小形状并定位第一个错误字节 |
 | 10 | [export_model.py](../scripts/export_model.py)、[memory.py](../scripts/memory.py) | 模型图怎样变成地址、描述符和操作记录 | 能在manifest中找到某层的地址、形状与参考文件 |
 | 11 | [main.c](../firmware/main.c)、[soc.cpp](../tb/soc.cpp)、[memory.hpp](../tb/memory.hpp) | CPU执行整图与测试平台怎样配合 | 能区分固件计算与测试平台事后检查 |
@@ -223,14 +224,14 @@ bash scripts/run_model.sh yolov3-tiny F 0 0
 `run_model.sh`参数：
 
 ```text
-模型名        M / F / B0      额外等待上限      整网ROI开关
+模型名        M / F / B0      额外等待上限      ROI模式
 ```
 
 - `M`：CPU先上采样/重定标/拼接，在主存物化，再调用同一卷积硬件。
 - `F`：硬件直接读两个源，转换并散写到当前片上块，再卷积。
 - `B0`：卷积也由CPU执行，完整模型很慢，初学先用quick中的CPU小图。
 - 等待上限`3`：测试平台为事务插入0～3拍额外等待。
-- ROI开关`0`：测融合子图；`1`：测完整网络。两者都执行完整模型，只是计时区域不同。
+- ROI 模式 `0` 测融合子图，`1` 测完整网络，`2` 逐算子测量。三种模式都执行完整模型。逐算子模式中，ROI 4096 起的顺序对应导出清单的 `operator_layers`。
 
 ## 卷积矩阵映射与数据布局
 
@@ -600,7 +601,7 @@ bias, m_pos, s_pos, m_neg, s_neg
 
 ## 读懂最小计算核心
 
-先完整阅读 [conv_core.sv](../rtl/conv_core.sv)，它比总调度器短得多。
+先完整阅读 [conv_core.sv](../rtl/det_accelerator/conv_core.sv)，它比总调度器短得多。
 
 ### 16个累加器各代表一个输出
 
@@ -690,7 +691,7 @@ CPU写DESC_ADDR和START
 
 描述符的32个字各占4字节：例如H在第4个字（从0数），其字节偏移为16。CSR寄存器表的偏移直接以字节计，不要把这两种单位混用。
 
-字段定义从 [spec/registers.json](../spec/registers.json) 生成到`firmware/spec.h`和`rtl/spec.vh`。修改接口先改JSON，再运行：
+字段定义从 [spec/registers.json](../spec/registers.json) 生成到`firmware/spec.h`和`rtl/det_accelerator/spec.vh`。修改接口先改JSON，再运行：
 
 ```bash
 python3 scripts/gen_spec.py
@@ -755,7 +756,7 @@ dma_wdata = byte_value << (8*byte_lane)
 
 ## 沿状态机走完一次卷积
 
-现在才开始读最大的文件 [det_accelerator.sv](../rtl/det_accelerator.sv)。不要从第一行到最后一行一次记住全部内容，先按阶段找到状态，再追本阶段用到的地址和计数器。
+从 [det_accelerator.sv](../rtl/det_accelerator/det_accelerator.sv) 看卷积与池化的连接，再读卷积调度器 [det_conv_scheduler.sv](../rtl/det_accelerator/det_conv_scheduler.sv)。不要从第一行到最后一行一次记住全部内容，先按阶段找到状态，再追本阶段用到的地址和计数器。
 
 ### 先给变量分类
 
@@ -870,7 +871,7 @@ F模式下，导出器识别满足条件的上采样/route/卷积连接，跳过
 | 3 | `firmware/main.c` | 读图头，检查magic/接口版本，遍历操作表 |
 | 4 | `firmware/driver.c::det_conv` | 写MMIO，启动并轮询 |
 | 5 | `rtl/det_soc_top.sv` | 译码、仲裁，连接CPU与加速器 |
-| 6 | `rtl/det_accelerator.sv`及计算模块 | 搬运、分块、融合、计算、写回 |
+| 6 | `rtl/det_accelerator/det_conv_scheduler.sv`及计算模块 | 搬运、分块、融合、计算、写回 |
 | 7 | `firmware/main.c` | 完成其余算子，事后检查每个操作输出哈希 |
 | 8 | `firmware/postprocess.c` | 将检测头logits解码成框，按类别NMS |
 | 9 | `tb/soc.cpp`、`check_boxes.py` | 逐字节比较卷积输出，并核对CPU框 |
@@ -1200,4 +1201,61 @@ PY
 
 末尾Cin块会跳过TIC中的补零归约项，输出通道微块也只遍历有效co_count；K+1中的K应使用该块实际有效通道数乘kernel面积，不能把旧版COMPUTE_CYCLES不变当作当前验收条件。数值对拍与实际MAC计数分别验证。
 
-2×2池化现在由pool_accelerator独立执行：先读firmware/main.c的pool分派，再读driver.c的det_pool和docs/interfaces.md中的池化CSR，最后看RTL的四通道比较与外围仲裁。B0和其他kernel仍走软件；它不是卷积输出直接流入池化的融合流水。
+2×2 池化由 `det_accelerator` 内的独立引擎执行。可从 [main.c](../firmware/main.c) 的分派追到 [driver.c](../firmware/driver.c) 的 `det_pool`，再看 [pool_accelerator.sv](../rtl/det_accelerator/pool_accelerator.sv) 的四通道比较和 DMA 握手。
+
+## 从图片到检测框
+
+~~~mermaid
+flowchart LR
+    A["主机：图片解码和 letterbox"] --> B["INT8 NHWC 输入"]
+    B --> C["PicoRV32：解释执行图"]
+    C --> D["检测加速器：卷积和 2×2 池化"]
+    C --> E["PicoRV32：切片与未融合算子"]
+    D --> F["主存中的 INT8 检测头"]
+    E --> D
+    F --> G["PicoRV32：解码、筛选、同类 NMS"]
+    G --> H["主机：映射原图坐标并画框"]
+~~~
+
+### 前处理和后处理在哪里做
+
+1. **主机前处理**。Pillow 解码并转 RGB，计算缩放比 `min(160/W, 160/H)`，把缩放后的宽高分别截为整数。双线性缩放后贴到 160×160 的 RGB 画布中央，余下位置填 128。像素除以 255 生成浮点参考输入，导出器查 256 项表得到等价于 `round(p × 127 / 255)` 的 NHWC INT8 字节，输入量化尺度为 `1/127`。主机同时生成图、权重、描述符和参考张量。SoC 仿真从已经装载好的内存镜像开始。 [预处理](../scripts/model.py) · [模型导出](../scripts/export_model.py) · [仿真入口](../tb/soc.cpp)
+2. **SoC 推理**。PicoRV32 顺序执行图记录。卷积读取输入及权重，INT8 乘法、INT32 累加，再加偏置、应用激活并重定标为 INT8。池化在主存中读取卷积输出或其他图节点的输出，完成后写回。两个检测头输出网格位置、框尺寸、目标置信度和类别的原始 INT8 值。 [固件调度](../firmware/main.c) · [卷积数据通路](../rtl/det_accelerator/det_conv_datapath.sv)
+3. **CPU 检测后处理**。固件在 INT8 类别值上找最大值，按检测头尺度转换，计算 `sigmoid(objectness) × sigmoid(best_class)`，丢弃低于 0.25 的候选。通过网格、anchor 和 `scale_x_y` 解出中心，用 exp 解宽高，按分数稳定排序，再按类做 IoU 阈值 0.45 的 NMS，最多输出 100 框。输出坐标相对于 letterbox 画布归一化。主机画图时减去 padding 偏移，再分别用原图宽/缩放宽、原图高/缩放高还原坐标。主机 COCO 评估走独立路径，分数阈值用 0.001。 [固件后处理](../firmware/postprocess.c) · [画框与参考解码](../scripts/model.py) · [COCO评估](../scripts/evaluate.py)
+
+当前 RGB 缩放和填充由 Pillow 完成，随后用 256 项表把像素直接变为 NHWC INT8。固定模型部署可离线生成量化参数和描述符，每张图只提交新输入。若预计接相机，先单测预处理和搬运，再决定宿主软件、视频输入模块或缩放硬件的分工。替换 resize 时要比对边缘像素、取整和量化结果。
+
+PicoRV32 的浮点运算由软件完成。当前后处理为每个检测头缓存 256 种 INT8 输入中的已用 sigmoid 和 exp 结果。objectness 低于 0.25 时，乘以最多为 1 的类别概率也不会达到门限，因此提前跳过类别扫描和解码。缓存按检测头重置，保留原有浮点算术和同分顺序。优化后的 F 图中，YOLOv3-tiny 后处理约 330 万周期，YOLOv4-tiny 约 315 万周期。推理和后处理分开计量，图片解码和画框在主机执行。 [优化对照](performance.md#10-本轮优化与开源模型对照)
+
+### 卷积和池化能否同时运行
+
+每层驱动写 MMIO 启动后轮询 busy，完成才返回图循环。相邻卷积和池化之间的交接点是主存中已经写完的张量。实际发生的流水重叠在**卷积内部**，包括操作数收集与上一组 MAC，以及下一 Cin 块预取与当前块计算。 [固件驱动](../firmware/driver.c) · [卷积调度](../rtl/det_accelerator/det_conv_scheduler.sv)
+
+两个引擎的状态机与 DMA 端点彼此独立。若固件改为异步提交，可重叠运行互不依赖、缓冲区互不覆盖的图任务，也可试验不同帧的双缓冲。两个引擎争用共享 32 位主存口。重叠的收益取决于池化访存能否藏在卷积计算空隙中，需记录两引擎的独占周期、重叠周期、仲裁等待、总周期和按帧处理的吞吐。
+
+相邻两层直接流水需要先产出一个完整池化窗口。可先给 YOLOv3-tiny 有单一消费者的卷积→2×2 stride-2 池化做原型，在输出重定标后经过片上 FIFO/行缓冲送池化比较器。这样有机会省下完整中间张量的一次主存写和一次主存读。当前卷积按空间和输出通道分块写回，流接口要处理分块顺序、窗口跨边界、右/下 padding、尾通道及背压。若中间特征还有旁路消费者，需要保留其输出或安排片上多路读取。YOLOv4-tiny 的池化前还有 route 拼接，能否使用该原型取决于图中的实际生产者。NVDLA 也提供卷积数据通路直接馈入池化单元的模式。 [NVDLA 单元说明](https://nvdla.org/hw/v1/ias/unit_description.html)
+
+### 算子分工与专用单元
+
+| 运算 | 当前执行方式 | 值得试验的实现 |
+|---|---|---|
+| 普通卷积、激活和重定标 | 硬件支持 1×1/3×3、stride 1/2 和受限 padding，B0 图用 CPU 卷积 | 缩短 1×1 装载和收尾，扩大阵列前先测供数 |
+| 最大池化 | 2×2 stride 1/2 走池化引擎，B0 与其他 kernel 由 CPU 软件循环处理 | stride 1 行缓冲复用重叠窗口，有收益再扩 kernel |
+| 最近邻上采样和 concat | M 图由 CPU 物化，F 图可把匹配的 2×上采样、两路拼接及尺度转换并入卷积取数，其他拼接保留 CPU 实现 | 扩展融合识别，或用支持二维步幅和逐字节转换的 DMA 引擎覆盖复制类算子 |
+| route 引用与分组切片 | 直接 route 复用已有地址，分组切片由 CPU 按像素复制 | 让卷积描述符支持基址、物理像素步幅和通道偏移，从源张量直接取子通道 |
+| 检测头解码和 NMS | PicoRV32 实现 sigmoid/exp、筛选、排序和同类 NMS | 先测查表和筛选，再评估硬件扫描、定点解码或 IoU 流水 |
+| 批归一化 | 主机导入权重时折叠进卷积权重和偏置 | 与现有量化流程一起离线完成 |
+
+算子采用多个专用单元很常见。规则密集的卷积适合 MAC 阵列，池化适合比较器，逐元素运算适合查表或向量流水，搬运与重排适合带地址生成的 DMA。选择时用消除的计算和主存流量来衡量收益，并计入 MMIO、额外搬运、片上存储和控制成本。NVDLA 采用卷积核、逐点单元、池化单元和重排单元的组合。 [算子分派](../firmware/main.c) · [融合识别](../scripts/export_model.py) · [NVDLA 硬件架构](https://nvdla.org/hwarch)
+
+### 原生仲裁与加速器片上内存
+
+本项目同时有**共享主存的互连和加速器本地 SRAM**。CPU 经 MMIO 写描述符地址，卷积 DMA 主动把 X 和 W 搬入双槽分 bank scratch，P/O 暂存部分和与结果。卷积 scratch 共 40 KiB。池化通过 DMA 逐窗口处理，不增加 scratch。SoC 的第一级仲裁在 CPU 和卷积之间选择请求，译码剥离 MMIO，第二级在其外部主存请求和池化 DMA 之间选择。两个请求同时有效时按最近完成方轮换，主存等待时锁定请求方；顶层一拍最多完成一个 32 位字事务。轮换在每一级内部进行，三个主设备长期同时请求时应分别测量各自获得的带宽。 [SoC 接线](../rtl/det_soc_top.sv) · [仲裁器](../rtl/native_arbiter.sv)
+
+| 组织 | 适用条件与代价 |
+|---|---|
+| 现有原生握手 + DMA + 片上 scratch | 小型裸机 SoC、控制简单、容易验证。单在途和窄端口会限制有延迟主存的吞吐 |
+| CPU 经总线读写加速器内部 SRAM | 固定且较小的数据可驻留在片内，双口或双缓冲支持搬运与计算并行。若所有张量由 CPU 逐字搬运，会占用算力和总线 |
+| 标准控制总线 + 宽 AXI DMA + 本地 SRAM | 目标器件有 DDR 或多个 DMA 主设备时，突发、多笔在途和多从端口更容易利用带宽。需要承担缓冲、地址对齐、流控及缓存一致性或软件维护的复杂度 |
+
+仲裁本身是多个主设备共享一个存储端口时的常见机制，AXI 互连也要进行资源分配。当前适合先用原生接口量化瓶颈。出现大量 DMA 等待、需要接真实 DDR 时，再比较更宽端口、突发 DMA 和分 bank 主存。 [Arm AMBA AXI 规范](https://developer.arm.com/-/media/Arm%20Developer%20Community/PDF/IHI0022H_amba_axi_protocol_spec.pdf) · [NVDLA 控制和内存接口](https://nvdla.org/primer)

@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 // Ping-pong X/W, each slot four-way banked: X 16KiB, W 16KiB, P/O 4KiB each.
 // The scheduler prefetches the next input-channel block while computing.
-module det_accelerator #(
+module det_conv_scheduler #(
 	parameter ENABLE_PREFETCH = 1,
 	parameter ENABLE_BANKED_GATHER = 1
 ) (
@@ -11,7 +11,7 @@ module det_accelerator #(
 	input wire [31:0] reg_wdata,
 	input wire [3:0] reg_wstrb,
 	output wire reg_ready,
-	output reg [31:0] reg_rdata,
+	output wire [31:0] reg_rdata,
 	output wire dma_valid,
 	output wire [31:0] dma_addr, dma_wdata,
 	output wire [3:0] dma_wstrb,
@@ -19,8 +19,9 @@ module det_accelerator #(
 	input wire [31:0] dma_rdata
 );
 
+	/* verilator lint_off UNUSEDPARAM */
 `include "spec.vh"
-	localparam [31:0] DATA_BASE = 32'h01000000, DATA_END = 32'h05000000;
+	/* verilator lint_on UNUSEDPARAM */
 
 	typedef enum logic [5:0] {
 		IDLE,
@@ -63,9 +64,6 @@ module det_accelerator #(
 	state_t state, read_return;
 	reg busy, done_flag, error_flag, reject_flag;
 	reg [31:0] error_code, desc_addr;
-	reg [63:0] job_cycles, compute_cycles, read_words, write_bytes, wait_cycles;
-	reg [63:0] phase_cycles[0:5];
-	reg [63:0] fast_gather, serial_gather, prefetch_active, prefetch_mac, prefetch_wait;
 	reg [2:0] phase;
 	state_t phase_state;
 	reg [31:0] d[0:31], f[0:15];
@@ -84,16 +82,13 @@ module det_accelerator #(
 	reg [31:0] check_mpos, check_spos;
 
 	reg [2:0] sample_advance;
-	reg [31:0] obuf[0:1023];
-	reg signed [31:0] psum[0:1023];
 	wire fused = d[D_FLAGS][2];
 	wire final_ci = (ic0 + int'(d[D_TIC]) >= int'(d[D_CIN]));
 	integer kc, kxy, ky, kx, spatial, outc, pindex;
 	integer scatter_x, scatter_y, scatter_index;
 	integer src_c, src_w, src_ratio, src_offset;
 	reg [31:0] src_base;
-	reg [63:0] xbytes, wbytes, pbytes;
-	reg config_bad, addr_bad, param_bad;
+	reg param_bad;
 
 	function automatic integer imin (
 		input integer a, b
@@ -109,86 +104,39 @@ module det_accelerator #(
 		imax = a > b ? a : b;
 	endfunction
 
-	function automatic bit in_range (
-		input [31:0] a,
-		input [63:0] n
+	wire signed [31:0] tile_h = imin(int'(d[D_TH]), int'(d[D_HOUT]) - oy);
+	wire signed [31:0] tile_w = imin(int'(d[D_TW]), int'(d[D_WOUT]) - ox);
+	wire signed [31:0] input_h = (tile_h - 1) * int'(d[D_SH]) + int'(d[D_KH]);
+	wire signed [31:0] input_w = (tile_w - 1) * int'(d[D_SW]) + int'(d[D_KW]);
+	wire signed [31:0] input_top = oy * int'(d[D_SH]) - int'(d[D_PT]);
+	wire signed [31:0] input_left = ox * int'(d[D_SW]) - int'(d[D_PL]);
+	// The ordinary loader overwrites every byte of an interior, full-Cin tile.
+	wire overwrites_x = !fused && ic0 + int'(d[D_TIC]) <= int'(d[D_CIN]) &&
+		input_top >= 0 && input_top + input_h <= int'(d[D_H]) &&
+		input_left >= 0 && input_left + input_w <= int'(d[D_W]);
+
+	wire [1023:0] d_words;
+	for (genvar i = 0; i < 32; i = i + 1) begin : pack_d
+		assign d_words[32 * i +: 32] = d[i];
+	end
+	wire [511:0] f_words;
+	for (genvar i = 0; i < 16; i = i + 1) begin : pack_f
+		assign f_words[32 * i +: 32] = f[i];
+	end
+
+	wire config_bad, addr_bad, desc_addr_ok, fuse_addr_ok;
+	det_conv_descriptor descriptor_check (
+		.descriptor(d_words),
+		.fusion(f_words),
+		.desc_addr(desc_addr),
+		.desc_addr_ok(desc_addr_ok),
+		.fuse_addr_ok(fuse_addr_ok),
+		.config_bad(config_bad),
+		.addr_bad(addr_bad)
 	);
 
-		in_range =
-			(n != 0 && a >= DATA_BASE && {32'b0, a} + n <= {32'b0, DATA_END} && a[1:0] == 0);
-	endfunction
-
-	function automatic bit overlap (
-		input [31:0] a,
-		input [63:0] an,
-		input [31:0] b,
-		input [63:0] bn
-	);
-
-		overlap = ({32'b0, a} < {32'b0, b} + bn && {32'b0, b} < {32'b0, a} + an);
-	endfunction
-
-	wire [63:0] insize = {32'b0, d[D_H]} * {32'b0, d[D_W]} * {32'b0, d[D_CIN]};
-	wire [63:0] weight_size = {32'b0, d[D_COUT]} * {32'b0, d[D_KH]} * {32'b0, d[D_KW]} *
-						{32'b0, d[D_CIN]};
-	wire [63:0] output_size = {32'b0, d[D_HOUT]} * {32'b0, d[D_WOUT]} * {32'b0, d[D_COUT]};
-	wire [63:0] param_size = 64'd20 * {32'b0, d[D_COUT]};
-	wire [63:0] src0_size = {32'b0, f[F_H0]} * {32'b0, f[F_W0]} * {32'b0, f[F_C0]};
-	wire [63:0] src1_size = {32'b0, f[F_H1]} * {32'b0, f[F_W1]} * {32'b0, f[F_C1]};
-
+	// Tile coordinates, virtual-source selection and quantization checks.
 	always @* begin
-		xbytes = ((64'(d[D_TH]) - 1) * 64'(d[D_SH]) + 64'(d[D_KH])) *
-			((64'(d[D_TW]) - 1) * 64'(d[D_SW]) + 64'(d[D_KW])) * 64'(d[D_TIC]);
-		wbytes = 64'(d[D_KH]) * 64'(d[D_KW]) * 64'(d[D_TIC]) * 64'(d[D_TOC]);
-		pbytes = 64'(d[D_TH]) * 64'(d[D_TW]) * 64'(d[D_TOC]) * 4;
-
-		config_bad = d[D_H] < 1 || d[D_H] > 160 || d[D_W] < 1 || d[D_W] > 160 || d[D_CIN] < 1 ||
-			d[D_CIN] > 1024 || d[D_COUT] < 1 || d[D_COUT] > 1024 ||
-			!(d[D_KH] == 1 || d[D_KH] == 3) || d[D_KW] != d[D_KH] ||
-			!(d[D_SH] == 1 || d[D_SH] == 2) || d[D_SW] != d[D_SH] || d[D_PT] > 1 || d[D_PB] > 1 ||
-			d[D_PL] > 1 || d[D_PR] > 1 || d[D_HOUT] < 1 || d[D_WOUT] < 1 ||
-			(int'(d[D_H]) + int'(d[D_PT]) + int'(d[D_PB]) - int'(d[D_KH])) < 0 ||
-			(int'(d[D_W]) + int'(d[D_PL]) + int'(d[D_PR]) - int'(d[D_KW])) < 0 ||
-			int'(d[D_HOUT]) !=
-				(int'(d[D_H]) + int'(d[D_PT]) + int'(d[D_PB]) - int'(d[D_KH])) /
-						int'(d[D_SH] | 1 * (d[D_SH] == 0)) +
-					1 ||
-			int'(d[D_WOUT]) !=
-				(int'(d[D_W]) + int'(d[D_PL]) + int'(d[D_PR]) - int'(d[D_KW])) /
-						int'(d[D_SW] | 1 * (d[D_SW] == 0)) +
-					1 ||
-			d[D_TH] < 1 || d[D_TH] > 16 || d[D_TW] < 1 || d[D_TW] > 16 ||
-			!(d[D_TIC] == 4 || d[D_TIC] == 8 || d[D_TIC] == 16) ||
-			!(d[D_TOC] == 4 || d[D_TOC] == 8 || d[D_TOC] == 16) || xbytes > 8192 || wbytes > 8192 ||
-			pbytes > 4096 || d[D_ACT] > 2 || (d[D_FLAGS] & 32'hfffffffa) != 0 || !d[D_FLAGS][0] ||
-			(!fused && d[D_FUSE_ADDR] != 0);
-		for (integer i = 25; i < 32; i = i + 1)
-			if (d[i] != 0)
-				config_bad = 1;
-		if (fused) begin
-			if (d[D_SRC] != 0 || {32'b0, f[F_H0]} * 2 != {32'b0, d[D_H]} || f[F_H1] != d[D_H] ||
-				{32'b0, f[F_W0]} * 2 != {32'b0, d[D_W]} || f[F_W1] != d[D_W] ||
-				{32'b0, f[F_C0]} + {32'b0, f[F_C1]} != {32'b0, d[D_CIN]} || f[F_C0] == 0 ||
-				f[F_C1] == 0 || f[F_R0] != 2 || f[F_R1] != 1 || f[F_ORDER] > 1 ||
-				f[F_RESERVED] != 0 || f[F_M0][31] || f[F_M1][31] || f[F_S0] > 62 || f[F_S1] > 62)
-				config_bad = 1;
-		end
-
-		addr_bad = !in_range(d[D_WEIGHT], weight_size) || !in_range(d[D_DST], output_size) ||
-			!in_range(d[D_QPARAM], param_size) ||
-			overlap(d[D_DST], output_size, d[D_WEIGHT], weight_size) ||
-			overlap(d[D_DST], output_size, d[D_QPARAM], param_size) ||
-			overlap(d[D_DST], output_size, desc_addr, 128);
-		if (fused)
-			addr_bad = addr_bad || !in_range(f[F_SRC0], src0_size) ||
-				!in_range(f[F_SRC1], src1_size) ||
-				overlap(d[D_DST], output_size, f[F_SRC0], src0_size) ||
-				overlap(d[D_DST], output_size, f[F_SRC1], src1_size) ||
-				overlap(d[D_DST], output_size, d[D_FUSE_ADDR], 64);
-		else
-			addr_bad = addr_bad || !in_range(d[D_SRC], insize) ||
-				overlap(d[D_DST], output_size, d[D_SRC], insize);
-
 		spatial = m0 + ri / 4;
 		outc = n0 + ri % 4;
 		pindex = spatial * int'(d[D_TOC]) + outc;
@@ -249,35 +197,11 @@ module det_accelerator #(
 		.out_token()
 	);
 	/* verilator lint_on PINCONNECTEMPTY */
-	wire signed [31:0] core_result;
 	wire core_clear = state == MICRO_BEGIN && ic0 == 0;
 	// Gather the next operands while the core consumes the previous vectors.
 	// Nonblocking assignments preserve the old vectors at this clock edge.
 	wire core_step = state == MAC_STEP ||
 		(state == GATHER_A && lane == 0 && kpos != 0);
-	conv_core core (
-		.clk(clk),
-		.rst(rst),
-		.clear(core_clear),
-		.restore(state == P_RESTORE),
-		.index(ri[3:0]),
-		.restore_data(psum_rd),
-		.step(core_step),
-		.a_vector(avec),
-		.b_vector(bvec),
-		.result(core_result)
-	);
-	wire signed [63:0] biased = $signed({{32{core_result[31]}}, core_result}) +
-								$signed({{32{qp[(ri % 4) * 5][31]}}, qp[(ri % 4) * 5]});
-	wire [30:0] qmult = biased < 0 ? qp[(ri % 4) * 5 + 3][30:0] : qp[(ri % 4) * 5 + 1][30:0];
-	wire [5:0] qshift = biased < 0 ? qp[(ri % 4) * 5 + 4][5:0] : qp[(ri % 4) * 5 + 2][5:0];
-	wire signed [7:0] qresult;
-	requant output_q (
-		.value(biased[31:0]),
-		.multiplier(qmult),
-		.shift(qshift),
-		.result(qresult)
-	);
 
 	// Exclusive phase counters include the DMA dispatch/wait for each operation.
 	// MAC overlap is counted separately by COMPUTE_CYCLES, not added to phases.
@@ -297,63 +221,34 @@ module det_accelerator #(
 
 	assign reg_ready = reg_valid && !rst;
 
-	always @* begin
-		reg_rdata = 0;
-		case (reg_addr)
-			REG_STATUS:
-				reg_rdata = {28'b0, reject_flag, error_flag, done_flag, busy};
-			REG_DESC_ADDR:
-				reg_rdata = desc_addr;
-			REG_ERROR_CODE:
-				reg_rdata = error_code;
-			REG_JOB_CYCLES_LO:
-				reg_rdata = job_cycles[31:0];
-			REG_JOB_CYCLES_HI:
-				reg_rdata = job_cycles[63:32];
-			REG_COMPUTE_CYCLES_LO:
-				reg_rdata = compute_cycles[31:0];
-			REG_COMPUTE_CYCLES_HI:
-				reg_rdata = compute_cycles[63:32];
-			REG_READ_WORDS_LO:
-				reg_rdata = read_words[31:0];
-			REG_READ_WORDS_HI:
-				reg_rdata = read_words[63:32];
-			REG_WRITE_BYTES_LO:
-				reg_rdata = write_bytes[31:0];
-			REG_WRITE_BYTES_HI:
-				reg_rdata = write_bytes[63:32];
-			REG_DMA_WAIT_LO:
-				reg_rdata = wait_cycles[31:0];
-			REG_DMA_WAIT_HI:
-				reg_rdata = wait_cycles[63:32];
-			REG_VERSION:
-				reg_rdata = DET_INTERFACE_VERSION;
-			REG_LOAD_CYCLES_LO: reg_rdata = phase_cycles[0][31:0];
-			REG_LOAD_CYCLES_HI: reg_rdata = phase_cycles[0][63:32];
-			REG_GATHER_CYCLES_LO: reg_rdata = phase_cycles[1][31:0];
-			REG_GATHER_CYCLES_HI: reg_rdata = phase_cycles[1][63:32];
-			REG_PARTIAL_CYCLES_LO: reg_rdata = phase_cycles[2][31:0];
-			REG_PARTIAL_CYCLES_HI: reg_rdata = phase_cycles[2][63:32];
-			REG_PARAM_CYCLES_LO: reg_rdata = phase_cycles[3][31:0];
-			REG_PARAM_CYCLES_HI: reg_rdata = phase_cycles[3][63:32];
-			REG_OUTPUT_CYCLES_LO: reg_rdata = phase_cycles[4][31:0];
-			REG_OUTPUT_CYCLES_HI: reg_rdata = phase_cycles[4][63:32];
-			REG_CONTROL_CYCLES_LO: reg_rdata = phase_cycles[5][31:0];
-			REG_CONTROL_CYCLES_HI: reg_rdata = phase_cycles[5][63:32];
-			REG_FAST_GATHER_LO: reg_rdata = fast_gather[31:0];
-			REG_FAST_GATHER_HI: reg_rdata = fast_gather[63:32];
-			REG_SERIAL_GATHER_LO: reg_rdata = serial_gather[31:0];
-			REG_SERIAL_GATHER_HI: reg_rdata = serial_gather[63:32];
-			REG_PREFETCH_ACTIVE_LO: reg_rdata = prefetch_active[31:0];
-			REG_PREFETCH_ACTIVE_HI: reg_rdata = prefetch_active[63:32];
-			REG_PREFETCH_MAC_LO: reg_rdata = prefetch_mac[31:0];
-			REG_PREFETCH_MAC_HI: reg_rdata = prefetch_mac[63:32];
-			REG_PREFETCH_WAIT_LO: reg_rdata = prefetch_wait[31:0];
-			REG_PREFETCH_WAIT_HI: reg_rdata = prefetch_wait[63:32];
-			default:
-				reg_rdata = 0;
-		endcase
-	end
+	wire start_job = reg_valid && reg_wstrb == 4'hf &&
+		reg_addr == REG_CTRL && !busy && reg_wdata == 1;
+	det_conv_counters counters (
+		.clk(clk),
+		.rst(rst),
+		.start_job(start_job),
+		.reg_addr(reg_addr),
+		.reg_rdata(reg_rdata),
+		.desc_addr(desc_addr),
+		.error_code(error_code),
+		.busy(busy),
+		.done_flag(done_flag),
+		.error_flag(error_flag),
+		.reject_flag(reject_flag),
+		.phase(phase),
+		.gather(state == GATHER_A),
+		.gather_parallel(gather_parallel),
+		.core_step(core_step),
+		.prefetch_busy(prefetch_busy),
+		.waiting_prefetch(state == IC_NEXT && !final_ci && !prefetch_done),
+		.dma_wait(dma_valid && !dma_ready),
+		.read_word(dma_valid && dma_ready && dma_wstrb == 0),
+		.write_word(state == WRITE_OUT && main_dma_ready),
+		.write_count(write_count)
+	);
+
+
+	// Foreground DMA and local buffer addresses.
 	wire [31:0] write_addr = d[D_DST] +
 						32'(((oy + xi / imax(tw, 1)) * int'(d[D_WOUT]) + ox + xi % imax(tw, 1)) *
 								int'(d[D_COUT]) +
@@ -372,112 +267,44 @@ module det_accelerator #(
 	wire [9:0] p_read_index = state == P_RESTORE
 		? 10'((m0 + (ri + 1) / 4) * int'(d[D_TOC]) + n0 + (ri + 1) % 4)
 		: 10'(pindex);
-	wire signed [31:0] p_read_data = psum[p_read_index];
+	wire signed [31:0] p_read_data;
+	wire [31:0] output_word;
+	wire bias_overflow;
+	wire valid_result = spatial < th * tw && outc < co_count;
 
-	wire [2:0] channel_shift = d[D_TIC] == 16 ? 3'd4 : (d[D_TIC] == 8 ? 3'd3 : 3'd2);
-	wire stride_shift = d[D_SW] == 2;
-	wire [31:0] bank_row_pixels = 32'(((xw + (4 << stride_shift) - 1) >> (2 + stride_shift)) << stride_shift);
-	wire swizzled_x = 64'(bank_row_pixels) * 64'(xh) * {32'b0, d[D_TIC]} <= 2048;
-
-	// A row-dependent bank rotation makes consecutive output positions
-	// conflict-free even when a microtile crosses a short or odd row.
-	// Padding is used only if every bank still fits 2KiB; otherwise the
-	// compact linear layout and the conflict detector remain available.
-	function automatic [1:0] x_bank (
-		input integer byte_index
-	);
-		integer pixel, xx, yy;
-		begin
-			pixel = byte_index >> channel_shift;
-			xx = pixel % imax(xw, 1);
-			yy = pixel / imax(xw, 1);
-			if (swizzled_x)
-				x_bank = 2'((xx >> stride_shift) + (yy >> stride_shift) * tw);
-			else
-				x_bank = 2'(pixel >> stride_shift);
-		end
-	endfunction
-
-	function automatic [8:0] x_address (
-		input integer byte_index
-	);
-		integer pixel, packed_pixel, xx, yy;
-		begin
-			pixel = byte_index >> channel_shift;
-			xx = pixel % imax(xw, 1);
-			yy = pixel / imax(xw, 1);
-			if (swizzled_x)
-				packed_pixel = yy * int'(bank_row_pixels) +
-					((xx >> (2 + stride_shift)) << stride_shift) + (xx & int'(stride_shift));
-			else
-				packed_pixel = ((pixel >> (2 + stride_shift)) << stride_shift) +
-					(pixel & int'(stride_shift));
-			x_address = 9'((packed_pixel << (channel_shift - 2)) +
-				((byte_index & (int'(d[D_TIC]) - 1)) >> 2));
-		end
-	endfunction
-
-	wire [31:0] tile_k = d[D_KH] * d[D_KW] * d[D_TIC];
-	function automatic [1:0] w_bank (
-		input integer byte_index
-	);
-		w_bank = 2'((byte_index / imax(int'(tile_k), 1)) % 4);
-	endfunction
-
-	function automatic [8:0] w_address (
-		input integer byte_index
-	);
-		w_address = 9'((byte_index / imax(int'(tile_k), 1) / 4) * (int'(tile_k) / 4) +
-			(byte_index % imax(int'(tile_k), 1)) / 4);
-	endfunction
-
-	reg [35:0] x_read_addr, w_read_addr;
-	wire [127:0] x_read_data, w_read_data;
-	wire [127:0] x_read_slot0, x_read_slot1, w_read_slot0, w_read_slot1;
-	assign x_read_data = active_slot ? x_read_slot1 : x_read_slot0;
-	assign w_read_data = active_slot ? w_read_slot1 : w_read_slot0;
-	integer a_index[0:3];
-	reg [1:0] a_bank[0:3];
-	reg gather_parallel;
-	reg [31:0] next_a, next_b;
-	integer gather_x, gather_y;
-
-	always @* begin
-		gather_parallel = ENABLE_BANKED_GATHER != 0;
-		for (integer r = 0; r < 4; r = r + 1) begin
-			gather_x = ((m0 + r) % imax(tw, 1)) * int'(d[D_SW]) + kx;
-			gather_y = ((m0 + r) / imax(tw, 1)) * int'(d[D_SH]) + ky;
-			a_index[r] = (gather_y * xw + gather_x) * int'(d[D_TIC]) + kc;
-			a_bank[r] = x_bank(a_index[r]);
-		end
-		for (integer r = 0; r < 4; r = r + 1)
-			for (integer q = 0; q < r; q = q + 1)
-				if (m0 + r < th * tw && m0 + q < th * tw && a_bank[r] == a_bank[q])
-					gather_parallel = 0;
-
-		x_read_addr = 0;
-		w_read_addr = 0;
-		for (integer r = 0; r < 4; r = r + 1) begin
-			if (m0 + r < th * tw && (gather_parallel || lane == r))
-				x_read_addr[a_bank[r] * 9 +: 9] = x_address(a_index[r]);
-			w_read_addr[r * 9 +: 9] = 9'((n0 / 4) * (int'(tile_k) / 4) + kpos / 4);
-		end
+	wire [639:0] qp_words;
+	for (genvar i = 0; i < 20; i = i + 1) begin : pack_qp
+		assign qp_words[32 * i +: 32] = qp[i];
 	end
 
-	always @* begin
-		next_a = 0;
-		next_b = 0;
-		for (integer r = 0; r < 4; r = r + 1) begin
-			if (m0 + r < th * tw)
-				next_a[r * 8 +: 8] = x_read_data[a_bank[r] * 32 + (kc % 4) * 8 +: 8];
-			next_b[r * 8 +: 8] = n0 + r < co_count
-				? w_read_data[r * 32 + (kpos % 4) * 8 +: 8] : 8'b0;
-		end
-	end
+	det_conv_datapath datapath (
+		.clk(clk),
+		.rst(rst),
+		.clear(core_clear),
+		.restore(state == P_RESTORE),
+		.step(core_step),
+		.ri(ri[3:0]),
+		.restore_data(psum_rd),
+		.avec(avec),
+		.bvec(bvec),
+		.quant_params(qp_words),
+		.p_save(state == P_SAVE && valid_result),
+		.result_save(state == RESULT && valid_result),
+		.p_read_index(p_read_index),
+		.p_write_index(10'(pindex)),
+		.result_index(10'((spatial * int'(d[D_TOC]) + outc) / 4)),
+		.output_index(10'((xi * int'(d[D_TOC]) + wi) / 4)),
+		.result_lane(outc[1:0]),
+		.p_read_data(p_read_data),
+		.output_word(output_word),
+		.bias_overflow(bias_overflow)
+	);
 
+	wire [2:0] channel_shift;
+	wire [31:0] tile_k;
+	wire gather_parallel;
+	wire [31:0] next_a, next_b;
 	reg x_write_valid, w_write_valid;
-	reg [1:0] x_write_bank, w_write_bank;
-	reg [8:0] x_write_addr, w_write_addr;
 	reg [31:0] x_write_data, w_write_data;
 	reg [3:0] x_write_strobe, w_write_strobe;
 	integer x_write_index;
@@ -501,12 +328,8 @@ module det_accelerator #(
 			x_write_data = {4{sample_value}};
 			x_write_strobe = 4'b0001 << (scatter_index % 4);
 		end
-		x_write_bank = x_bank(x_write_index);
-		x_write_addr = x_address(x_write_index);
 
 		w_write_valid = 0;
-		w_write_bank = w_bank(wi);
-		w_write_addr = w_address(wi);
 		w_write_data = 0;
 		w_write_strobe = 4'b0001 << (wi % 4);
 		if (state == W_REQ && (wi / imax(int'(tile_k), 1) >= co_count ||
@@ -576,37 +399,48 @@ module det_accelerator #(
 		.write_strobe(prefetch_write_strobe)
 	);
 
-	for (genvar slot = 0; slot < 2; slot = slot + 1) begin : slots
-		wire inactive = active_slot != slot;
-		wire [127:0] xr, wr;
-		banked_scratch input_store (
-			.clk(clk),
-			.write_valid(!rst && (inactive ? prefetch_x_write : x_write_valid)),
-			.write_bank(inactive ? x_bank(int'({19'b0, prefetch_write_index})) : x_write_bank),
-			.write_addr(inactive ? x_address(int'({19'b0, prefetch_write_index})) : x_write_addr),
-			.write_data(inactive ? prefetch_write_data : x_write_data),
-			.write_strobe(inactive ? prefetch_write_strobe : x_write_strobe),
-			.read_addr(x_read_addr),
-			.read_data(xr)
-		);
-		banked_scratch weight_store (
-			.clk(clk),
-			.write_valid(!rst && (inactive ? prefetch_w_write : w_write_valid)),
-			.write_bank(inactive ? w_bank(int'({19'b0, prefetch_write_index})) : w_write_bank),
-			.write_addr(inactive ? w_address(int'({19'b0, prefetch_write_index})) : w_write_addr),
-			.write_data(inactive ? prefetch_write_data : w_write_data),
-			.write_strobe(inactive ? prefetch_write_strobe : w_write_strobe),
-			.read_addr(w_read_addr),
-			.read_data(wr)
-		);
-		if (slot == 0) begin : first_slot
-			assign x_read_slot0 = xr;
-			assign w_read_slot0 = wr;
-		end else begin : second_slot
-			assign x_read_slot1 = xr;
-			assign w_read_slot1 = wr;
-		end
-	end
+	det_conv_tile_buffer #(
+		.ENABLE_BANKED_GATHER(ENABLE_BANKED_GATHER)
+	) tile_buffer (
+		.clk(clk),
+		.rst(rst),
+		.active_slot(active_slot),
+		.tic(d[D_TIC]),
+		.kh(d[D_KH]),
+		.kw(d[D_KW]),
+		.stride_w(d[D_SW]),
+		.stride_h(d[D_SH]),
+		.th(th),
+		.tw(tw),
+		.xh(xh),
+		.xw(xw),
+		.co_count(co_count),
+		.m0(m0),
+		.n0(n0),
+		.kpos(kpos),
+		.kc(kc),
+		.kx(kx),
+		.ky(ky),
+		.lane(lane),
+		.x_write_valid(x_write_valid),
+		.w_write_valid(w_write_valid),
+		.x_write_index(x_write_index),
+		.w_write_index(wi),
+		.x_write_data(x_write_data),
+		.w_write_data(w_write_data),
+		.x_write_strobe(x_write_strobe),
+		.w_write_strobe(w_write_strobe),
+		.prefetch_x_write(prefetch_x_write),
+		.prefetch_w_write(prefetch_w_write),
+		.prefetch_write_index(prefetch_write_index),
+		.prefetch_write_data(prefetch_write_data),
+		.prefetch_write_strobe(prefetch_write_strobe),
+		.channel_shift(channel_shift),
+		.tile_k(tile_k),
+		.gather_parallel(gather_parallel),
+		.next_a(next_a),
+		.next_b(next_b)
+	);
 
 	always @(posedge clk) begin
 		if (rst || !busy)
@@ -621,7 +455,6 @@ module det_accelerator #(
 		(state == WRITE_OUT ? {write_addr[31:2], 2'b00} : {req_addr[31:2], 2'b00});
 
 	wire write_full = write_addr[1:0] == 0 && wi % 4 == 0 && wi + 4 <= co_count;
-	wire [31:0] output_word = obuf[(xi * int'(d[D_TOC]) + wi) / 4];
 	wire [7:0] output_byte = output_word[8 * (wi % 4) +: 8];
 	wire [2:0] write_count = write_full ? 3'd4 : 3'd1;
 
@@ -657,6 +490,7 @@ module det_accelerator #(
 		end
 	endtask
 
+	// One job FSM owns the loop counters and schedules the datapath.
 	always @(posedge clk) begin
 		if (rst) begin
 			state <= IDLE;
@@ -667,19 +501,6 @@ module det_accelerator #(
 			reject_flag <= 0;
 			error_code <= 0;
 			desc_addr <= 0;
-
-			job_cycles <= 0;
-			compute_cycles <= 0;
-			read_words <= 0;
-			write_bytes <= 0;
-			wait_cycles <= 0;
-			fast_gather <= 0;
-			serial_gather <= 0;
-			prefetch_active <= 0;
-			prefetch_mac <= 0;
-			prefetch_wait <= 0;
-			for (integer i = 0; i < 6; i = i + 1)
-				phase_cycles[i] <= 0;
 
 			req_addr <= 0;
 			rdword <= 0;
@@ -747,31 +568,6 @@ module det_accelerator #(
 			for (integer i = 0; i < 20; i = i + 1)
 				qp[i] <= 0;
 		end else begin
-			if (busy) begin
-				job_cycles <= job_cycles + 1;
-				phase_cycles[phase] <= phase_cycles[phase] + 1;
-			end
-			if (busy && state == GATHER_A) begin
-				if (gather_parallel)
-					fast_gather <= fast_gather + 1;
-				else
-					serial_gather <= serial_gather + 1;
-			end
-			if (busy && prefetch_busy)
-				prefetch_active <= prefetch_active + 1;
-			if (busy && prefetch_busy && core_step)
-				prefetch_mac <= prefetch_mac + 1;
-			if (busy && state == IC_NEXT && !final_ci && !prefetch_done)
-				prefetch_wait <= prefetch_wait + 1;
-
-			if (core_step)
-				compute_cycles <= compute_cycles + 1;
-			if (dma_valid && !dma_ready)
-				wait_cycles <= wait_cycles + 1;
-			if (dma_valid && dma_ready && dma_wstrb == 0)
-				read_words <= read_words + 1;
-			if (state == WRITE_OUT && main_dma_ready)
-				write_bytes <= write_bytes + {61'b0, write_count};
 			case (state)
 
 				IDLE: begin
@@ -794,7 +590,7 @@ module det_accelerator #(
 				FUSE_REQ: begin
 					if (!fused)
 						state <= CHECK_DESC;
-					else if (!in_range(d[D_FUSE_ADDR], 64) || d[D_FUSE_ADDR][3:0] != 0)
+					else if (!fuse_addr_ok)
 						fail_job(3);
 					else
 						read_at(d[D_FUSE_ADDR] + 32'(fi * 4), FUSE_GOT);
@@ -846,27 +642,25 @@ module det_accelerator #(
 				end
 
 				TILE_BEGIN: begin
-					th <= imin(int'(d[D_TH]), int'(d[D_HOUT]) - oy);
-					tw <= imin(int'(d[D_TW]), int'(d[D_WOUT]) - ox);
-					xh <= (imin(int'(d[D_TH]), int'(d[D_HOUT]) - oy) - 1) * int'(d[D_SH]) +
-						int'(d[D_KH]);
-					xw <= (imin(int'(d[D_TW]), int'(d[D_WOUT]) - ox) - 1) * int'(d[D_SW]) +
-						int'(d[D_KW]);
-					xsize <= ((imin(int'(d[D_TH]), int'(d[D_HOUT]) - oy) - 1) * int'(d[D_SH]) +
-									int'(d[D_KH])) *
-						((imin(int'(d[D_TW]), int'(d[D_WOUT]) - ox) - 1) * int'(d[D_SW]) +
-							int'(d[D_KW])) *
-						int'(d[D_TIC]);
+					th <= tile_h;
+					tw <= tile_w;
+					xh <= input_h;
+					xw <= input_w;
+					xsize <= input_h * input_w * int'(d[D_TIC]);
 					wsize <= int'(d[D_KH]) * int'(d[D_KW]) * int'(d[D_TIC]) * int'(d[D_TOC]);
 					ci_count <= imin(int'(d[D_TIC]), int'(d[D_CIN]) - ic0);
 					co_count <= imin(int'(d[D_TOC]), int'(d[D_COUT]) - oc0);
-					ytop <= oy * int'(d[D_SH]) - int'(d[D_PT]);
-					xtop <= ox * int'(d[D_SW]) - int'(d[D_PL]);
+					ytop <= input_top;
+					xtop <= input_left;
 					xi <= 0;
-					if (weights_ready) begin
+					if (ic0 != 0 && weights_ready) begin
+						// A prefetched channel block has both X and W ready.
 						m0 <= 0;
 						n0 <= 0;
 						state <= MICRO_BEGIN;
+					end else if (overwrites_x) begin
+						branch_id <= 0;
+						state <= SOURCE_BEGIN;
 					end else
 						state <= X_ZERO;
 				end
@@ -1071,14 +865,9 @@ module det_accelerator #(
 				end
 
 				RESULT: begin
-					if (spatial < th * tw && outc < co_count &&
-						(biased > 64'sh7fffffff || biased < -64'sh80000000))
+					if (valid_result && bias_overflow)
 						fail_job(5);
 					else begin
-						if (spatial < th * tw && outc < co_count)
-							for (integer byte_lane = 0; byte_lane < 4; byte_lane = byte_lane + 1)
-								if (outc % 4 == byte_lane)
-									obuf[(spatial * int'(d[D_TOC]) + outc) / 4][8 * byte_lane +: 8] <= qresult;
 						if (ri == 15)
 							state <= MICRO_NEXT;
 						else
@@ -1087,8 +876,6 @@ module det_accelerator #(
 				end
 
 				P_SAVE: begin
-					if (spatial < th * tw && outc < co_count)
-						psum[pindex] <= core_result;
 					if (ri == 15)
 						state <= MICRO_NEXT;
 					else
@@ -1139,7 +926,9 @@ module det_accelerator #(
 					end
 
 				TILE_NEXT: begin
-					weights_ready <= 0;
+					// With one block on both channel axes, the active W
+					// remains valid when only the spatial tile changes.
+					weights_ready <= ic0 == 0 && oc0 == 0 && d[D_COUT] <= d[D_TOC];
 					ic0 <= 0;
 					if (oc0 + int'(d[D_TOC]) < int'(d[D_COUT])) begin
 						oc0 <= oc0 + int'(d[D_TOC]);
@@ -1202,20 +991,7 @@ module det_accelerator #(
 					active_slot <= 0;
 					weights_ready <= 0;
 
-					job_cycles <= 0;
-					compute_cycles <= 0;
-					read_words <= 0;
-					write_bytes <= 0;
-					wait_cycles <= 0;
-					fast_gather <= 0;
-					serial_gather <= 0;
-					prefetch_active <= 0;
-					prefetch_mac <= 0;
-					prefetch_wait <= 0;
-					for (integer i = 0; i < 6; i = i + 1)
-						phase_cycles[i] <= 0;
-
-					if (desc_addr[3:0] != 0 || !in_range(desc_addr, 128)) begin
+					if (!desc_addr_ok) begin
 						error_flag <= 1;
 						error_code <= 3;
 					end else begin

@@ -8,6 +8,9 @@ int main(int argc, char **argv)
 	try {
 		Verilated::commandArgs(argc, argv);
 		Vdet_accelerator t;
+		t.pool_reg_valid = 0;
+		t.pool_dma_ready = 0;
+		t.pool_dma_rdata = 0;
 		Memory mem;
 		if (argc < 3)
 			throw std::runtime_error("usage: vectors.mem jobs.txt [delay]");

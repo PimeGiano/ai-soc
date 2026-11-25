@@ -166,7 +166,8 @@ int main(void)
 	if (*(volatile uint32_t *)(DET_BASE + DET_REG_VERSION) != DET_VERSION)
 		die("version");
 	const uint32_t *ops = (const uint32_t *)h[2];
-	uint32_t mode = h[3], whole = h[7];
+	uint32_t mode = h[3], profile = h[7];
+	int whole = profile == 1, per_layer = profile == 2;
 
 	if (whole) {
 		det_fence();
@@ -175,7 +176,7 @@ int main(void)
 
 	for (uint32_t i = 0; i < h[1]; i++) {
 		const uint32_t *o = ops + i * 24;
-		uint32_t roi = o[20];
+		uint32_t roi = per_layer ? 0x1000 + i : o[20];
 
 		if (roi && !whole) {
 			det_fence();
@@ -204,9 +205,10 @@ int main(void)
 		else
 			die("op");
 
-		if (o[21] && !whole) {
+		uint32_t end_roi = per_layer ? roi : o[21];
+		if (end_roi && !whole) {
 			det_fence();
-			*(volatile uint32_t *)0x20000008u = o[21];
+			*(volatile uint32_t *)0x20000008u = end_roi;
 		}
 	}
 

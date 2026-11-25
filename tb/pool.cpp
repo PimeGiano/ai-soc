@@ -101,12 +101,14 @@ int main(int argc, char **argv)
 			};
 			configure();
 			uint64_t start = cycles;
+			uint64_t start_reads = reads;
 			writes = 0;
 			bool reset_done = false;
 			while (status() & 1) {
 				if (job == 99 && !reset_done && cycles - start > 200) {
 					reset();
 					configure();
+					start_reads = reads;
 					writes = 0;
 					reset_done = true;
 				} else
@@ -114,6 +116,10 @@ int main(int argc, char **argv)
 			}
 			if (status() != 2 || writes != bytes)
 				throw std::runtime_error("pool completion/count mismatch");
+			unsigned groups = c % 4 == 0 ? c / 4 : c;
+			unsigned input_rows = stride == 1 ? 2 * h - 1 : h;
+			if (reads - start_reads != uint64_t(input_rows) * w * groups)
+				throw std::runtime_error("pool window reuse/read count mismatch");
 			for (unsigned y = 0; y < ho; y++)
 				for (unsigned x = 0; x < wo; x++)
 					for (unsigned ch = 0; ch < c; ch++) {

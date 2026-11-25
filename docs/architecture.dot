@@ -4,11 +4,11 @@ digraph DetectionSoC {
   edge [fontname="DejaVu Sans", fontsize=10, color="#475569", arrowsize=0.7];
   host [label="D | Model export + fusion recognition\nMaterialized / fused integer references", fillcolor="#fef3c7"];
   cpu [label="A | PicoRV32 + 1KiB instruction cache + firmware\nD | Graph scheduler / CPU operators\nDecode + NMS", fillcolor="#dbeafe"];
-  bus [label="A | Address decode + round-robin arbiter\n32-bit native bus / CPU + DMA ROI counters", fillcolor="#dbeafe"];
-  pool [label="D | Independent 2x2 maxpool\nFour INT8 channels / byte tails\nThird DMA master, no scratch RAM", fillcolor="#fef3c7"];
+  bus [label="A | Address decode + two-stage arbitration\n32-bit native bus / CPU + DMA ROI counters", fillcolor="#dbeafe"];
   mem [label="A | Simulation memory\n64 KiB program + 64 MiB data\nLow-res + high-res source features\nNo full upsample / concat tensor in fused mode", fillcolor="#dbeafe"];
   subgraph cluster_accel {
-    label="Accelerator: fixed 4 x 4 MAC array | 40 KiB SRAM implemented"; color="#94a3b8"; style=rounded; fontname="DejaVu Sans";
+    label="det_accelerator | 4 x 4 MAC array + 2 x 2 maxpool | 40 KiB scratch"; color="#94a3b8"; style=rounded; fontname="DejaVu Sans";
+    pool [label="D | Independent 2x2 maxpool\nFour INT8 channels / byte tails\nThird DMA master, no scratch RAM", fillcolor="#fef3c7"];
     ctrl [label="B | CSR + descriptor validation\nConvolution + fusion descriptors / tiling", fillcolor="#dcfce7"];
     dma [label="B | DMA / address generation\nRead two feature sources + weights / writeback", fillcolor="#dcfce7"];
     mapper [label="B | Dual-source address mapping\nLow-res: floor(y/2), floor(x/2)\nHigh-res: identity / channel ORDER / padding", fillcolor="#bbf7d0"];

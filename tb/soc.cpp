@@ -14,15 +14,18 @@ int main(int argc, char **argv)
 		Verilated::commandArgs(argc, argv);
 		if (argc < 5)
 			throw std::runtime_error(
-				"usage: model.mem firmware.bin checks.txt boxes.bin [delay] [whole]");
+				"usage: model.mem firmware.bin checks.txt boxes.bin [delay] [profile=0|1|2]");
 		Vdet_soc_top t;
 		Memory mem;
 		mem.load(argv[1]);
 		std::ifstream firmware(argv[2], std::ios::binary);
 		firmware.read((char *)mem.code.data(), mem.code.size());
 		int delay = argc > 5 ? std::stoi(argv[5]) : 0;
-		if (argc > 6 && std::stoi(argv[6]))
-			mem.write(0x01008000 + 28, 1, 15);
+		int profile = argc > 6 ? std::stoi(argv[6]) : 0;
+		if (profile < 0 || profile > 2)
+			throw std::runtime_error("profile must be 0 (subgraph), 1 (whole) or 2 (per-layer)");
+		if (profile)
+			mem.write(0x01008000 + 28, profile, 15);
 		std::mt19937 rng(20261028);
 		uint64_t cycles = 0, start = 0;
 		int left = -1;

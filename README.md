@@ -39,8 +39,9 @@ bash scripts/run_all.sh accuracy   # 100张独立校准+500张COCO评价，官�
 单独运行：
 
 ```bash
-bash scripts/run_model.sh yolov3-tiny F 0 0  # 模型、M/F/B0、额外等待上限、整网ROI开关
-bash scripts/run_model.sh yolov4-tiny M 0 1
+bash scripts/run_model.sh yolov3-tiny F 0 0  # 模型、M/F/B0、额外等待上限、ROI模式
+bash scripts/run_model.sh yolov4-tiny M 0 1  # 整网
+bash scripts/run_model.sh yolov4-tiny F 0 2  # 逐算子
 ```
 
 B0是已实现的纯CPU卷积路径，完整模型仿真很慢；quick验证小图CPU基线，默认full重点对照相同阵列的M/F。
@@ -48,8 +49,10 @@ B0是已实现的纯CPU卷积路径，完整模型仿真很慢；quick验证小�
 ## 证据与设计入口
 
 - [实际结果汇总](results/summary.md)：测试、精度、融合子图/整网周期和访存。
+- [本轮优化与开源模型对照](docs/performance.md#10-本轮优化与开源模型对照)
 - [当前实现及边界](docs/implementation.md)：模块、存储、数值、模型和综合口径。
 - [架构框图](docs/architecture.svg) · [DOT](docs/architecture.dot) · [Mermaid](docs/architecture.mmd)。
+- [含外部端口的三页接口框图](docs/team-interfaces.drawio) · [取指与主存接线说明](docs/interface-guide.md)。
 - [已实现分工接口表](docs/interfaces.md) · [团队接手分工](docs/team-map.md)。
 - [总体设计与目标](docs/design.md) · [四人八周计划](docs/schedule.md)。
 
@@ -59,7 +62,7 @@ M为CPU上采样/尺度转换/拼接物化后硬件卷积，F为双源融合取�
 
 ## 项目结构
 
-项目按职责直接使用 `rtl/`、`firmware/`、`tb/`、`scripts/`、`spec/`、`data/`、`results/`、`docs/`，不再增加目标检测专用的目录层级。spec生成C/SV常量。实际卷积scratch为40KiB：X/W各两组8KiB，每组四路分bank，P/O各4KiB。1KiB指令缓存另有192B标签和32B有效位，不计入卷积scratch。双缓冲自动启用；旧FLAGS.bit1仍为保留位并拒绝。
+项目按职责直接使用 `rtl/`、`firmware/`、`tb/`、`scripts/`、`spec/`、`data/`、`results/`、`docs/`。卷积和池化引擎位于 `rtl/det_accelerator/`，由同名顶层接入 SoC。spec生成C/SV常量。实际卷积scratch为40KiB：X/W各两组8KiB，每组四路分bank，P/O各4KiB。1KiB指令缓存另有192B标签和32B有效位，不计入卷积scratch。双缓冲自动启用；旧FLAGS.bit1仍为保留位并拒绝。
 
 旧GEMM/MNIST代码、报告、数据和设计归档已删除。当前源码、框图、接口与脚本统一围绕目标检测主线。
 

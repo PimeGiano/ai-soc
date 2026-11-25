@@ -138,11 +138,11 @@ flowchart TD
 |---|---|---|
 | [`rtl/det_soc_top.sv`](../rtl/det_soc_top.sv) | SoC 顶层；实例化 CPU、仲裁器、加速器，地址译码 | `picorv32`、`native_arbiter`、`reg_select` |
 | [`rtl/native_arbiter.sv`](../rtl/native_arbiter.sv) | CPU 和 DMA 的双主设备共享总线仲裁 | `selected`、`locked`、`last_owner` |
-| [`rtl/det_accelerator.sv`](../rtl/det_accelerator.sv) | 整个卷积加速器：描述符、取数、缓冲、状态机、写回 | `TILE_BEGIN`、`GATHER_A/B`、`MAC_STEP` |
-| [`rtl/conv_core.sv`](../rtl/conv_core.sv) | 16 个 INT8 MAC，16 个 INT32 累加器 | `product`、`acc`、`step` |
-| [`rtl/requant.sv`](../rtl/requant.sv) | INT32 到 INT8 的定点尺度转换 | `multiplier`、`shift`、`result` |
-| [`rtl/fuse_requant.sv`](../rtl/fuse_requant.sv) | 融合时把两个输入分支变换到共同尺度 | `src_id`、`in_valid`、`out_valid` |
-| [`rtl/spec.vh`](../rtl/spec.vh) | 硬件侧寄存器偏移和描述符字段索引 | `REG_*`、`D_*`、`F_*` |
+| [`rtl/det_accelerator/det_conv_scheduler.sv`](../rtl/det_accelerator/det_conv_scheduler.sv) | 卷积任务状态机，调度描述符、取数、缓冲和写回 | `TILE_BEGIN`、`GATHER_A/B`、`MAC_STEP` |
+| [`rtl/det_accelerator/conv_core.sv`](../rtl/det_accelerator/conv_core.sv) | 16 个 INT8 MAC，16 个 INT32 累加器 | `product`、`acc`、`step` |
+| [`rtl/det_accelerator/requant.sv`](../rtl/det_accelerator/requant.sv) | INT32 到 INT8 的定点尺度转换 | `multiplier`、`shift`、`result` |
+| [`rtl/det_accelerator/fuse_requant.sv`](../rtl/det_accelerator/fuse_requant.sv) | 融合时把两个输入分支变换到共同尺度 | `src_id`、`in_valid`、`out_valid` |
+| [`rtl/det_accelerator/spec.vh`](../rtl/det_accelerator/spec.vh) | 硬件侧寄存器偏移和描述符字段索引 | `REG_*`、`D_*`、`F_*` |
 | [`firmware/main.c`](../firmware/main.c) | 目标 CPU 逐个执行计算图操作 | `main`、`pool`、`materialize` |
 | [`firmware/driver.c`](../firmware/driver.c) | CPU 通过 MMIO 启动卷积，并轮询完成 | `det_conv`、`MMIO`、`det_hash` |
 | [`firmware/postprocess.c`](../firmware/postprocess.c) | YOLO 检测头解码、类别筛选和 NMS | `det_postprocess` |
@@ -153,7 +153,7 @@ flowchart TD
 | [`tb/soc.cpp`](../tb/soc.cpp) | 时钟、复位、内存握手、ROI 统计、结果提取 | `tick`、`mem.load`、`mem.compare` |
 | [`tb/memory.hpp`](../tb/memory.hpp) | 64 KiB 程序区、64 MiB 数据区的仿真内存 | `Memory::read/write/load` |
 
-推荐理解顺序不是文件的字母顺序，而是：**项目目标 → `run_model.sh` → `export_model.py` → `tb/soc.cpp` → `main.c` / `driver.c` → `det_soc_top.sv` → `det_accelerator.sv` → `conv_core.sv`**。
+推荐理解顺序不是文件的字母顺序，而是：**项目目标 → `run_model.sh` → `export_model.py` → `tb/soc.cpp` → `main.c` / `driver.c` → `det_soc_top.sv` → `det_accelerator.sv` → `det_conv_scheduler.sv` → `conv_core.sv`**。
 
 ## 4. 真正沿着一次推理走完：Python → Firmware → RTL → Python
 
@@ -339,7 +339,7 @@ do {
 
 ### 5.1 PicoRV32 为什么需要和加速器一起存在？
 
-CPU 擅长执行控制、分支以及多种异构操作。CPU负责图解释、切片、物化操作、解码和NMS；普通/融合卷积由卷积加速器执行，2×2池化由独立池化外设执行，其他kernel及B0保留CPU路径。
+CPU 擅长执行控制、分支以及多种异构操作。CPU负责图解释、切片、物化操作、解码和NMS；普通/融合卷积由卷积加速器执行，2×2池化由检测加速器内的独立池化引擎执行，其他kernel及B0保留CPU路径。
 
 同一个 `det_accelerator` 有两种总线身份：
 
@@ -734,14 +734,14 @@ y_q=\operatorname{clip}\Bigl(\operatorname{round}_{away}(value\cdot m/2^s),-127,
 4. [`firmware/main.c`](../firmware/main.c)：只看图头读取和 `o[0]==1 → det_conv(o[14])`。
 5. [`firmware/driver.c`](../firmware/driver.c)：只看 `det_conv()` 的两次 MMIO 写入和 `STATUS` 轮询。
 6. [`rtl/det_soc_top.sv`](../rtl/det_soc_top.sv)：看 CPU 总线如何经仲裁与地址译码命中加速器。
-7. [`rtl/det_accelerator.sv`](../rtl/det_accelerator.sv)：找到 `DESC_REQ`，确认硬件再通过 DMA 读取 Python 的描述符。
+7. [`rtl/det_accelerator/det_conv_scheduler.sv`](../rtl/det_accelerator/det_conv_scheduler.sv)：找到 `DESC_REQ`，确认硬件再通过 DMA 读取 Python 的描述符。
 
 读完之后应能不看资料解释：**Python 的 `da` 为什么最终会变成 RTL 的 `desc_addr`。**
 
 ### 路线 B：理解数据如何被计算
 
-1. [`rtl/conv_core.sv`](../rtl/conv_core.sv)：理解 4 空间位置 × 4 输出通道、一个 `kpos` 一次外积。
-2. `det_accelerator.sv` 中 `TILE_BEGIN`、`MICRO_BEGIN`、`GATHER_A`、`MAC_STEP`。
+1. [`rtl/det_accelerator/conv_core.sv`](../rtl/det_accelerator/conv_core.sv)：理解 4 空间位置 × 4 输出通道、一个 `kpos` 一次外积。
+2. `det_conv_scheduler.sv` 中 `TILE_BEGIN`、`MICRO_BEGIN`、`GATHER_A`、`MAC_STEP`。
 3. `P_READ/P_RESTORE/P_SAVE/RESULT`：理解为何需要 4 KiB P 和输出量化。
 4. `SOURCE_BEGIN/SCATTER`：理解普通卷积与双源融合如何共用同一个计算核心。
 
@@ -852,7 +852,7 @@ bash scripts/run_all.sh accuracy
 - [总体设计动机与研究目标](design.md)：解释为什么研究多尺度融合、哪些是规划的性能目标。
 - [架构图](architecture.mmd)：系统框图的 Mermaid 源文件。
 - [当前结果汇总](../results/summary.md)：以测试日志为依据，而非估算。
-- [`spec/registers.json`](../spec/registers.json) → [`scripts/gen_spec.py`](../scripts/gen_spec.py)：C 的 `firmware/spec.h` 与 RTL 的 `rtl/spec.vh` 如何由统一规范生成。
+- [`spec/registers.json`](../spec/registers.json) → [`scripts/gen_spec.py`](../scripts/gen_spec.py)：C 的 `firmware/spec.h` 与 RTL 的 `rtl/det_accelerator/spec.vh` 如何由统一规范生成。
 
 **最终应该形成的系统直觉**：先想清楚哪部分数据在外部内存、哪部分留在片上、谁决定下一步、谁发起总线事务、何时真正发生 MAC、如何确保数值一致、什么指标能够支持性能结论。掌握这几个问题，理解这个项目就不再依赖逐行记忆代码。
 

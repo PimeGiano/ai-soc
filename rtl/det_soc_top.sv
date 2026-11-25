@@ -127,24 +127,16 @@ module det_soc_top #(
 		.dma_wdata(dw),
 		.dma_wstrb(ds),
 		.dma_ready(dr),
-		.dma_rdata(dd)
-	);
-
-	pool_accelerator pool_engine (
-		.clk(clk),
-		.rst(rst),
-		.reg_valid(sv && pool_select),
-		.reg_addr(sa[7:0]),
-		.reg_wdata(sw),
-		.reg_wstrb(ss),
-		.reg_ready(pool_rr),
-		.reg_rdata(pool_rd),
-		.dma_valid(pool_dv),
-		.dma_addr(pool_da),
-		.dma_wdata(pool_dw),
-		.dma_wstrb(pool_ds),
-		.dma_ready(pool_dr),
-		.dma_rdata(mem_rdata)
+		.dma_rdata(dd),
+		.pool_reg_valid(sv && pool_select),
+		.pool_reg_ready(pool_rr),
+		.pool_reg_rdata(pool_rd),
+		.pool_dma_valid(pool_dv),
+		.pool_dma_addr(pool_da),
+		.pool_dma_wdata(pool_dw),
+		.pool_dma_wstrb(pool_ds),
+		.pool_dma_ready(pool_dr),
+		.pool_dma_rdata(mem_rdata)
 	);
 
 	// Pool and convolution execute sequential graph operators. This outer

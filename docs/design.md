@@ -51,34 +51,37 @@
 ```mermaid
 flowchart TB
   HOST["D / 模型导出、融合识别、独立M/F参考"] -. "图、双源尺度和权重" .-> MEM
-  CPU["A / PicoRV32 + 1KiB指令缓存<br/>D / 图调度、非融合软件算子、解码NMS"] <-->|"I1"| BUS["A / 双主仲裁、译码<br/>CPU与DMA分类ROI计数"]
+  CPU["A / PicoRV32 + 1KiB指令缓存<br/>D / 图调度、非融合软件算子、解码NMS"] <-->|"I1"| BUS["A / 两级仲裁、译码<br/>CPU与DMA分类ROI计数"]
   BUS <-->|"32位完成握手"| MEM["A / 仿真主存：64KiB程序+64MiB数据<br/>保留低分辨率源与高分辨率源<br/>融合路径不存完整上采样/拼接张量"]
-  BUS <-->|"I2 MMIO"| CTRL["B / CSR、主描述符与融合子描述符<br/>分块调度、ORDER与通道边界"]
-  CTRL --> MAP["B / 双源融合地址映射<br/>低路floor坐标/2，高路恒等，padding补零"]
-  MAP --> DMA["B / DMA读两路源及权重"]
+  subgraph ACCEL["det_accelerator"]
+    CTRL["B / 卷积调度、描述符与分块<br/>ORDER与通道边界"] --> MAP["B / 双源融合地址映射<br/>低路floor坐标/2，高路恒等，padding补零"]
+    MAP --> DMA["B / DMA读两路源及权重"]
+    DMA -->|"I9 原始样本+源编号"| IQ["C / 输入尺度转换<br/>与CPU物化采用相同舍入/饱和"]
+    IQ -->|"I9 转换样本"| SCAT["B / 低路2×复制散写、高路直接放置<br/>跨源Tic分段，单样本在途"]
+    SCAT -->|"I4 X bank填充"| BUF["B / X/W各两组8KiB，每组四路bank<br/>加P/O共40KiB，后台装载与计算重叠"]
+    DMA -->|"I4 权重填充"| BUF
+    BUF --> GATHER["B / 行旋转分bank取数与尾块补零<br/>无冲突每拍完整向量，冲突回退"]
+    GATHER -->|"I5 操作数/命令"| CORE["C / 4×4 INT8广播MAC<br/>INT32累加与串行部分和恢复"]
+    CORE <-->|"I6"| PSUM["C / 4KiB部分和RAM"]
+    CORE --> Q["C / bias、激活、输出定点量化"]
+    Q -->|"I7"| OUT["B / 4KiB输出缓冲及打包"]
+    OUT --> DMA
+    CTRL --> PF["B / tile_prefetch后台预取下一Cin块<br/>普通/融合X + W，DMA等待锁定"]
+    PF --> DMA
+    PF -->|"非活动slot"| BUF
+    POOL["D / 2×2最大池化<br/>四通道比较，边界-127，无scratch RAM"]
+  end
+  BUS <-->|"I2 MMIO"| CTRL
   DMA <-->|"I3"| BUS
-  DMA -->|"I9 原始样本+源编号"| IQ["C / 输入尺度转换<br/>与CPU物化采用相同舍入/饱和"]
-  IQ -->|"I9 转换样本"| SCAT["B / 低路2×复制散写、高路直接放置<br/>跨源Tic分段，单样本在途"]
-  SCAT -->|"I4 X bank填充"| BUF["B / X/W各两组8KiB，每组四路bank<br/>加P/O共40KiB，后台装载与计算重叠"]
-  DMA -->|"I4 权重填充"| BUF
-  BUF --> GATHER["B / 行旋转分bank取数与尾块补零<br/>无冲突每拍完整向量，冲突回退"]
-  GATHER -->|"I5 操作数/命令"| CORE["C / 4×4 INT8广播MAC<br/>INT32累加与串行部分和恢复"]
-  CORE <-->|"I6"| PSUM["C / 4KiB部分和RAM"]
-  CORE --> Q["C / bias、激活、输出定点量化"]
-  Q -->|"I7"| OUT["B / 4KiB输出缓冲及打包"]
-  OUT --> DMA
   CTRL -. "I8 模型/软件契约" .-> CPU
-  CTRL --> PF["B / tile_prefetch后台预取下一Cin块<br/>普通/融合X + W，DMA等待锁定"]
-  PF --> DMA
-  PF -->|"非活动slot"| BUF
-  BUS <-->|"池化CSR / DMA"| POOL["D / 独立2×2最大池化<br/>四通道比较，边界-127，无scratch RAM"]
+  BUS <-->|"池化CSR / DMA"| POOL
 ```
 
 | 现有模块 | 处理方式 | 必须新增或修改 |
 |---|---|---|
 | PicoRV32、启动和原生互连 | 复用 | 新地址边界、链接脚本、64MiB模型内存、软件检测输出 |
 | conv_core.sv | 当前4×4广播MAC阵列 | 部分和恢复、串行导出、定点后处理 |
-| det_accelerator.sv | 检测调度和融合控制 | 双源地址映射、分块、存储和错误检查 |
+| det_accelerator.sv | 实例化卷积和池化 | 卷积调度器及描述符、分块缓冲、计算和计数组件 |
 | 检测 CSR 与固件 | 版本0x00020100 | MMIO、主/融合描述符与检测图运行时 |
 | 单项读缓存 | 保留为基线策略 | 双源融合地址生成、分支重定标、本地分块缓冲；双bank作为进度允许时扩展 |
 | NumPy / BFM / 回归脚本 | 复用方法 | 独立卷积参考、图执行器、两模型向量和性能汇总 |

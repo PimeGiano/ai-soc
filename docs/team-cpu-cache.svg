@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="3000" height="1700" viewBox="0 0 3000 1700">
+<defs><marker id="pinArrow" markerWidth="6" markerHeight="6" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="none" stroke="black" stroke-width="1"/></marker><marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="none" stroke="#d32f2f" stroke-width="1.5"/></marker></defs>
+<rect width="100%" height="100%" fill="white"/>
+<rect x="320" y="100" width="2360" height="1470" fill="none" stroke="black" stroke-width="2"/>
+<rect x="750" y="300" width="350" height="950" fill="white" stroke="black" stroke-width="2.5"/>
+<text x="925.0" y="759.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="26">picorv32.v</text>
+<text x="925.0" y="803.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="26"></text>
+<rect x="1850" y="300" width="400" height="950" fill="white" stroke="black" stroke-width="2.5"/>
+<text x="2050.0" y="759.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="26">instruction_cache.sv</text>
+<text x="2050.0" y="803.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="26"></text>
+<line x1="260" y1="436.0" x2="320" y2="436.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="250" y="427.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">clk</text>
+<text x="290.0" y="456.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1</text>
+<line x1="260" y1="662.0" x2="320" y2="662.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="250" y="653.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">rst</text>
+<text x="290.0" y="682.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1</text>
+<line x1="260" y1="888.0" x2="320" y2="888.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="250" y="879.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">cbr</text>
+<text x="290.0" y="908.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1</text>
+<line x1="260" y1="1114.0" x2="320" y2="1114.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="250" y="1105.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">cbd</text>
+<text x="290.0" y="1134.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">32</text>
+<line x1="2680" y1="371.42857142857144" x2="2740" y2="371.42857142857144" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="2750" y="362.42857142857144" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">trap</text>
+<text x="2710.0" y="391.42857142857144" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1</text>
+<line x1="2680" y1="532.8571428571429" x2="2740" y2="532.8571428571429" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="2750" y="523.8571428571429" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">cbv</text>
+<text x="2710.0" y="552.8571428571429" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1</text>
+<line x1="2680" y1="694.2857142857142" x2="2740" y2="694.2857142857142" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="2750" y="685.2857142857142" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">ci</text>
+<text x="2710.0" y="714.2857142857142" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1</text>
+<line x1="2680" y1="855.7142857142857" x2="2740" y2="855.7142857142857" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="2750" y="846.7142857142857" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">ca</text>
+<text x="2710.0" y="875.7142857142857" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">32</text>
+<line x1="2680" y1="1017.1428571428571" x2="2740" y2="1017.1428571428571" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="2750" y="1008.1428571428571" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">cw</text>
+<text x="2710.0" y="1037.142857142857" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">32</text>
+<line x1="2680" y1="1178.5714285714284" x2="2740" y2="1178.5714285714284" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="2750" y="1169.5714285714284" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">cs</text>
+<text x="2710.0" y="1198.5714285714284" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">4</text>
+<line x1="690" y1="490.0" x2="750" y2="490.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="740" y="481.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">clk</text>
+<text x="720.0" y="510.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1</text>
+<line x1="690" y1="680.0" x2="750" y2="680.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="740" y="671.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">resetn = !rst</text>
+<text x="720.0" y="700.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1</text>
+<line x1="690" y1="870.0" x2="750" y2="870.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="740" y="861.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">mem_ready</text>
+<text x="720.0" y="890.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1</text>
+<line x1="690" y1="1060.0" x2="750" y2="1060.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="740" y="1051.0" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">mem_rdata</text>
+<text x="720.0" y="1080.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">32</text>
+<line x1="1100" y1="435.7142857142857" x2="1160" y2="435.7142857142857" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="1110" y="426.7142857142857" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">mem_valid</text>
+<text x="1130.0" y="455.7142857142857" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1</text>
+<line x1="1100" y1="571.4285714285714" x2="1160" y2="571.4285714285714" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="1110" y="562.4285714285714" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">mem_instr</text>
+<text x="1130.0" y="591.4285714285714" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1</text>
+<line x1="1100" y1="707.1428571428571" x2="1160" y2="707.1428571428571" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="1110" y="698.1428571428571" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">mem_addr</text>
+<text x="1130.0" y="727.1428571428571" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">32</text>
+<line x1="1100" y1="842.8571428571429" x2="1160" y2="842.8571428571429" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="1110" y="833.8571428571429" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">mem_wstrb</text>
+<text x="1130.0" y="862.8571428571429" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">4</text>
+<line x1="1100" y1="978.5714285714286" x2="1160" y2="978.5714285714286" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="1110" y="969.5714285714286" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">mem_wdata</text>
+<text x="1130.0" y="998.5714285714286" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">32</text>
+<line x1="1100" y1="1114.2857142857142" x2="1160" y2="1114.2857142857142" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="1110" y="1105.2857142857142" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">trap</text>
+<text x="1130.0" y="1134.2857142857142" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1</text>
+<line x1="1790" y1="435.7142857142857" x2="1850" y2="435.7142857142857" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="1840" y="426.7142857142857" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">cpu_valid</text>
+<text x="1820.0" y="455.7142857142857" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1</text>
+<line x1="1790" y1="571.4285714285714" x2="1850" y2="571.4285714285714" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="1840" y="562.4285714285714" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">cpu_instr</text>
+<text x="1820.0" y="591.4285714285714" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1</text>
+<line x1="1790" y1="707.1428571428571" x2="1850" y2="707.1428571428571" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="1840" y="698.1428571428571" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">cpu_addr</text>
+<text x="1820.0" y="727.1428571428571" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">32</text>
+<line x1="1790" y1="842.8571428571429" x2="1850" y2="842.8571428571429" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="1840" y="833.8571428571429" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">cpu_wstrb</text>
+<text x="1820.0" y="862.8571428571429" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">4</text>
+<line x1="1850" y1="978.5714285714286" x2="1790" y2="978.5714285714286" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="1840" y="969.5714285714286" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">cpu_ready</text>
+<text x="1820.0" y="998.5714285714286" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1</text>
+<line x1="1850" y1="1114.2857142857142" x2="1790" y2="1114.2857142857142" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="1840" y="1105.2857142857142" text-anchor="end" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">cpu_rdata</text>
+<text x="1820.0" y="1134.2857142857142" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">32</text>
+<line x1="2310" y1="458.33333333333337" x2="2250" y2="458.33333333333337" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="2260" y="449.33333333333337" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">clk</text>
+<text x="2280.0" y="478.33333333333337" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1</text>
+<line x1="2310" y1="616.6666666666667" x2="2250" y2="616.6666666666667" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="2260" y="607.6666666666667" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">rst</text>
+<text x="2280.0" y="636.6666666666667" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1</text>
+<line x1="2250" y1="775.0" x2="2310" y2="775.0" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="2260" y="766.0" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">bus_valid</text>
+<text x="2280.0" y="795.0" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1</text>
+<line x1="2310" y1="933.3333333333334" x2="2250" y2="933.3333333333334" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="2260" y="924.3333333333334" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">bus_ready</text>
+<text x="2280.0" y="953.3333333333334" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">1</text>
+<line x1="2310" y1="1091.6666666666665" x2="2250" y2="1091.6666666666665" stroke="black" stroke-width="2" marker-end="url(#pinArrow)"/>
+<text x="2260" y="1082.6666666666665" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="20">bus_rdata</text>
+<text x="2280.0" y="1111.6666666666665" text-anchor="middle" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="17">32</text>
+<polyline points="320,436.0 690,436.0 690,255 2315,255 2315,458.33333333333337 2310,458.33333333333337" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="320,662.0 685,662.0 685,215 2350,215 2350,616.6666666666667 2310,616.6666666666667" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="320,436.0 650,436.0 650,490.0 690,490.0" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="320,662.0 650,662.0 650,680.0 690,680.0" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="1160,435.7142857142857 1790,435.7142857142857" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="1160,571.4285714285714 1790,571.4285714285714" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="1160,707.1428571428571 1790,707.1428571428571" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="1160,842.8571428571429 1790,842.8571428571429" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="1790,978.5714285714286 1160,978.5714285714286 1160,1295 685,1295 685,870.0 690,870.0" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="1790,1114.2857142857142 1165,1114.2857142857142 1165,1335 650,1335 650,1060.0 690,1060.0" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="320,888.0 690,888.0 690,1295 2315,1295 2315,933.3333333333334 2310,933.3333333333334" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="320,1114.0 690,1114.0 690,1335 2350,1335 2350,1091.6666666666665 2310,1091.6666666666665" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="2310,775.0 2315,775.0 2315,532.8571428571429 2680,532.8571428571429" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="1160,1114.2857142857142 1165,1114.2857142857142 1165,150 2310,150 2310,371.42857142857144 2680,371.42857142857144" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="1160,571.4285714285714 1200,571.4285714285714 1200,371.42857142857144 1790,371.42857142857144 1790,255 2310,255 2310,694.2857142857142 2680,694.2857142857142" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="1160,707.1428571428571 1200,707.1428571428571 1200,1178.5714285714284 1790,1178.5714285714284 1790,1295 2310,1295 2310,855.7142857142857 2680,855.7142857142857" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="1160,978.5714285714286 1750,978.5714285714286 1750,1520 2350,1520 2350,1017.1428571428571 2680,1017.1428571428571" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="1160,842.8571428571429 1165,842.8571428571429 1165,855.7142857142857 1790,855.7142857142857 1790,1335 2310,1335 2310,1178.5714285714284 2680,1178.5714285714284" fill="none" stroke="#d32f2f" stroke-width="2.2" marker-end="url(#arrow)"/>
+<text x="350" y="65" text-anchor="start" font-family="Microsoft YaHei,Noto Sans CJK SC,sans-serif" font-size="30">CPU + I-cache</text>
+</svg>

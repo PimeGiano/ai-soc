@@ -65,7 +65,7 @@ def weights(path, nodes):
 	return hashlib.sha256(raw).hexdigest()
 
 
-def preprocess(path, size=160):
+def letterbox(path, size=160):
 	im = Image.open(path).convert("RGB")
 	w, h = im.size
 	r = min(size / w, size / h)
@@ -73,12 +73,17 @@ def preprocess(path, size=160):
 	resized = im.resize((nw, nh), Image.Resampling.BILINEAR)
 	canvas = Image.new("RGB", (size, size), (128, 128, 128))
 	canvas.paste(resized, ((size - nw) // 2, (size - nh) // 2))
-	return np.asarray(canvas, dtype=np.float32) / 255.0, {
+	return np.asarray(canvas), {
 		"original": [w, h],
 		"resized": [nw, nh],
 		"offset": [(size - nw) // 2, (size - nh) // 2],
 		"size": size,
 	}
+
+
+def preprocess(path, size=160):
+	pixels, meta = letterbox(path, size)
+	return pixels.astype(np.float32) / 255.0, meta
 
 
 def float_conv(x, w, b, stride, pad):

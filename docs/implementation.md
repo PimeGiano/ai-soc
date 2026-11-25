@@ -8,15 +8,20 @@
 
 | 文件 | 已实现职责 |
 |---|---|
-| rtl/det_soc_top.sv | 真实PicoRV32、双主仲裁、检测MMIO、主设备身份/取指标志输出 |
-| rtl/det_accelerator.sv | 描述符校验、分块、双源坐标映射、低路2×散写、单项读缓存、X/W/P/O存储、DMA、输出字节选通、性能计数 |
-| rtl/fuse_requant.sv | I9独立弹性输入转换器，背压稳定、两分支参数、半值远离零舍入与饱和 |
-| rtl/banked_scratch.sv | 四个独立2KiB bank，单读/字节使能写端口 |
-| rtl/tile_prefetch.sv | 后台X/W通道块预取，融合虚拟源与整数转换 |
-| rtl/pool_accelerator.sv | 2×2 NHWC四通道最大池化、边界/尾部保护、独立DMA |
+| rtl/det_soc_top.sv | 真实PicoRV32、两级仲裁、检测MMIO、主设备身份/取指标志输出 |
+| rtl/det_accelerator/det_accelerator.sv | 实例化卷积和池化引擎，对接各自的 CSR 和 DMA |
+| rtl/det_accelerator/det_conv_scheduler.sv | 卷积任务状态机、分块、双源坐标映射、低路2×散写、前后台DMA选择与写回选通 |
+| rtl/det_accelerator/det_conv_descriptor.sv | 主/融合描述符、容量、数据区和目标区重叠检查 |
+| rtl/det_accelerator/det_conv_tile_buffer.sv | X/W双槽、行旋转分bank、读冲突检测与MAC操作数收集 |
+| rtl/det_accelerator/det_conv_datapath.sv | MAC、P/O存储、偏置、激活、输出定点转换 |
+| rtl/det_accelerator/det_conv_counters.sv | 独占阶段和重叠事件计数、CSR读回 |
+| rtl/det_accelerator/fuse_requant.sv | I9独立弹性输入转换器，背压稳定、两分支参数、半值远离零舍入与饱和 |
+| rtl/det_accelerator/banked_scratch.sv | 四个独立2KiB bank，单读/字节使能写端口 |
+| rtl/det_accelerator/tile_prefetch.sv | 后台X/W通道块预取，融合虚拟源与整数转换 |
+| rtl/det_accelerator/pool_accelerator.sv | 2×2 NHWC四通道最大池化、边界/尾部保护、独立DMA |
 | rtl/instruction_cache.sv | 1KiB直接映射指令缓存、冲突替换、CPU写失效 |
-| rtl/conv_core.sv | 16个INT8乘法器的4×4输出驻留广播MAC阵列，串行恢复/导出INT32部分和 |
-| rtl/requant.sv | 64位乘移与明确舍入/饱和，输入和输出转换复用此算术定义 |
+| rtl/det_accelerator/conv_core.sv | 16个INT8乘法器的4×4输出驻留广播MAC阵列，串行恢复/导出INT32部分和 |
+| rtl/det_accelerator/requant.sv | 64位乘移与明确舍入/饱和，输入和输出转换复用此算术定义 |
 | firmware/ | 裸机驱动、图解释器、CPU物化/池化/切片、CPU卷积基线、解码与class-aware NMS |
 | scripts/model.py | 两种Darknet tiny配置/权重导入、BN折叠、浮点参考、letterbox和可视化 |
 | scripts/reference.py | 独立NumPy INT64卷积和定点参考，不使用RTL分块循环 |

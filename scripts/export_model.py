@@ -5,6 +5,7 @@ from model import (
 	ROOT,
 	config,
 	weights,
+	letterbox,
 	preprocess,
 	forward,
 	maxpool,
@@ -15,6 +16,10 @@ from model import (
 )
 from reference import requant, conv, materialize
 from memory import Image
+
+# Rounded INT8 input for each uint8 pixel. Division by 255 cannot tie at half.
+PIXEL_INT8 = ((np.arange(256, dtype=np.uint16) * 127 + 127) // 255).astype(np.int8)
+OP_TYPES = {1: "convolutional", 2: "maxpool", 3: "concat", 4: "slice", 5: "upsample"}
 
 
 def fnv(x):
@@ -31,7 +36,8 @@ def export(model, mode, photo, size=160, calibration=None):
 	result.mkdir(parents=True, exist_ok=True)
 	nodes = config(ROOT / f"data/{model}.cfg")
 	whash = weights(ROOT / f"data/{model}.weights", nodes)
-	inputf, meta = preprocess(photo, size)
+	pixels, meta = letterbox(photo, size)
+	inputf = pixels.astype(np.float32) / 255.0
 	fp = forward(nodes, inputf)
 	# Calibration may be an independent image list. Demo default is explicitly tagged.
 	calfiles = calibration or [photo]
@@ -47,7 +53,7 @@ def export(model, mode, photo, size=160, calibration=None):
 	addrs = []
 	fusion = {}
 	heads = []
-	xin = requant(roundaway(inputf * 127).astype(np.int32), 1, 0)
+	xin = PIXEL_INT8[pixels]
 	prev = xin
 	prevscale = 1 / 127
 	prevaddr = image.put(xin.tobytes())
@@ -352,6 +358,7 @@ def export(model, mode, photo, size=160, calibration=None):
 		"calibration": list(map(str, calfiles)),
 		"calibration_demo_only": calibration is None,
 		"ops": len(ops),
+		"operator_layers": [{"layer": op[17], "type": OP_TYPES[op[0]]} for op in ops],
 		"fusions": len(fusion),
 		"allocated_bytes": image.next - 0x01010000,
 		"layers": manifest,

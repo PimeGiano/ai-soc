@@ -7,7 +7,7 @@
 | 接手角色 | 实际文件/职责 | 接口 |
 |---|---|---|
 | A 系统 | det_soc_top.sv、native_arbiter.sv、tb/soc.cpp；CPU、地址译码、存储、分类ROI、集成与综合 | I1 CPU，I2译码，I3共享存储 |
-| B 调度/融合 | det_accelerator.sv；CSR、DMA、双源映射/散写、分块、X/W/P/O控制、输出选通 | I2/I3/I4，I5核心控制，I8主/子描述符，I9请求侧 |
+| B 调度/融合 | det_accelerator.sv 实例化两引擎；det_conv_scheduler.sv 调度卷积及融合搬运 | I2/I3/I4，I5核心控制，I8主/子描述符，I9请求侧 |
 | C 计算/数值 | conv_core.sv、fuse_requant.sv、requant.sv；16MAC、部分和恢复、输入/输出定点转换 | I5/I6，I7量化算术，I9转换侧 |
 | D 模型/软件 | scripts/及firmware/；图、量化、内存、软件算子、解码/NMS、独立参考 | I8描述符/图格式，逐层/精度数据 |
 
@@ -138,9 +138,9 @@ ROI写0x20000008：bit31开始/结束，低16位ID，其余0，不嵌套。开�
 
 指令缓存只覆盖地址0x00000000～0x0000ffff中的取指读取，256个32位数据字、6位标签、有效位；普通数据读取与MMIO始终旁路。CPU对程序区的完成写入会失效对应行，复位清有效位。加速器DMA已被范围校验限制在数据区。
 
-## 独立2×2池化外设
+## 2×2池化引擎
 
-基址0x10000200，由spec/registers.json生成POOL_BASE和POOL_REG_*；与卷积CSR窗口独立。池化原生DMA作为第三个主设备接入外层仲裁，等待期间锁定请求。ROI将卷积与池化完成事务一起记为DMA。
+基址0x10000200，由spec/registers.json生成POOL_BASE和POOL_REG_*；与卷积CSR窗口独立。两引擎同属 `det_accelerator`。池化原生DMA作为第三个主设备接入外层仲裁，等待期间锁定请求。ROI将卷积与池化完成事务一起记为DMA。
 
 | 偏移 | 名称 | 含义 |
 |---|---|---|

@@ -6,8 +6,8 @@ source "$(dirname "${BASH_SOURCE[0]}")/env.sh"
 cd "$AI_SOC_ROOT"
 
 mkdir -p build
-verilator --cc --exe --build --assert -Wall -j 2 -Irtl --top-module det_soc_top --Mdir "$AI_SOC_ROOT/build/soc" \
-	sim/vendor.vlt third_party/picorv32.v rtl/*.sv "$AI_SOC_ROOT/tb/soc.cpp" \
+verilator --cc --exe --build --assert -Wall -j 2 -Irtl/det_accelerator --top-module det_soc_top --Mdir "$AI_SOC_ROOT/build/soc" \
+	sim/vendor.vlt third_party/picorv32.v rtl/*.sv rtl/det_accelerator/*.sv "$AI_SOC_ROOT/tb/soc.cpp" \
 	-CFLAGS "-O3 -I$AI_SOC_ROOT/tb" >build/build_soc.log 2>&1 || {
 	cat build/build_soc.log
 	exit 1
@@ -17,7 +17,7 @@ python3 - <<'PY_BUILD'
 import hashlib, json
 from pathlib import Path
 
-files = sorted(Path("rtl").glob("*.sv")) + sorted(Path("rtl").glob("*.vh")) + [Path("third_party/picorv32.v")]
+files = sorted(Path("rtl").rglob("*.sv")) + sorted(Path("rtl").rglob("*.vh")) + [Path("third_party/picorv32.v")]
 h = hashlib.sha256()
 for p in files:
 	h.update(str(p).encode())

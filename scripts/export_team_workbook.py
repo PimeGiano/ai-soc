@@ -24,7 +24,7 @@ MODULES = [
 	("det_soc_top", "A", "系统顶层，含CPU/缓存/两级仲裁/卷积及池化外设"),
 	("native_arbiter", "A", "两处实例：CPU/卷积仲裁，以及共享出口/池化仲裁"),
 	("instruction_cache", "A", "1KiB直接映射取指缓存，程序区写失效"),
-	("det_accelerator", "B", "卷积/融合主控制器、描述符、分块与DMA调度"),
+	("det_accelerator", "B", "检测加速器顶层，实例化卷积和池化引擎"),
 	("tile_prefetch", "B", "下一Cin块X/W后台预取，含融合映射与读缓存"),
 	("banked_scratch", "B", "X/W共4处实例；每实例4×2KiB独立bank"),
 	("conv_core", "C", "4×4 INT8广播MAC，16个INT32累加器"),
@@ -65,8 +65,15 @@ ROLES = [
 ]
 
 
+def rtl_source(module):
+	path = Path("rtl") / f"{module}.sv"
+	if not (ROOT / path).is_file():
+		path = Path("rtl/det_accelerator") / path.name
+	return path
+
+
 def ports(module):
-	text = (ROOT / "rtl" / f"{module}.sv").read_text()
+	text = (ROOT / rtl_source(module)).read_text()
 	start = text.index("\n\tinput wire")
 	header = text[start : text.index("\n);", start)]
 	result = []
@@ -219,6 +226,8 @@ def describe(module, name, signed):
 		return SPECIFIC[module][name]
 	if name in COMMON:
 		return COMMON[name]
+	if module == "det_accelerator" and name.startswith("pool_"):
+		return "池化引擎，" + COMMON[name.removeprefix("pool_")]
 	if module == "native_arbiter":
 		prefix, field = name.split("_", 1)
 		side = {"c": "C侧主设备", "d": "D侧主设备", "s": "共享从设备侧"}[prefix]
@@ -710,15 +719,19 @@ def workbook(sheets):
 
 
 def build():
-	digest = hashlib.sha256(TEMPLATE.read_bytes()).hexdigest()
-	with zipfile.ZipFile(TEMPLATE) as z:
-		shared = ET.fromstring(z.read("xl/sharedStrings.xml"))
-		strings = ["".join(n.itertext()) for n in shared]
-		template = ET.fromstring(z.read("xl/worksheets/sheet1.xml"))
-		headers = []
-		for c in template.findall(f"{{{NS}}}sheetData/{{{NS}}}row[@r='2']/{{{NS}}}c"):
-			headers.append(strings[int(c.find(f"{{{NS}}}v").text)])
-	assert headers[:6] == ["模块名", "负责人", "端口", "端口方向", "端口宽度(bit)", "端口功能"]
+	headers = ["模块名", "负责人", "端口", "端口方向", "端口宽度(bit)", "端口功能"]
+	digest = None
+	if TEMPLATE.exists():
+		digest = hashlib.sha256(TEMPLATE.read_bytes()).hexdigest()
+		with zipfile.ZipFile(TEMPLATE) as z:
+			shared = ET.fromstring(z.read("xl/sharedStrings.xml"))
+			strings = ["".join(n.itertext()) for n in shared]
+			template = ET.fromstring(z.read("xl/worksheets/sheet1.xml"))
+			actual = [
+				strings[int(c.find(f"{{{NS}}}v").text)]
+				for c in template.findall(f"{{{NS}}}sheetData/{{{NS}}}row[@r='2']/{{{NS}}}c")
+			]
+			assert actual[:6] == headers
 	diagrams()
 	main = Sheet("分模块施工图", [32, 20, 32, 12, 18, 69, 3] + [12] * 16, "C3")
 	main.heading("多尺度特征融合与卷积协同加速SoC｜分模块施工图", headers[:6])
@@ -736,14 +749,14 @@ def build():
 		main.merge(
 			f"A{start}",
 			f"A{row - 1}",
-			f"{module}\nrtl/{module}.sv\n{summary}",
+			f"{module}\n{rtl_source(module)}\n{summary}",
 			4 + "ABCD".index(owner),
 		)
 		main.merge(f"B{start}", f"B{row - 1}", OWNERS[owner], 4 + "ABCD".index(owner))
 	main.merge(
 		f"A{row}",
 		f"F{row + 1}",
-		"说明：本表完整列出10个自研RTL模块的真实端口；重复实例只列一次并标明实例数。P/O为控制器内部数组，不虚构独立模块端口。第三方PicoRV32接入口见J01。A/B/C/D为待填姓名的计划负责人。",
+		"说明：本表列出10个接口评审模块的端口；重复实例只列一次并标明实例数。P/O数组位于det_conv_datapath。第三方PicoRV32接入口见J01。A/B/C/D为待填姓名的计划负责人。",
 		8,
 	)
 	main.heights[row] = 34
@@ -807,7 +820,11 @@ def build():
 		soft.heights[i] = 90
 	soft.print_area = f"$A$1:$F${2 + len(SOFTWARE)}"
 	images = []
-	for title, stem in [("系统框图", "team-system"), ("模块接口框图", "team-datapath")]:
+	for title, stem in [
+		("系统框图", "team-system"),
+		("CPU与缓存框图", "team-cpu-cache"),
+		("加速器内部框图", "team-accelerator"),
+	]:
 		sheet = Sheet(title, [15] * 20, None)
 		sheet.merge("A1", "T1", title + "｜框边端口名、方向与位宽；A/B/C/D为负责人", 1)
 		sheet.heights[1] = 40
@@ -830,7 +847,7 @@ def build():
 	values = [
 		(
 			"使用方式",
-			"主表沿用示例六列：模块名/负责人/端口/方向/位宽/功能；A/B/C/D都有实际RTL模块，其中D负责池化及软硬件联调。右侧是黑白接口框图，框内仅模块名/负责人，框边列端口与位宽；另外两张框图表可单独A3横向打印，主表打印只含A:F，避免框图把端口表压得过小。",
+			"主表沿用示例六列：模块名/负责人/端口/方向/位宽/功能；A/B/C/D都有实际RTL模块，其中D负责池化及软硬件联调。右侧是黑白接口框图，框内仅模块名/负责人，框边列端口与位宽；另外三张框图表可单独A3横向打印，主表打印只含A:F，避免框图把端口表压得过小。",
 		),
 		(
 			"负责人",
@@ -838,7 +855,7 @@ def build():
 		),
 		(
 			"方向和位宽",
-			f"从各RTL模块本身观察in/out。脚本解析当前10个自研模块，共{count}个命名端口，位宽来自声明；signed在功能栏标出。",
+			f"从各RTL模块本身观察in/out。脚本解析当前10个接口评审模块，共{count}个命名端口，位宽来自声明；signed在功能栏标出。",
 		),
 		(
 			"时钟/复位",
@@ -846,7 +863,7 @@ def build():
 		),
 		(
 			"实例与内部数组",
-			"banked_scratch实例4处（X/W各两slot），每实例内部4个物理bank；native_arbiter两处。P/O是det_accelerator内部数组，不能照搬示例中的独立psum_ram/pooling_ram端口。",
+			"banked_scratch实例4处（X/W各两slot），每实例内部4个物理bank；native_arbiter两处。P/O是det_conv_datapath内部数组。",
 		),
 		(
 			"资源口径",
@@ -856,7 +873,15 @@ def build():
 			"验证范围",
 			"仿真主存64KiB程序+64MiB数据；结构综合未包含FPGA布局布线或真实DDR。主机500图精度评价不能写成500图RTL验证，周期比不是板上FPS。",
 		),
-		("参考示例", TEMPLATE.name + "；保留原文件，不覆盖。模板SHA256：" + digest),
+		(
+			"参考示例",
+			TEMPLATE.name
+			+ (
+				"；原文件不覆盖。模板SHA256：" + digest
+				if digest
+				else "；当前未附模板，按已确认六列表头直接生成。"
+			),
+		),
 		(
 			"重新导出",
 			"python3 scripts/export_team_workbook.py；调用scripts/team_schematic.py。无需额外Excel Python库；生成PNG需Pillow与中文字体（微软雅黑或Noto CJK）。Excel已嵌入PNG，直接打开即可。表中真实端口从RTL自动读取，负责人和功能说明在导出脚本中维护。",
@@ -872,14 +897,15 @@ def build():
 		notes.heights[i] = 66
 	notes.print_area = f"$A$1:$F${2 + len(values)}"
 	workbook([main, roles, connections, soft, *images, notes])
-	assert hashlib.sha256(TEMPLATE.read_bytes()).hexdigest() == digest
+	if digest is not None:
+		assert hashlib.sha256(TEMPLATE.read_bytes()).hexdigest() == digest
 	with zipfile.ZipFile(OUTPUT) as z:
 		assert z.testzip() is None
 		for name in z.namelist():
 			if name.endswith((".xml", ".rels")):
 				ET.fromstring(z.read(name))
 	print(
-		f"Exported {OUTPUT.name}: {count} real RTL ports, {len(INTERFACES)} interfaces, 7 worksheets"
+		f"Exported {OUTPUT.name}: {count} real RTL ports, {len(INTERFACES)} interfaces, 8 worksheets"
 	)
 
 

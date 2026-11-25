@@ -9,9 +9,9 @@ for variant in serial no_prefetch; do
 	[[ "$variant" == serial ]] && gather=0
 	[[ "$variant" == no_prefetch ]] && prefetch=0
 	folder="$AI_SOC_ROOT/build/accel_${variant}"
-	verilator --cc --exe --build --assert -Wall -j 2 -Irtl --top-module det_accelerator \
+	verilator --cc --exe --build --assert -Wall -j 2 -Irtl/det_accelerator --top-module det_accelerator \
 		-GENABLE_PREFETCH="$prefetch" -GENABLE_BANKED_GATHER="$gather" --Mdir "$folder" \
-		rtl/*.sv "$AI_SOC_ROOT/tb/accelerator.cpp" -CFLAGS "-O3 -I$AI_SOC_ROOT/tb" \
+		rtl/*.sv rtl/det_accelerator/*.sv "$AI_SOC_ROOT/tb/accelerator.cpp" -CFLAGS "-O3 -I$AI_SOC_ROOT/tb" \
 		>"build/build_${variant}.log" 2>&1 || {
 		cat "build/build_${variant}.log"
 		exit 1
