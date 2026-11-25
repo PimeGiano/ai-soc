@@ -18,13 +18,17 @@ module pool_accelerator (
 );
 	`include "pool_spec.vh"
 
-	typedef enum logic [1:0] {IDLE, SAMPLE, WRITE} state_t;
+	typedef enum logic [1:0] {IDLE, SAMPLE, SCALE, WRITE} state_t;
 	state_t state;
 	reg [31:0] src, dst, height, width, channels, stride;
+	reg [31:0] dst_pitch, q_mult, q_shift;
+	reg strided_output, apply_scale;
 	reg done, error_flag;
 	reg [31:0] oy, ox, channel;
 	reg [1:0] sample_index;
+	reg [1:0] scale_lane;
 	localparam [31:0] PAD = 32'h81818181;
+	localparam [31:0] INT8_MIN = 32'h80808080;
 	reg [31:0] maximum, right_maximum;
 	reg [63:0] cycles;
 	wire busy = state != IDLE;
@@ -36,23 +40,39 @@ module pool_accelerator (
 	wire [31:0] ix = ox * stride + {31'b0, sample_index[1]};
 	wire sample_inside = iy < height && ix < width;
 	wire [31:0] source_address = src + (iy * width + ix) * channels + channel;
-	wire [31:0] output_address = dst + (oy * wo + ox) * channels + channel;
-	wire packed_word = channels[1:0] == 0 && channel + 4 <= channels;
+	wire [31:0] output_pitch = strided_output ? dst_pitch : channels;
+	wire [31:0] output_address = dst + (oy * wo + ox) * output_pitch + channel;
+	wire packed_word = channels[1:0] == 0 && output_pitch[1:0] == 0 && channel + 4 <= channels;
 	wire [31:0] advance = packed_word ? 4 : 1;
 	wire last_channel = channel + advance >= channels;
 	wire last_x = ox + 1 >= wo;
 	wire last_y = oy + 1 >= ho;
 	wire reuse_column = stride == 1 && !last_x;
 	wire [31:0] sample_data = packed_word ? dma_rdata : (dma_rdata >> (8 * source_address[1:0]));
+	wire [31:0] minimum = apply_scale ? INT8_MIN : PAD;
+	wire start_strided = reg_wdata == 2;
+	wire start_scaled = start_strided && !(q_shift < 31 && q_mult == (32'd1 << q_shift));
+	wire [31:0] start_pitch = start_strided ? dst_pitch : channels;
+	wire [63:0] output_pixels = {32'b0, ho} * {32'b0, wo};
 	wire [63:0] input_bytes = {32'b0, height} * {32'b0, width} * {32'b0, channels};
-	wire [63:0] output_bytes = {32'b0, ho} * {32'b0, wo} * {32'b0, channels};
+	wire [63:0] output_bytes = (output_pixels - 64'd1) * {32'b0, start_pitch} + {32'b0, channels};
 	wire bad = src[1:0] != 0 || dst[1:0] != 0 || height == 0 || height > 160 ||
 		width == 0 || width > 160 || channels == 0 || channels > 1024 ||
+		(start_strided && (dst_pitch < channels || dst_pitch > 1024 || q_mult[31] || q_shift > 62)) ||
 		(stride != 1 && stride != 2) || src < 32'h01000000 || dst < 32'h01000000 ||
 		{32'b0, src} + input_bytes > 64'h05000000 ||
 		{32'b0, dst} + output_bytes > 64'h05000000 ||
 		({32'b0, src} < {32'b0, dst} + output_bytes &&
 		 {32'b0, dst} < {32'b0, src} + input_bytes);
+
+	wire signed [7:0] raw_max = maximum[8 * scale_lane +: 8];
+	wire signed [7:0] scaled_max;
+	requant output_scale (
+		.value({{24{raw_max[7]}}, raw_max}),
+		.multiplier(q_mult[30:0]),
+		.shift(q_shift[5:0]),
+		.result(scaled_max)
+	);
 
 	assign reg_ready = reg_valid && !rst;
 	always @* begin
@@ -67,6 +87,10 @@ module pool_accelerator (
 			POOL_REG_STATUS: reg_rdata = {29'b0, error_flag, done, busy};
 			POOL_REG_CYCLES_LO: reg_rdata = cycles[31:0];
 			POOL_REG_CYCLES_HI: reg_rdata = cycles[63:32];
+			POOL_REG_DST_PITCH: reg_rdata = dst_pitch;
+			POOL_REG_Q_MULT: reg_rdata = q_mult;
+			POOL_REG_Q_SHIFT: reg_rdata = q_shift;
+			POOL_REG_CAPABILITIES: reg_rdata = 1;
 			default: reg_rdata = 0;
 		endcase
 	end
@@ -86,12 +110,18 @@ module pool_accelerator (
 			width <= 0;
 			channels <= 0;
 			stride <= 1;
+			dst_pitch <= 0;
+			q_mult <= 0;
+			q_shift <= 0;
+			strided_output <= 0;
+			apply_scale <= 0;
 			done <= 0;
 			error_flag <= 0;
 			oy <= 0;
 			ox <= 0;
 			channel <= 0;
 			sample_index <= 0;
+			scale_lane <= 0;
 			maximum <= PAD;
 			right_maximum <= PAD;
 			cycles <= 0;
@@ -114,11 +144,19 @@ module pool_accelerator (
 										$signed(right_maximum[lane * 8 +: 8]))
 										right_maximum[lane * 8 +: 8] <= sample_data[lane * 8 +: 8];
 								end
-						if (sample_index == 3)
-							state <= WRITE;
-						else
+						if (sample_index == 3) begin
+							scale_lane <= 0;
+							state <= apply_scale ? SCALE : WRITE;
+						end else
 							sample_index <= sample_index + 1;
 					end
+				SCALE: begin
+					maximum[8 * scale_lane +: 8] <= scaled_max;
+					if (!packed_word || scale_lane == 3)
+						state <= WRITE;
+					else
+						scale_lane <= scale_lane + 1;
+				end
 				WRITE:
 					if (dma_ready) begin
 						if (stride == 2 || last_x)
@@ -131,8 +169,8 @@ module pool_accelerator (
 							done <= 1;
 							state <= IDLE;
 						end else begin
-							maximum <= reuse_column ? right_maximum : PAD;
-							right_maximum <= PAD;
+							maximum <= reuse_column ? right_maximum : minimum;
+							right_maximum <= minimum;
 							sample_index <= reuse_column ? 2'd2 : 2'd0;
 							state <= SAMPLE;
 						end
@@ -149,8 +187,11 @@ module pool_accelerator (
 					POOL_REG_W: width <= reg_wdata;
 					POOL_REG_C: channels <= reg_wdata;
 					POOL_REG_STRIDE: stride <= reg_wdata;
+					POOL_REG_DST_PITCH: dst_pitch <= reg_wdata;
+					POOL_REG_Q_MULT: q_mult <= reg_wdata;
+					POOL_REG_Q_SHIFT: q_shift <= reg_wdata;
 					POOL_REG_START:
-						if (reg_wdata == 1) begin
+						if (reg_wdata == 1 || start_strided) begin
 							done <= 0;
 							error_flag <= bad;
 							cycles <= 0;
@@ -158,8 +199,10 @@ module pool_accelerator (
 								oy <= 0;
 								ox <= 0;
 								channel <= 0;
-									maximum <= PAD;
-									right_maximum <= PAD;
+								strided_output <= start_strided;
+								apply_scale <= start_scaled;
+								maximum <= start_scaled ? INT8_MIN : PAD;
+								right_maximum <= start_scaled ? INT8_MIN : PAD;
 									sample_index <= 0;
 									state <= SAMPLE;
 							end

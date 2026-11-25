@@ -22,6 +22,8 @@ void num(uint32_t x);
 void die(const char *s);
 int det_conv(uint32_t desc);
 int det_pool(uint32_t src, uint32_t dst, uint32_t h, uint32_t w, uint32_t c, uint32_t stride);
+int det_pool_strided(uint32_t src, uint32_t dst, uint32_t h, uint32_t w, uint32_t c,
+	uint32_t stride, uint32_t pitch, uint32_t multiplier, uint32_t shift);
 int8_t det_requant(int32_t x, uint32_t m, uint32_t s);
 uint32_t det_hash(const int8_t *p, uint32_t n);
 void det_cpu_conv(const uint32_t *d);

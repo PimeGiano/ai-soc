@@ -19,7 +19,7 @@ from memory import Image
 
 # Rounded INT8 input for each uint8 pixel. Division by 255 cannot tie at half.
 PIXEL_INT8 = ((np.arange(256, dtype=np.uint16) * 127 + 127) // 255).astype(np.int8)
-OP_TYPES = {1: "convolutional", 2: "maxpool", 3: "concat", 4: "slice", 5: "upsample"}
+OP_TYPES = {1: "convolutional", 2: "maxpool", 3: "concat", 4: "slice", 5: "upsample", 6: "concat_pool"}
 
 
 def fnv(x):
@@ -29,13 +29,18 @@ def fnv(x):
 	return h
 
 
-def export(model, mode, photo, size=160, calibration=None):
+def export(model, mode, photo, size=160, calibration=None, fuse_pool=True):
 	out = ROOT / f"build/{model}_{mode}"
 	out.mkdir(parents=True, exist_ok=True)
 	result = ROOT / "results" / f"{model}_{mode}"
 	result.mkdir(parents=True, exist_ok=True)
 	nodes = config(ROOT / f"data/{model}.cfg")
 	whash = weights(ROOT / f"data/{model}.weights", nodes)
+	uses = [0] * len(nodes)
+	for i, node in enumerate(nodes):
+		sources = node["ids"] if node["type"] == "route" else ([i - 1] if i else [])
+		for source in sources:
+			uses[source] += 1
 	pixels, meta = letterbox(photo, size)
 	inputf = pixels.astype(np.float32) / 255.0
 	fp = forward(nodes, inputf)
@@ -48,10 +53,12 @@ def export(model, mode, photo, size=160, calibration=None):
 	image = Image()
 	ops = []
 	manifest = []
+	pool_checks = []
 	arrays = []
 	scales = []
 	addrs = []
 	fusion = {}
+	pool_fusion = {}
 	heads = []
 	xin = PIXEL_INT8[pixels]
 	prev = xin
@@ -193,18 +200,20 @@ def export(model, mode, photo, size=160, calibration=None):
 			)
 			prev = y
 		elif t == "maxpool":
-			y = maxpool(prev, int(n["size"]), int(n["stride"]))
+			kernel, stride = int(n["size"]), int(n["stride"])
+			y = maxpool(prev, kernel, stride)
 			addr = image.put(bytes(y.size + 4))
-			op(
-				2,
-				prevaddr,
-				0,
-				addr,
-				prev.shape,
-				expected=y,
-				layer=i,
-				pool=(int(n["size"]), int(n["stride"])),
-			)
+			if i in pool_fusion:
+				src0, src1, shape0, c1, ms = pool_fusion[i]
+				op(
+					6, src0, src1, addr, shape0, c1=c1, ms=ms, expected=y,
+					layer=i, pool=(kernel, stride),
+				)
+				ref = out / f"pool_{i}.bin"
+				ref.write_bytes(y.tobytes())
+				pool_checks.append(f"{addr} {y.size} {ref}\n")
+			else:
+				op(2, prevaddr, 0, addr, prev.shape, expected=y, layer=i, pool=(kernel, stride))
 			prev = y
 		elif t == "upsample":
 			assert int(n["stride"]) == 2
@@ -293,18 +302,31 @@ def export(model, mode, photo, size=160, calibration=None):
 					m0, s0 = ratio(scales[ids[0]] / outscale)
 					m1, s1 = ratio(scales[ids[1]] / outscale)
 					y = np.concatenate([requant(aa[0], m0, s0), requant(aa[1], m1, s1)], 2)
-					addr = image.put(bytes(y.size + 4))
-					op(
-						3,
-						addrs[ids[0]],
-						addrs[ids[1]],
-						addr,
-						aa[0].shape,
-						c1=aa[1].shape[2],
-						ms=(m0, s0, m1, s1),
-						expected=y,
-						layer=i,
-					)
+					ms = (m0, s0, m1, s1)
+					next_node = nodes[i + 1] if i + 1 < len(nodes) else {}
+					# The next pool must be the sole graph consumer. The second
+					# destination base must remain word-aligned.
+					if (
+						mode == "F"
+						and fuse_pool
+						and uses[i] == 1
+						and next_node.get("type") == "maxpool"
+						and int(next_node["size"]) == 2
+						and int(next_node["stride"]) in (1, 2)
+						and aa[0].shape[2] % 4 == 0
+						and y.shape[2] <= 1024
+						and max(y.shape[:2]) <= 160
+					):
+						pool_fusion[i + 1] = (
+							addrs[ids[0]], addrs[ids[1]], aa[0].shape, aa[1].shape[2], ms
+						)
+						addr = 0
+					else:
+						addr = image.put(bytes(y.size + 4))
+						op(
+							3, addrs[ids[0]], addrs[ids[1]], addr, aa[0].shape,
+							c1=aa[1].shape[2], ms=ms, expected=y, layer=i,
+						)
 				prev = y
 		elif t == "yolo":
 			heads.append((prev.astype(np.float32) * prevscale, n, size, prevaddr, prevscale))
@@ -342,6 +364,7 @@ def export(model, mode, photo, size=160, calibration=None):
 	image.write(out / "model.mem")
 	(out / "checks.txt").write_text(
 		"".join(f"{m['address']} {np.prod(m['shape'])} {m['reference']}\n" for m in manifest)
+		+ "".join(pool_checks)
 	)
 	boxes = decode([(a, n, z) for a, n, z, _, _ in heads])
 	floatboxes = decode([(fp[i], n, size) for i, n in enumerate(nodes) if n["type"] == "yolo"])
@@ -358,8 +381,11 @@ def export(model, mode, photo, size=160, calibration=None):
 		"calibration": list(map(str, calfiles)),
 		"calibration_demo_only": calibration is None,
 		"ops": len(ops),
-		"operator_layers": [{"layer": op[17], "type": OP_TYPES[op[0]]} for op in ops],
+		"operator_layers": [
+			{"layer": op[17], "type": OP_TYPES[op[0]], "hash": op[15]} for op in ops
+		],
 		"fusions": len(fusion),
+		"pool_fusions": sorted(pool_fusion),
 		"allocated_bytes": image.next - 0x01010000,
 		"layers": manifest,
 		"boxes_address": boxesaddr,
@@ -376,6 +402,8 @@ def export(model, mode, photo, size=160, calibration=None):
 		len(ops),
 		"fusions",
 		len(fusion),
+		"pool_fusions",
+		len(pool_fusion),
 		"boxes",
 		len(boxes),
 		"allocated",
@@ -391,6 +419,10 @@ if __name__ == "__main__":
 	a.add_argument("--image", type=Path, default=ROOT / "data/dog.jpg")
 	a.add_argument("--size", type=int, default=160)
 	a.add_argument("--calibration-list", type=Path)
+	a.add_argument(
+		"--disable-pool-fusion", action="store_true",
+		help="materialize concatenation before maxpool in the F graph for comparison",
+	)
 	args = a.parse_args()
 	export(
 		args.model,
@@ -400,4 +432,5 @@ if __name__ == "__main__":
 		[Path(x) for x in args.calibration_list.read_text().splitlines()]
 		if args.calibration_list
 		else None,
+		fuse_pool=not args.disable_pool_fusion,
 	)

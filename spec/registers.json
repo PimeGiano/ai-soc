@@ -105,6 +105,10 @@
     "START": 24,
     "STATUS": 28,
     "CYCLES_LO": 32,
-    "CYCLES_HI": 36
+    "CYCLES_HI": 36,
+    "DST_PITCH": 40,
+    "Q_MULT": 44,
+    "Q_SHIFT": 48,
+    "CAPABILITIES": 52
   }
 }

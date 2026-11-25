@@ -16,7 +16,7 @@ case "$profile" in
 	*) printf 'Profile must be 0 (subgraph), 1 (whole), or 2 (per-layer)\n' >&2; exit 2 ;;
 esac
 export OPENBLAS_NUM_THREADS=2 OMP_NUM_THREADS=2
-python3 scripts/export_model.py --model "$model" --mode "$mode"
+python3 scripts/export_model.py --model "$model" --mode "$mode" "${@:5}"
 bash scripts/build_firmware.sh
 bash scripts/build_soc.sh
 folder="build/${model}_${mode}"

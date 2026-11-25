@@ -77,7 +77,7 @@ Path("results/cache_synthesis.json").write_text(json.dumps({
 print("Instruction cache structure PASS: 1024B data + 192B tags + 32B valid bits")
 PY_CACHE
 
-yosys -Q -T -p 'read_verilog -sv -Irtl/det_accelerator rtl/det_accelerator/pool_accelerator.sv; hierarchy -check -top pool_accelerator; proc; opt; check; stat -json' >build/synth/pool.log 2>&1
+yosys -Q -T -p 'read_verilog -sv -Irtl/det_accelerator rtl/det_accelerator/pool_accelerator.sv rtl/det_accelerator/requant.sv; hierarchy -check -top pool_accelerator; proc; opt; check; stat -json' >build/synth/pool.log 2>&1
 python3 - <<'PY_POOL'
 import json
 from pathlib import Path

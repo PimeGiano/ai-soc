@@ -2,7 +2,7 @@
 
 当前保留16个INT8 MAC、INT32累加、模型、量化、描述符与8×8/16/16分块规则，优化计算和搬运的组织方式。X/W扩展为双slot并各自四路分bank，卷积scratch用满原定40KiB预算。PicoRV32第三方源码未改动。
 
-本轮结果见[开源模型对照](#10-本轮优化与开源模型对照)，历史测量见[性能表](../results/performance.md)与[JSON](../results/performance.json)。原版记录在performance_baseline.json，上一轮4拍供数版本记录在performance_stage1.json。不要把原版、上一轮与当前版本的M/F百分比混用；当前也优化了CPU物化路径。
+论文方法的新增结果见[拼接池化消融](#11-论文方法实验消除拼接到最大池化的中间张量)，上一轮结果见[开源模型对照](#10-本轮优化与开源模型对照)，历史测量见[性能表](../results/performance.md)与[JSON](../results/performance.json)。原版记录在performance_baseline.json，上一轮4拍供数版本记录在performance_stage1.json。不要把原版、上一轮与当前版本的M/F百分比混用；当前也优化了CPU物化路径。
 
 ## 1. 四路分bank与行旋转
 
@@ -141,3 +141,44 @@ ENABLE_BANKED_GATHER和ENABLE_PREFETCH是加速器编译参数；ENABLE_ICACHE�
 两种模型的 F 图也在 delay=3 通过逐层验证，输出框逐字节相同。独立池化验证 stride 1 的读取数为 `(2H−1)×W×groups`，stride 2 为 `H×W×groups`，其中四通道打包时 `groups=C/4`，尾部兼容路径下为 C。Yosys 保留 40 KiB 卷积 scratch，板级频率和功耗待物理实现。卷积至池化的片上流接口、宽 DMA 和更大 MAC 阵列仍待验证。
 
 同一 COCO 500 张子集和 160 输入的**主机精度对照**中，YOLOv3-tiny 的 FP32/INT8 AP 为 3.80%/3.33%，YOLOv4-tiny 为 11.56%/10.15%。它们使用主机解码和 0.001 置信度阈值。另一代轻量模型 YOLOX-Nano 可作为公开架构参照，官方在 416 输入下报告 25.8% COCO val AP、0.91M 参数和 1.08 GFLOPs。YOLOX-Nano 的分辨率、评估口径和算子均不同，本项目 RTL 周期表只覆盖上述两种 Darknet 模型。 [YOLOv3-tiny 精度](../results/yolov3-tiny_coco/metrics.json) · [YOLOv4-tiny 精度](../results/yolov4-tiny_coco/metrics.json) · [YOLOX 官方模型表](https://github.com/Megvii-BaseDetection/YOLOX/blob/main/docs/model_zoo.md)
+
+## 11. 论文方法实验：消除拼接到最大池化的中间张量
+
+选用 Niu 等人在 PLDI 2021 发表的 **DNNFusion**。论文第 4.2 节利用算子的数学性质重写计算图，为融合和消除中间拷贝创造条件。本实验采用该方法，为本项目的定点重定标、通道拼接和最大池化推导一条规则。TASO（SOSP 2019）的自动图替换也是相关方法，本实验使用一条可单独验证和消融的导出规则。 [DNNFusion 原文，第 4.2 节](https://www.cs.wm.edu/~bren/Scholarship/2.Peer-Reviewed-Conferences/1.PLDI21.pdf) · [TASO 原文](https://theory.stanford.edu/~aiken/publications/papers/sosp19.pdf)
+
+### 从论文方法到本项目
+
+对于相同空间尺寸的 INT8 输入 A、B，按通道拼接的每个通道只来自一路。最大池化也只在同一通道的空间窗口内比较。对每路输入，现有重定标函数 Q 使用非负乘数、固定移位、半值远离零舍入和整数饱和，因此单调不减，在有效样本非空的窗口内有 `max(Q(x)) = Q(max(x))`。现有池化 padding 为 −127，而 Q 的输出下界也是 −127，因此可以先对有效样本取最大值再重定标。若有效样本全为 −128，需要保留 −128 直到重定标。
+
+~~~text
+改写前  Pool2x2(Concat_c(Q0(A), Q1(B)))
+改写后  Concat_c(Q0(PoolValid2x2(A)), Q1(PoolValid2x2(B)))
+~~~
+
+导出器仅在拼接结果只有一个消费者、该消费者为支持的 2×2 最大池化、目标通道偏移满足对齐要求时改写。固件将两路分别提交给同一个池化引擎，目标像素步幅固定为两路通道数之和，写回基址分别为 `DST` 和 `DST+C0`。最后的拼接由硬件写地址实现。非恒等尺度使用一个串行共享的重定标单元，按通道处理；恒等尺度沿用原来的比较和写回路径。两路输入和池化输出直接通过 DMA 访问主存。 [导出器](../scripts/export_model.py) · [池化 RTL](../rtl/det_accelerator/pool_accelerator.sv) · [接口](interfaces.md)
+
+### 实验口径
+
+在同一 RTL、固件、`dog.jpg`、160×160 INT8 输入、模型权重、量化尺度和 MAC 分块下对照。两组都保留原有上采样与卷积融合，只切换新增的拼接池化规则。整网 ROI 不含前后处理、哈希校验或打印。融合子图的周期使用逐算子 ROI，关闭时求三个拼接和三个池化的周期之和，启用时求三个融合任务之和。流量按 CPU 数据加 DMA 的读写字节计，另列指令流量时单独说明。
+
+重新运行可以使用以下命令。两次运行共用结果目录，保存第一组结果再运行第二组。第 4 个位置参数 `1` 测整网，换为 `2` 可读取逐算子数据及导出清单中的 `operator_layers`。将等待上限从 `0` 改成 `3` 可重跑随机访存等待对照。
+
+~~~bash
+bash scripts/run_model.sh yolov4-tiny F 0 1 --disable-pool-fusion
+bash scripts/run_model.sh yolov4-tiny F 0 1
+~~~
+
+### 性能结果
+
+| YOLOv4-tiny F | 关闭 → 启用，周期 | 加速 | CPU 数据 + DMA 字节，关闭 → 启用 |
+|---|---:|---:|---:|
+| 整网，delay=0 | 64,782,206 → 56,466,917 | 1.147× | 27,094,243 → 25,630,423 |
+| 整网，delay=3 | 68,822,794 → 59,941,471 | 1.148× | 27,094,243 → 25,630,423 |
+| 拼接 8 → 池化 9，delay=0 | 4,913,640 → 90,200 | 54.475× | 1,097,084 → 256,148 |
+| 拼接 16 → 池化 17，delay=0 | 2,372,524 → 45,396 | 52.263× | 544,044 → 128,148 |
+| 拼接 24 → 池化 25，delay=0 | 1,187,766 → 22,994 | 51.655× | 271,124 → 64,148 |
+| 三个子图合计，delay=0 | 8,473,930 → 158,590 | 53.433× | 1,912,252 → 448,444 |
+
+YOLOv4-tiny 匹配 3 处，图操作数从 33 减到 30，分配从 7,862,212 减到 7,503,476 字节。整网 DMA 事务数和字节数一致，减少的总流量来自 CPU 物化路径。YOLOv3-tiny 没有匹配子图，开关两侧的模型镜像逐字节一致，使用同一仿真器和固件实测整网 40,809,261 周期。
+
+两种等待设置下，YOLOv4-tiny 整网逐层校验通过，公共算子输出哈希与检测框逐字节一致。开启时额外逐字节核对三个融合池化输出，检测框通过独立 NumPy 参考校验。随机池化测试覆盖非恒等舍入、全 −128、两种 stride、非对齐输出步幅、尾部写选通及非法配置。Yosys 确认池化没有新增 scratch SRAM，卷积 scratch 仍为 40 KiB。此处的加速为周期比，新增重定标单元的 FPGA 资源和时序需要板级验证。

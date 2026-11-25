@@ -136,6 +136,14 @@ static void slice(const uint32_t *o)
 		memcpy(y + p * o[7], x + p * o[6] + o[8], o[7]);
 }
 
+static void concat_pool(const uint32_t *o)
+{
+	uint32_t c0 = o[6], c1 = o[7], pitch = c0 + c1;
+	if (det_pool_strided(o[1], o[3], o[4], o[5], c0, o[19], pitch, o[10], o[11]) ||
+		det_pool_strided(o[2], o[3] + c0, o[4], o[5], c1, o[19], pitch, o[12], o[13]))
+		die("concat pool accelerator");
+}
+
 extern void det_postprocess(const uint32_t *header);
 
 static void upsample(const uint32_t *o)
@@ -202,6 +210,8 @@ int main(void)
 			slice(o);
 		else if (o[0] == 5)
 			upsample(o);
+		else if (o[0] == 6 && mode != 2)
+			concat_pool(o);
 		else
 			die("op");
 

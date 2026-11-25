@@ -9,3 +9,7 @@
 	localparam [7:0] POOL_REG_STATUS = 8'd28;
 	localparam [7:0] POOL_REG_CYCLES_LO = 8'd32;
 	localparam [7:0] POOL_REG_CYCLES_HI = 8'd36;
+	localparam [7:0] POOL_REG_DST_PITCH = 8'd40;
+	localparam [7:0] POOL_REG_Q_MULT = 8'd44;
+	localparam [7:0] POOL_REG_Q_SHIFT = 8'd48;
+	localparam [7:0] POOL_REG_CAPABILITIES = 8'd52;

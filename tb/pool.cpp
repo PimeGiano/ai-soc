@@ -1,6 +1,7 @@
 #include "Vpool_accelerator.h"
 #include "verilated.h"
 #include "memory.hpp"
+#include "../firmware/spec.h"
 #include <algorithm>
 #include <random>
 
@@ -12,7 +13,8 @@ int main(int argc, char **argv)
 		Memory mem;
 		std::mt19937 rng(20261108);
 		uint64_t cycles = 0, reads = 0, writes = 0;
-		uint32_t out = 0, bytes = 0, held_addr = 0, held_data = 0;
+		uint32_t out = 0, bytes = 0, output_pitch = 0, output_channels = 0;
+		uint32_t held_addr = 0, held_data = 0;
 		uint8_t held_strobe = 0;
 		int left = -1;
 		auto tick = [&]() {
@@ -35,7 +37,8 @@ int main(int argc, char **argv)
 					if (t.dma_wstrb) {
 						for (unsigned lane = 0; lane < 4; lane++)
 							if (t.dma_wstrb & (1 << lane)) {
-								if (t.dma_addr + lane < out || t.dma_addr + lane >= out + bytes)
+								uint32_t offset = t.dma_addr + lane - out;
+								if (offset >= bytes || offset % output_pitch >= output_channels)
 									throw std::runtime_error("pool write outside tensor");
 								writes++;
 							}
@@ -78,16 +81,28 @@ int main(int argc, char **argv)
 			return t.reg_rdata;
 		};
 		reset();
-		for (unsigned job = 0; job < 100; job++) {
+		for (unsigned job = 0; job < 124; job++) {
 			unsigned h = 1 + rng() % 17, w = 1 + rng() % 19;
 			unsigned choices[] = {1, 3, 4, 7, 16, 33};
 			unsigned c = choices[job % 6], stride = 1 + job % 2;
+			bool strided = job >= 100 && job % 5 != 0;
+			unsigned mult[] = {1, 5, 0, 0x7fffffff, 3, 1};
+			unsigned shifts[] = {0, 3, 62, 30, 1, 62};
+			unsigned quant = job >= 100 ? (job - 100) / 4 : 0;
+			uint32_t m = mult[quant], s = shifts[quant];
+			if (job == 101) {
+				m = 5;
+				s = 3;
+				stride = 1;
+			}
 			unsigned ho = (h - 1) / stride + 1, wo = (w - 1) / stride + 1;
 			uint32_t src = 0x01010000;
 			out = 0x01100000;
-			bytes = ho * wo * c;
+			output_channels = c;
+			output_pitch = strided ? c + (job % 4 == 0 ? 3 : 4) : c;
+			bytes = (ho * wo - 1) * output_pitch + c;
 			for (unsigned i = 0; i < h * w * c; i++)
-				mem.at(src + i) = uint8_t(rng());
+				mem.at(src + i) = job == 101 ? 128 : uint8_t(rng());
 			for (unsigned i = 0; i <= bytes; i++)
 				mem.at(out + i) = 0x55;
 			auto configure = [&]() {
@@ -97,7 +112,12 @@ int main(int argc, char **argv)
 				wr(12, w);
 				wr(16, c);
 				wr(20, stride);
-				wr(24, 1);
+				if (strided) {
+					wr(POOL_REG_DST_PITCH, output_pitch);
+					wr(POOL_REG_Q_MULT, m);
+					wr(POOL_REG_Q_SHIFT, s);
+				}
+				wr(24, strided ? 2 : 1);
 			};
 			configure();
 			uint64_t start = cycles;
@@ -114,9 +134,9 @@ int main(int argc, char **argv)
 				} else
 					tick();
 			}
-			if (status() != 2 || writes != bytes)
+			if (status() != 2 || writes != ho * wo * c)
 				throw std::runtime_error("pool completion/count mismatch");
-			unsigned groups = c % 4 == 0 ? c / 4 : c;
+			unsigned groups = c % 4 == 0 && output_pitch % 4 == 0 ? c / 4 : c;
 			unsigned input_rows = stride == 1 ? 2 * h - 1 : h;
 			if (reads - start_reads != uint64_t(input_rows) * w * groups)
 				throw std::runtime_error("pool window reuse/read count mismatch");
@@ -126,17 +146,25 @@ int main(int argc, char **argv)
 						int expected = -127;
 						for (unsigned ky = 0; ky < 2; ky++)
 							for (unsigned kx = 0; kx < 2; kx++)
-								if (y * stride + ky < h && x * stride + kx < w)
-									expected = std::max(expected,
-										int(int8_t(mem.at(src +
-											((y * stride + ky) * w + x * stride + kx) * c + ch))));
-						if (int8_t(mem.at(out + (y * wo + x) * c + ch)) != expected)
+								if (y * stride + ky < h && x * stride + kx < w) {
+									auto at = ((y * stride + ky) * w + x * stride + kx) * c + ch;
+									int sample = int8_t(mem.at(src + at));
+									if (strided) {
+										int64_t mag = int64_t(std::abs(sample)) * m;
+										if (s)
+											mag = (mag + (int64_t(1) << (s - 1))) >> s;
+										int clipped = int(std::min(mag, int64_t(127)));
+										sample = sample < 0 ? -clipped : clipped;
+									}
+									expected = std::max(expected, sample);
+								}
+						if (int8_t(mem.at(out + (y * wo + x) * output_pitch + ch)) != expected)
 							throw std::runtime_error("pool numerical mismatch");
 					}
 			if (mem.at(out + bytes) != 0x55 || (job == 99 && !reset_done))
 				throw std::runtime_error("pool tail/reset coverage mismatch");
 		}
-		for (unsigned invalid = 0; invalid < 5; invalid++) {
+		for (unsigned invalid = 0; invalid < 9; invalid++) {
 			wr(0, 0x01010000);
 			wr(4, 0x01100000);
 			wr(8, 2);
@@ -153,15 +181,22 @@ int main(int argc, char **argv)
 				wr(20, 3);
 			if (invalid == 4)
 				wr(0, 0x04fffffc);
+			if (invalid >= 5) {
+				wr(POOL_REG_DST_PITCH, invalid == 5 ? 3 : 8);
+				wr(POOL_REG_Q_MULT, invalid == 6 ? 0x80000000u : 5);
+				wr(POOL_REG_Q_SHIFT, invalid == 7 ? 63 : 3);
+				if (invalid == 8)
+					wr(4, 0x04fffff0);
+			}
 			uint64_t before = reads;
-			wr(24, 1);
+			wr(24, invalid >= 5 ? 2 : 1);
 			for (int i = 0; i < 4; i++)
 				tick();
 			if (status() != 4 || reads != before)
 				throw std::runtime_error("invalid pool descriptor accepted");
 		}
 		t.final();
-		std::cout << "POOL PASS cases=100 invalid=5 tail/stride/wait/reset cycles=" << cycles
+		std::cout << "POOL PASS cases=124 invalid=9 tail/stride/scale/wait/reset cycles=" << cycles
 				  << "\n";
 		return 0;
 	} catch (const std::exception &e) {

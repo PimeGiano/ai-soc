@@ -97,5 +97,9 @@
 #define POOL_REG_STATUS 28u
 #define POOL_REG_CYCLES_LO 32u
 #define POOL_REG_CYCLES_HI 36u
+#define POOL_REG_DST_PITCH 40u
+#define POOL_REG_Q_MULT 44u
+#define POOL_REG_Q_SHIFT 48u
+#define POOL_REG_CAPABILITIES 52u
 
 #endif

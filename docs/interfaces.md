@@ -126,11 +126,13 @@ I4在det_accelerator内部：X/W各两组8KiB，每组由四个512×32位bank组
 
 ## 6. 固件图与系统ROI
 
-图头16字在0x01008000：magic=0x44455431、nops、ops_addr、mode(2纯CPU卷积/其余硬件)、nheads、heads_addr、boxes_addr、whole_roi，其余0。操作每24字，具体注释在firmware/main.c：type1卷积、2池化、3转换拼接、4通道切片、5上采样；包含来源/目标、形状、参数、描述符、预期哈希/字节数、层号和ROI边界。检查数据只用于执行后的验证，不参与推理计算。
+图头 16 字位于 0x01008000，依次包含 magic=0x44455431、nops、ops_addr、mode（2 为纯 CPU 卷积）、nheads、heads_addr、boxes_addr、profile，其余为 0。24 字操作记录包含来源/目标、形状、参数、描述符、预期哈希/字节数、层号和 ROI 边界。type1 是卷积，2 是池化，3 是转换拼接，4 是通道切片，5 是上采样，6 是按分支复用池化引擎的融合拼接池化。
+
+type6 通过 src0/src1 指向两路已有张量，用 H/W/C0/C1 描述它们的共同空间形状与各自通道数，用 M0/S0、M1/S1 将两路转换到共同输出尺度。固件提交两次池化，使用相同 stride 和目标像素步幅 C0+C1，写入基址分别为 DST 和 DST+C0。完成两个任务后，下游读取完整的 NHWC 池化输出。
 
 16字检测头记录布局见export_model.py；输出为count uint32后接最多100个24字节Box（5个float32坐标/score，uint32类别）。CPU解码与NumPy按3e-4容差比较，NaN不接受。
 
-ROI写0x20000008：bit31开始/结束，低16位ID，其余0，不嵌套。开始完成后清计数并开启，结束完成时冻结；标记事务排除。分类CPU_DATA、CPU_IFETCH、DMA，完成读计4字节，写计popcount(wstrb)。融合子图从M开始上采样或F配置前，到同一卷积输出完成且驱动返回；哈希检查/打印在ROI外。whole_roi=1时取消子图标记并用65534测整网，解码/NMS单独用65533。ROI是仿真设施，不作为可综合计数外设计入资源。
+ROI 写 0x20000008，bit31 表示开始或结束，低 16 位是 ID，ROI 之间不嵌套。标记事务从计数中排除。交易按 CPU_DATA、CPU_IFETCH 和 DMA 分类，完成读计 4 字节，写计 popcount(wstrb)。profile=0 使用图中的融合卷积子图标记，profile=1 用 65534 测量整网，profile=2 用 4096 加操作索引逐算子测量。解码和 NMS 单独用 65533，哈希检查与打印在 ROI 外。
 
 阶段计数器在START/复位清零，BUSY时每拍恰好增加一组，完成后六组之和等于JOB_CYCLES。READ_DISPATCH/READ_BUS归入read_return对应的阶段，包含总线等待。COMPUTE_CYCLES单独统计实际core_step；因MAC与GATHER重叠，不能再与六组相加。WRITE_BYTES仍统计有效字节数，整字写一次增加4。
 
@@ -147,10 +149,15 @@ ROI写0x20000008：bit31开始/结束，低16位ID，其余0，不嵌套。开�
 | 0x00 / 0x04 | SRC / DST | 对齐的NHWC INT8输入/输出地址 |
 | 0x08 / 0x0c / 0x10 | H / W / C | 1..160、1..160、1..1024 |
 | 0x14 | STRIDE | 1或2；kernel固定2×2 |
-| 0x18 | START | 写1启动，校验失败不发DMA |
+| 0x18 | START | 写 1 启动连续 NHWC 池化，写 2 启动跨步幅写回与重定标，校验失败不发 DMA |
 | 0x1c | STATUS | bit0忙、bit1完成、bit2错误；下次START清状态 |
 | 0x20 / 0x24 | CYCLES_LO/HI | 完成后读取64位忙周期 |
+| 0x28 | DST_PITCH | START=2 的目标像素步幅，单位字节，C..1024 |
+| 0x2c / 0x30 | Q_MULT / Q_SHIFT | START=2 的非负 31 位乘数与 0..62 右移位数 |
+| 0x34 | CAPABILITIES | 只读，bit0 表示支持 START=2 |
 
-源/目标必须位于数据区，范围不溢出且不重叠。配置写必须完整32位且地址对齐；忙期间配置写被忽略并置错误。输出高宽为floor((H-1)/stride)+1，右/下越界取-127。C为4的倍数时四通道比较与整字写回，否则逐字节回退。源/目标始终按对齐字访问，尾部用wstrb保护。
+源和目标基址须字对齐，位于数据区且区间互不重叠。START=2 校验的输出区间包含跨步幅空隙，跨度为 `(Hout×Wout−1)×DST_PITCH+C`。输出写只选本分支的 C 个字节。C 和输出步幅均为 4 的倍数时使用四通道打包，否则逐字节访问。输出高宽为 floor((H−1)/stride)+1 和 floor((W−1)/stride)+1。
+
+普通任务以 −127 为比较初值。带非恒等重定标的任务以 −128 为初值，仅对有效样本取最大值，再用与卷积一致的舍入和饱和规则重定标。每个输出窗口至少有一个有效样本，重定标结果不低于 −127，等价于先重定标有效输入再做 −127 填充池化。START=1 忽略扩展配置。
 
 firmware的type2操作在mode!=2、kernel=2时调用det_pool；mode=2或其他kernel保留CPU实现，因此B0仍是CPU卷积/池化基线。未将池化与卷积融合为同一个流式流水。

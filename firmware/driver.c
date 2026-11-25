@@ -53,9 +53,17 @@ int det_conv(uint32_t desc)
 	return (s & 2) && !(s & 12) ? 0 : -(int)(MMIO(DET_REG_ERROR_CODE) + 10);
 }
 
-int det_pool(uint32_t src, uint32_t dst, uint32_t h, uint32_t w, uint32_t c, uint32_t stride)
+static int pool_run(uint32_t src, uint32_t dst, uint32_t h, uint32_t w, uint32_t c,
+	uint32_t stride, uint32_t pitch, uint32_t multiplier, uint32_t shift)
 {
 	volatile uint32_t *p = (volatile uint32_t *)POOL_BASE;
+	if (pitch) {
+		if (!(p[POOL_REG_CAPABILITIES / 4] & 1u))
+			return -2;
+		p[POOL_REG_DST_PITCH / 4] = pitch;
+		p[POOL_REG_Q_MULT / 4] = multiplier;
+		p[POOL_REG_Q_SHIFT / 4] = shift;
+	}
 	p[POOL_REG_SRC / 4] = src;
 	p[POOL_REG_DST / 4] = dst;
 	p[POOL_REG_H / 4] = h;
@@ -63,7 +71,7 @@ int det_pool(uint32_t src, uint32_t dst, uint32_t h, uint32_t w, uint32_t c, uin
 	p[POOL_REG_C / 4] = c;
 	p[POOL_REG_STRIDE / 4] = stride;
 	det_fence();
-	p[POOL_REG_START / 4] = 1;
+	p[POOL_REG_START / 4] = pitch ? 2 : 1;
 	uint32_t start = ticks(), status;
 	do {
 		status = p[POOL_REG_STATUS / 4];
@@ -72,6 +80,17 @@ int det_pool(uint32_t src, uint32_t dst, uint32_t h, uint32_t w, uint32_t c, uin
 	} while (status & 1);
 	det_fence();
 	return (status & 2) && !(status & 4) ? 0 : -1;
+}
+
+int det_pool(uint32_t src, uint32_t dst, uint32_t h, uint32_t w, uint32_t c, uint32_t stride)
+{
+	return pool_run(src, dst, h, w, c, stride, 0, 0, 0);
+}
+
+int det_pool_strided(uint32_t src, uint32_t dst, uint32_t h, uint32_t w, uint32_t c,
+	uint32_t stride, uint32_t pitch, uint32_t multiplier, uint32_t shift)
+{
+	return pool_run(src, dst, h, w, c, stride, pitch, multiplier, shift);
 }
 
 int8_t det_requant(int32_t x, uint32_t m, uint32_t s)
